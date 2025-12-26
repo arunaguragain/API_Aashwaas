@@ -7,24 +7,16 @@ const passwordSchema = z
   .regex(/[a-z]/, {message:"Must include at least one lowercase letter"})
   .regex(/[0-9]/, {message:"Must include at least one number"});
 
-const emailSchema= z
-//   .string()
-//   .trim()
-  .email("Enter a valid email")
-  .refine((email) => email.endsWith("@gmail.com"), {
-    message: "Only @gmail.com emails are allowed",})
-
-
 export const loginSchema = z.object({
-    email: emailSchema,
+    email:z.email({ message: "Enter a valid email" }),
     password: passwordSchema
 });
-export type LoginType = z.infer<typeof loginSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
 
 
 export const registerSchema = z.object({
     name: z.string().min(2, { message: "Enter your full name" }),
-    email: emailSchema,
+    email: z.email({ message: "Enter a valid email" }),
     password: passwordSchema,
     confirmPassword: z.string(),
 }).refine((v) => v.password === v.confirmPassword, {
