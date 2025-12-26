@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-sky-50 to-indigo-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
           <Image
@@ -14,6 +14,12 @@ export default function Home() {
             height={150}
             className="object-contain"
           />
+          {/* <Link
+            href="/admin_login"
+            className="text-gray-700 hover:text-gray-900 font-medium"
+          >
+            About Us
+          </Link> */}
           <Link
             href="/admin_login"
             className="text-gray-700 hover:text-gray-900 font-medium"
