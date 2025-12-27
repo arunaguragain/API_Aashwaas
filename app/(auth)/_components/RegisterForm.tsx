@@ -41,12 +41,14 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
   const buttonGradient = buttonGradientMap[userType];
 
   const onSubmitForm = async (data: RegisterData) => {
-    await new Promise((r) => setTimeout(r, 900));
-    if (onSubmit) onSubmit(data);
-
-    const path = userType.toLowerCase();
-    router.push(`/${path}`);
-  };
+  await new Promise((r) => setTimeout(r, 900));
+  if (onSubmit) onSubmit(data);
+  if (userType === "Donor") {
+    router.push("/donor_login");
+  } else if (userType === "Volunteer") {
+    router.push("/volunteer_login");
+  }
+};
 
   return (
     <div className="w-full max-w-4xl mx-auto relative px-4 sm:px-6 lg:px-0">

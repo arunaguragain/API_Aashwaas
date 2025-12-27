@@ -59,8 +59,9 @@ export default function LoginForm({
   const onSubmitForm = async (data: LoginData) => {
     await new Promise((r) => setTimeout(r, 900));
     if (onSubmit) onSubmit(data);
-    router.push(`/${userType.toLowerCase()}`);
+    router.push("/auth/dashboard");
   };
+
 
   return (
     <div className="w-full max-w-3xl mx-auto relative px-4 sm:px-6 lg:px-0">
