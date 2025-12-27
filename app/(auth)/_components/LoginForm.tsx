@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginSchema, LoginData } from "../schema";
 import { Shield, Heart, Users, Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 
 interface LoginFormProps {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -37,9 +38,6 @@ export default function LoginForm({
     mode: "onTouched",
     defaultValues: { email: "", password: "" }
   });
-
-  const watchEmail = watch("email");
-  const watchPassword = watch("password");
 
   const iconMap = { Admin: Shield, Donor: Heart, Volunteer: Users } as const;
   const gradientMap: Record<string, string> = {
@@ -99,7 +97,7 @@ export default function LoginForm({
                 {...register("email")}
                 onBlur={() => trigger("email")}
                 className={`w-full h-14 lg:h-16 px-4 text-base lg:text-lg rounded-2xl border-2 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white transition-all ${
-                  errors.email && (touchedFields.email || isSubmitted) ? 'border-red-400 focus:ring-2 focus:ring-red-500' : 'border-gray-200 focus:ring-2'
+                  errors.email && (touchedFields.email || isSubmitted) ? 'border-red-400 focus:ring-2 focus:ring-red-500' : 'border-gray-500 focus:ring-2'
                 }`}
               />
               {errors.email && (touchedFields.email || isSubmitted) && <p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>}
@@ -120,7 +118,7 @@ export default function LoginForm({
                     }
                   }}
                   className={`w-full h-12 px-4 pr-12 text-sm rounded-xl border-2 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white transition-all ${
-                    errors.password && (touchedFields.password || isSubmitted) ? 'border-red-400 focus:ring-2 focus:ring-red-500' : 'border-gray-200 focus:ring-2'
+                    errors.password && (touchedFields.password || isSubmitted) ? 'border-red-400 focus:ring-2 focus:ring-red-500' : 'border-gray-500 focus:ring-2'
                   }`}
                 />
                 <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1.5 hover:bg-gray-100 rounded-lg">
@@ -141,7 +139,6 @@ export default function LoginForm({
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </button>
 
-            {/* Admin security notice (kept small & simple) */}
             {userType === "Admin" && (
               <div className="mt-4 p-4 rounded-xl bg-linear-to-br from-purple-50 to-violet-50 border border-purple-100">
                 <div className="flex gap-3 items-start">
@@ -156,10 +153,15 @@ export default function LoginForm({
               </div>
             )}
 
+            
+
             {showGoogleSignIn && (
-              <div className="mt-4">
-                <button type="button" className="w-full h-12 rounded-xl border-2 border-gray-200 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all">Continue with Google</button>
-              </div>
+              <button
+              type="button"
+              className="w-full h-12 rounded-xl border border-gray-800 flex items-center justify-center gap-3 text-sm bg-black/10 hover:shadow-sm transition">
+             <FcGoogle className="w-5 h-5" />
+              <span className="font-medium text-gray-700">Continue with Google</span>
+            </button>
             )}
 
             {registerLink && (

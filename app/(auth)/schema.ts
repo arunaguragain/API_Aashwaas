@@ -17,8 +17,10 @@ export type LoginData = z.infer<typeof loginSchema>;
 export const registerSchema = z.object({
     name: z.string().min(2, { message: "Enter your full name" }),
     email: z.email({ message: "Enter a valid email" }),
+    phone: z.string().min(10, { message: "Enter a valid phone number" }),
     password: passwordSchema,
     confirmPassword: z.string(),
+    tos: z.boolean().refine((v) => v === true, { message: "You must agree to the Terms & Conditions" }),
 }).refine((v) => v.password === v.confirmPassword, {
         path: ["confirmPassword"],
         message: "Passwords do not match",
