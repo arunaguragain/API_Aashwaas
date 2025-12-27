@@ -1,7 +1,6 @@
 "use client";
 import { ReactNode } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Shield, Users, Heart, ArrowLeft } from "lucide-react";
 
@@ -9,183 +8,133 @@ interface AuthLayoutProps {
   children: ReactNode;
 }
 
+const USER_CONFIGS = {
+  admin: {
+    icon: Shield,
+    colors: {
+      gradient: "from-purple-600 via-violet-600 to-indigo-700",
+      bg: "from-purple-200 via-purple-300 to-purple-100",
+      heading: "text-purple-900",
+      body: "text-purple-800",
+      feature: "text-purple-700",
+      border: "border-purple-200",
+    },
+    content: {
+      login: "Welcome Back, Admin!",
+      register: "Create Admin Account",
+      description: "Manage the donation ecosystem with comprehensive oversight and control.",
+    },
+    features: [
+      { text: 'Complete NGO management', icon: '🏛️' },
+      { text: 'Real-time analytics dashboard', icon: '📊' },
+      { text: 'Advanced security protocols', icon: '🔒' }
+    ]
+  },
+  volunteer: {
+    icon: Users,
+    colors: {
+      gradient: "from-green-600 via-emerald-600 to-teal-700",
+      bg: "from-green-100 via-emerald-100 to-teal-100",
+      heading: "text-emerald-900",
+      body: "text-emerald-800",
+      feature: "text-emerald-700",
+      border: "border-emerald-200",
+    },
+    content: {
+      login: "Welcome Back, Volunteer!",
+      register: "Join as a Volunteer",
+      description: "Join our community of dedicated volunteers making real change happen.",
+    },
+    features: [
+      { text: 'Flexible task management', icon: '📋' },
+      { text: 'Track volunteer hours & impact', icon: '⏱️' },
+      { text: 'Community recognition', icon: '🏆' }
+    ]
+  },
+  donor: {
+    icon: Heart,
+    colors: {
+      gradient: "from-blue-600 via-cyan-600 to-sky-700",
+      bg: "from-sky-100 via-cyan-100 to-blue-100",
+      heading: "text-sky-900",
+      body: "text-sky-800",
+      feature: "text-sky-700",
+      border: "border-sky-200",
+    },
+    content: {
+      login: "Welcome Back, Donor!",
+      register: "Become a Donor",
+      description: "Transform lives through your generous donations to verified organizations.",
+    },
+    features: [
+      { text: 'Easy donation tracking', icon: '❤️' },
+      { text: 'Verified NGO network', icon: '✓' },
+      { text: 'Impact visualization', icon: '📊' }
+    ]
+  }
+} as const;
+
 export default function AuthLayout({ children }: AuthLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   
-  const getPageConfig = () => {
-    // Check for login pages
-    if (pathname?.includes('admin')) {
-      return {
-        userType: 'admin' as const,
-        title: 'Administrative Control',
-        subtitle: 'Secure Portal',
-        description: 'Manage the donation ecosystem with comprehensive oversight and control.',
-        features: [
-          { text: 'Complete NGO management', icon: '⛫' },
-          { text: 'Real-time analytics dashboard', icon: '📈' },
-          { text: 'Advanced security protocols', icon: '⛉' }
-        ]
-      };
-    }
-    
-    if (pathname?.includes('volunteer')) {
-      return {
-        userType: 'volunteer' as const,
-        title: 'Welcome Back, Volunteer!',
-        subtitle: 'Make an Impact',
-        description: 'Join our community of dedicated volunteers making real change happen.',
-        features: [
-          { text: 'Flexible task management', icon: '🗒' },
-          { text: 'Track volunteer hours & impact', icon: '⏱' },
-          { text: 'Community recognition', icon: '𐃯' }
-        ]
-      };
-    }
-    
-    if (pathname?.includes('donor')) {
-      return {
-        userType: 'donor' as const,
-        title: 'Welcome Back, Donor!',
-        subtitle: 'Give with Confidence',
-        description: 'Transform lives through your generous donations to verified organizations.',
-        features: [
-          { text: 'Easy donation tracking', icon: '♡' },
-          { text: 'Verified NGO network', icon: '✓' },
-          { text: 'Impact visualization', icon: '📈' }
-        ]
-      };
-    }
-    
-    return {
-      userType: 'admin' as const,
-      title: 'Welcome',
-      subtitle: 'Access Portal',
-      description: 'Secure access to your account',
-      features: []
-    };
-  };
-
-  const config = getPageConfig();
+  const userType = pathname?.includes('admin') ? 'admin' 
+    : pathname?.includes('volunteer') ? 'volunteer' 
+    : 'donor';
+  const isLogin = pathname?.includes('login');
   
-  const colorSchemes = {
-    admin: {
-      gradient: "from-purple-600 via-violet-600 to-indigo-700",
-      softGradient: "from-purple-200 via-purple-300 to-purple-100",
-      accentGradient: "from-purple-500 to-violet-600",
-      darkGradient: "from-purple-900 via-violet-900 to-indigo-900",
-      textAccent: "text-purple-300",
-      leftHeadingColor: "text-purple-900",
-      leftBodyColor: "text-purple-800",
-      featureText: "text-purple-700",
-      featureBorder: "border-purple-200",
-      featureIconColor: "text-purple-600",
-      icon: Shield,
-      pattern: "opacity-6"
-    },
-    volunteer: {
-      gradient: "from-green-600 via-emerald-600 to-teal-700",
-      softGradient: "from-green-100 via-emerald-100 to-teal-100",
-      accentGradient: "from-green-500 to-emerald-600",
-      darkGradient: "from-green-900 via-emerald-900 to-teal-900",
-      textAccent: "text-green-300",
-      leftHeadingColor: "text-emerald-900",
-      leftBodyColor: "text-emerald-800",
-      featureText: "text-emerald-700",
-      featureBorder: "border-emerald-200",
-      featureIconColor: "text-emerald-600",
-      icon: Users,
-      pattern: "opacity-6"
-    },
-    donor: {
-      gradient: "from-blue-600 via-cyan-600 to-sky-700",
-      softGradient: "from-sky-100 via-cyan-100 to-blue-100",
-      accentGradient: "from-blue-500 to-cyan-600",
-      darkGradient: "from-blue-900 via-cyan-900 to-sky-900",
-      textAccent: "text-blue-300",
-      leftHeadingColor: "text-sky-900",
-      leftBodyColor: "text-sky-800",
-      featureText: "text-sky-700",
-      featureBorder: "border-sky-200",
-      featureIconColor: "text-sky-600",
-      icon: Heart,
-      pattern: "opacity-6"
-    }
-  };
-
-  const scheme = colorSchemes[config.userType];
+  const config = USER_CONFIGS[userType];
+  const IconComponent = config.icon;
+  const colors = config.colors;
+  const title = isLogin ? config.content.login : config.content.register;
 
   return (
-    <div className="min-h-screen flex bg-linear-to-br from-gray-50 to-gray-100">
-      <div className={`hidden lg:flex lg:w-1/2 xl:w-[45%] bg-linear-to-br ${scheme.softGradient} relative overflow-hidden`}>
-        
-        <div className="absolute inset-0 overflow-hidden">
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className={`hidden lg:flex lg:w-1/2 xl:w-[45%] bg-gradient-to-br ${colors.bg} relative overflow-hidden`}>
+        <div className="absolute inset-0">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px)',
             backgroundSize: '56px 56px'
-          }}></div>
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          }} />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
 
-    
-        <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-          <div>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="relative">
-                <Image
-                  src="/images/logo.png"
-                  alt="logo"
-                  width={250}
-                  height={40}
-                  className="object-contain drop-shadow-sm"
-                  priority
-                />
-              </div>
-            </div>
+        <div className="relative z-10 flex flex-col justify-center min-h-screen py-12 px-12 w-full">
+          <div className="mb-12">
+            <Image src="/images/logo.png" alt="logo" width={250} height={40} className="object-contain drop-shadow-sm" priority />
           </div>
-          <div className="space-y-8 max-w-md">
+
+          <div className="space-y-8 max-w-md flex-1 flex flex-col justify-center">
             <div>
-              <h1 className={`text-5xl font-bold leading-tight mb-4 tracking-tight ${scheme.leftHeadingColor}`}>
-                {config.title}
-              </h1>
-              <p className={`text-lg leading-relaxed ${scheme.leftBodyColor}`}>
-                {config.description}
-              </p>
+              <h1 className={`text-5xl font-bold leading-tight mb-4 tracking-tight ${colors.heading}`}>{title}</h1>
+              <p className={`text-lg leading-relaxed ${colors.body}`}>{config.content.description}</p>
             </div>
-            {config.features.length > 0 && (
-              <div className="space-y-4">
-                {config.features.map((feature, i) => (
-                  <div 
-                    key={i} 
-                    className={`flex items-center gap-4 rounded-2xl p-4 border ${scheme.featureBorder} bg-white/95 hover:shadow-lg transition-all group`}
-                  >
-                    <div className={`text-3xl shrink-0 transform group-hover:scale-110 transition-transform ${scheme.featureIconColor}`}>
-                      {feature.icon}
-                    </div>
-                    <span className={`${scheme.featureText} font-medium`}>{feature.text}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+
+            <div className="space-y-4">
+              {config.features.map((feature, i) => (
+                <div key={i} className={`flex items-center gap-4 rounded-2xl p-4 border ${colors.border} bg-white/95 hover:shadow-lg transition-all group`}>
+                  <div className="text-3xl shrink-0 transform group-hover:scale-110 transition-transform">{feature.icon}</div>
+                  <span className={`${colors.feature} font-medium`}>{feature.text}</span>
+                </div>
+              ))}
+            </div>
 
             <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/20">
-              <div>
-                <div className={`text-3xl font-bold ${scheme.leftHeadingColor}`}>50K+</div>
-                <div className={`text-xs ${scheme.leftBodyColor} uppercase tracking-wider`}>Active Users</div>
-              </div>
-              <div>
-                <div className={`text-3xl font-bold ${scheme.leftHeadingColor}`}>1000+ </div>
-                <div className={`text-xs ${scheme.leftBodyColor} uppercase tracking-wider`}> items Donated</div>
-              </div>
-              <div>
-                <div className={`text-3xl font-bold ${scheme.leftHeadingColor}`}>50+</div>
-                <div className={`text-xs ${scheme.leftBodyColor} uppercase tracking-wider`}>NGOS</div>
-              </div>
+              {[
+                { value: '50K+', label: 'Active Users' },
+                { value: '1000+', label: 'Items Donated' },
+                { value: '50+', label: 'NGOs' }
+              ].map((stat, i) => (
+                <div key={i}>
+                  <div className={`text-3xl font-bold ${colors.heading}`}>{stat.value}</div>
+                  <div className={`text-xs ${colors.body} uppercase tracking-wider`}>{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-black/60">
+          <div className="flex items-center justify-between text-sm text-black/60 mt-12">
             <span>© 2025 आश्वास</span>
             <div className="flex gap-4">
               <a href="#" className="hover:text-black transition-colors">Privacy</a>
@@ -196,20 +145,24 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       </div>
 
       <div className="flex-1 flex flex-col min-h-screen">
-        <div className="p-6 lg:p-8">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-all group"
+        <div className="p-6 lg:p-8 relative z-50">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              router.push('/');
+            }}
+            type="button"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-all group cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             <span>Back to Home</span>
-          </Link>
+          </button>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-6 py-12">  {/* form container lai center ma rakhcha yesle*/}
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
           {children}
         </div>
-
       </div>
     </div>
   );
