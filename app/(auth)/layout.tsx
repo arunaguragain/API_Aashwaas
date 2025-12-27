@@ -100,18 +100,18 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-center min-h-screen py-12 px-12 w-full">
-          <div className="mb-12">
+        <div className="relative z-10 flex flex-col min-h-screen py-12 px-12 w-full">
+          <div className="mb-16">
             <Image src="/images/logo.png" alt="logo" width={250} height={40} className="object-contain drop-shadow-sm" priority />
           </div>
 
-          <div className="space-y-8 max-w-md flex-1 flex flex-col justify-center">
+          <div className="space-y-12 max-w-md">
             <div>
               <h1 className={`text-5xl font-bold leading-tight mb-4 tracking-tight ${colors.heading}`}>{title}</h1>
               <p className={`text-lg leading-relaxed ${colors.body}`}>{config.content.description}</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-7">
               {config.features.map((feature, i) => (
                 <div key={i} className={`flex items-center gap-4 rounded-2xl p-4 border ${colors.border} bg-white/95 hover:shadow-lg transition-all group`}>
                   <div className="text-3xl shrink-0 transform group-hover:scale-110 transition-transform">{feature.icon}</div>
@@ -134,7 +134,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-black/60 mt-12">
+          <div className="flex-1"></div>
+          <div className="flex items-center justify-between text-sm text-black/60">
             <span>© 2025 आश्वास</span>
             <div className="flex gap-4">
               <a href="#" className="hover:text-black transition-colors">Privacy</a>
