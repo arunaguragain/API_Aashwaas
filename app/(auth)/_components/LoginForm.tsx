@@ -64,19 +64,19 @@ export default function LoginForm({
 
   return (
     <div className="w-full max-w-3xl mx-auto relative px-4 sm:px-6 lg:px-0">
-      <div className="absolute -top-40 -left-40 w-120 h-120 bg-linear-to-br from-sky-200 to-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse hidden md:block"></div>
-      <div className="absolute -bottom-40 -right-40 w-104 h-104 bg-linear-to-br from-pink-200 to-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse hidden md:block" style={{ animationDelay: '1.5s' }}></div>
+      <div className="absolute -top-40 -left-40 w-120 h-120 bg-gradient-to-br from-sky-200 to-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse hidden md:block"></div>
+      <div className="absolute -bottom-40 -right-40 w-104 h-104 bg-gradient-to-br from-pink-200 to-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse hidden md:block" style={{ animationDelay: '1.5s' }}></div>
         <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100/50 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
-          <div className="h-1.5 bg-linear-to-r from-sky-400 to-indigo-400"></div>
+          <div className="h-1.5 bg-gradient-to-r from-sky-400 to-indigo-400"></div>
 
          
-          <div className="absolute -top-6 -right-6 w-24 h-24 bg-linear-to-br from-sky-100 to-blue-200 rounded-2xl opacity-40 blur-xl transform rotate-12 pointer-events-none"></div>
-          <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-linear-to-br from-pink-100 to-rose-200 rounded-2xl opacity-30 blur-xl transform -rotate-12 pointer-events-none"></div>
+          <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-sky-100 to-blue-200 rounded-2xl opacity-40 blur-xl transform rotate-12 pointer-events-none"></div>
+          <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-pink-100 to-rose-200 rounded-2xl opacity-30 blur-xl transform -rotate-12 pointer-events-none"></div>
 
         <div className="p-10">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <div className={`w-20 h-20 lg:w-24 lg:h-24 rounded-2xl bg-linear-to-br ${headerGradient} flex items-center justify-center shadow-md transform transition-all hover:scale-105`}>
+              <div className={`w-20 h-20 lg:w-24 lg:h-24 rounded-2xl bg-gradient-to-br ${headerGradient} flex items-center justify-center shadow-md transform transition-all hover:scale-105`}>
                 <IconComponent className="w-8 h-8 lg:w-9 lg:h-9 text-white" />
               </div>
             </div>
@@ -89,14 +89,14 @@ export default function LoginForm({
 
           <form className="space-y-6" onSubmit={handleSubmit(onSubmitForm)}>
             <div>
-              <label htmlFor="email" className="text-base font-semibold text-gray-700 mb-2 block">Email Address</label>
+              <label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-2 block">Email Address</label>
               <input
                 id="email"
                 type="email"
                 placeholder={`${userType.toLowerCase()}@gmail.com`}
                 {...register("email")}
                 onBlur={() => trigger("email")}
-                className={`w-full h-14 lg:h-16 px-4 text-base lg:text-lg rounded-2xl border-2 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white transition-all ${
+                className={`w-full h-14 px-4 text-base rounded-xl border-2 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white transition-all ${
                   errors.email && (touchedFields.email || isSubmitted) ? 'border-red-400 focus:ring-2 focus:ring-red-500' : 'border-gray-500 focus:ring-2'
                 }`}
               />
@@ -117,12 +117,12 @@ export default function LoginForm({
                       handleSubmit(onSubmitForm)();
                     }
                   }}
-                  className={`w-full h-12 px-4 pr-12 text-sm rounded-xl border-2 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white transition-all ${
+                  className={`w-full h-14 px-4 pr-12 text-base rounded-xl border-2 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:bg-white transition-all ${
                     errors.password && (touchedFields.password || isSubmitted) ? 'border-red-400 focus:ring-2 focus:ring-red-500' : 'border-gray-500 focus:ring-2'
                   }`}
                 />
                 <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1.5 hover:bg-gray-100 rounded-lg">
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               {errors.password && (touchedFields.password || isSubmitted) && <p className="mt-1.5 text-xs text-red-600">{errors.password.message}</p>}
@@ -135,12 +135,12 @@ export default function LoginForm({
               )}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className={`w-full h-14 lg:h-16 text-base lg:text-lg rounded-2xl bg-linear-to-r ${buttonGradient} text-white font-bold focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-transform transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>
+            <button type="submit" disabled={isSubmitting} className={`w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r ${buttonGradient} text-white focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-transform transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </button>
 
             {userType === "Admin" && (
-              <div className="mt-4 p-4 rounded-xl bg-linear-to-br from-purple-50 to-violet-50 border border-purple-100">
+              <div className="mt-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100">
                 <div className="flex gap-3 items-start">
                   <div className="bg-purple-600 p-2 rounded-lg shrink-0">
                     <Shield className="w-4 h-4 text-white" />
@@ -158,7 +158,7 @@ export default function LoginForm({
             {showGoogleSignIn && (
               <button
               type="button"
-              className="w-full h-12 rounded-xl border border-gray-800 flex items-center justify-center gap-3 text-sm bg-black/10 hover:shadow-sm transition">
+              className="w-full h-14 rounded-xl border border-gray-800 flex items-center justify-center gap-3 text-base bg-black/10 hover:shadow-sm transition">
              <FcGoogle className="w-5 h-5" />
               <span className="font-medium text-gray-700">Continue with Google</span>
             </button>
