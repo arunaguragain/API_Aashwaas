@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Lock, Mail, Users, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { registerSchema, RegisterData } from "../schema";
+import { handleRegister } from "@/lib/actions/auth-actions";
 
 interface Props {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -18,6 +19,8 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [pending, startTransition] = useTransition();
 
   const {
     register,
@@ -41,14 +44,27 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
   const buttonGradient = buttonGradientMap[userType];
 
   const onSubmitForm = async (data: RegisterData) => {
-  await new Promise((r) => setTimeout(r, 900));
-  if (onSubmit) onSubmit(data);
-  if (userType === "Donor") {
-    router.push("/donor_login");
-  } else if (userType === "Volunteer") {
-    router.push("/volunteer_login");
-  }
-};
+    setErrorMessage("");
+    try {
+      const res = await handleRegister(data);
+      if (!res.success) {
+        throw new Error(res.message || "Registration failed");
+      }
+      startTransition(() => {
+        if (loginLink) {
+          router.push(loginLink);
+        } else if (userType === "Donor") {
+          router.push("/donor_login");
+        } else if (userType === "Volunteer") {
+          router.push("/volunteer_login");
+        } else {
+          router.push("/");
+        }
+      });
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Registration failed");
+    }
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto relative px-4 sm:px-6 lg:px-0">
@@ -64,6 +80,7 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
             <p className="text-gray-600 text-base lg:text-lg">Fill in details to get started</p>
           </div>
 
+          {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
           <form className="space-y-6" onSubmit={handleSubmit(onSubmitForm)}>
             <div>
               <label htmlFor="name" className="text-sm font-semibold text-gray-700 mb-2 block">Full Name</label>
@@ -107,7 +124,7 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
             </div>
 
             <div className="flex items-center justify-between">
-              <button type="submit" disabled={isSubmitting} className={`w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r ${buttonGradient} text-white focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-transform transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>{isSubmitting ? 'Creating...' : 'Create Account'}</button>
+              <button type="submit" disabled={isSubmitting || pending} className={`w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r ${buttonGradient} text-white focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-transform transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>{(isSubmitting || pending) ? 'Creating...' : 'Create Account'}</button>
             </div>
 
             <div className="flex items-center gap-3 my-4">
