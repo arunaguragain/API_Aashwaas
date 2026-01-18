@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import Link from "next/link";
 import { loginSchema, LoginData } from "../schema";
 import { Shield, Heart, Users, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { handleLogin } from "@/lib/actions/auth-actions";
 
 interface LoginFormProps {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -26,11 +27,12 @@ export default function LoginForm({
 }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const [error, setError] = useState("");
+  const [pending, startTransition] = useTransition();
 
   const {
     register,
     handleSubmit,
-    watch,
     trigger,
     formState: { errors, isSubmitting, touchedFields, isSubmitted }
   } = useForm<LoginData>({
@@ -57,9 +59,19 @@ export default function LoginForm({
   const buttonGradient = buttonGradientMap[userType];
 
   const onSubmitForm = async (data: LoginData) => {
-    await new Promise((r) => setTimeout(r, 900));
-    if (onSubmit) onSubmit(data);
-    router.push("/auth/dashboard");
+    setError("");
+    try {
+      const res = await handleLogin(data);
+      if (!res.success) {
+        throw new Error(res.message || "Login failed");
+      }
+      if (onSubmit) onSubmit(data);
+      startTransition(() => {
+        router.push("/auth/dashboard");
+      });
+    } catch (err: any) {
+      setError(err?.message || "Login failed");
+    }
   };
 
 
@@ -88,6 +100,7 @@ export default function LoginForm({
             </p>
           </div>
 
+          {error && <div className="text-red-500 mb-4">{error}</div>}
           <form className="space-y-6" onSubmit={handleSubmit(onSubmitForm)}>
             <div>
               <label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-2 block">Email Address</label>
@@ -136,8 +149,8 @@ export default function LoginForm({
               )}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className={`w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r ${buttonGradient} text-white focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-transform transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>
-              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            <button type="submit" disabled={isSubmitting || pending} className={`w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r ${buttonGradient} text-white focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-transform transform hover:scale-[1.02] active:scale-[0.98] shadow-lg`}>
+              {(isSubmitting || pending) ? 'Signing in...' : 'Sign In'}
             </button>
 
             {userType === "Admin" && (
