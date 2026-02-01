@@ -66,8 +66,21 @@ export default function LoginForm({
         throw new Error(res.message || "Login failed");
       }
       if (onSubmit) onSubmit(data);
+      
+      // Determine redirect path based on user role
+      let redirectPath = "/auth/dashboard";
+      const userRole = res.data?.role?.toLowerCase();
+      
+      if (userRole === "donor") {
+        redirectPath = "/user/donor/dashboard";
+      } else if (userRole === "volunteer") {
+        redirectPath = "/user/volunteer/dashboard";
+      } else if (userRole === "admin") {
+        redirectPath = "/admin/dashboard";
+      }
+      
       startTransition(() => {
-        router.push("/auth/dashboard");
+        router.push(redirectPath);
       });
     } catch (err: any) {
       setError(err?.message || "Login failed");
