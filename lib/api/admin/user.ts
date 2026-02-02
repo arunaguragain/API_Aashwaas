@@ -1,9 +1,17 @@
 import { API } from "../endpoints";
 import axios from "../axios";
+import { getAuthToken } from "@/lib/cookie";
+
+const buildAuthHeaders = async (extraHeaders?: Record<string, string>) => {
+    const token = await getAuthToken();
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+    return { ...authHeader, ...extraHeaders };
+}
 
 export const getUsers = async () => {
     try {
-        const response = await axios.get(API.ADMIN.USER.CREATE);
+        const headers = await buildAuthHeaders();
+        const response = await axios.get(API.ADMIN.USER.CREATE, { headers });
         return response.data;
     } catch (error: Error | any) {
         throw new Error(error.response?.data?.message
@@ -13,7 +21,8 @@ export const getUsers = async () => {
 
 export const getUserById = async (id: string) => {
     try {
-        const response = await axios.get(`${API.ADMIN.USER.CREATE}${id}`);
+        const headers = await buildAuthHeaders();
+        const response = await axios.get(`${API.ADMIN.USER.CREATE}${id}`, { headers });
         return response.data;
     } catch (error: Error | any) {
         throw new Error(error.response?.data?.message
@@ -23,13 +32,14 @@ export const getUserById = async (id: string) => {
 
 export const createUser = async (userData: any) => {
     try {
+        const headers = await buildAuthHeaders({
+            'Content-Type': 'multipart/form-data',
+        });
         const response = await axios.post(
-            API.AUTH.USER,
+            API.ADMIN.USER.CREATE,
             userData,
             {
-                headers: {
-                    'Content-Type': 'multipart/form-data', // for file upload/multer
-                }
+                headers
             }
         );
         return response.data;
@@ -41,13 +51,14 @@ export const createUser = async (userData: any) => {
 
 export const updateUser = async (id: string, userData: any) => {
     try {
+        const headers = await buildAuthHeaders({
+            'Content-Type': 'multipart/form-data',
+        });
         const response = await axios.put(
             `${API.ADMIN.USER.CREATE}${id}`,
             userData,
             {
-                headers: {
-                    'Content-Type': 'multipart/form-data', // for file upload/multer
-                }
+                headers
             }
         );
         return response.data;
@@ -59,7 +70,8 @@ export const updateUser = async (id: string, userData: any) => {
 
 export const deleteUser = async (id: string) => {
     try {
-        const response = await axios.delete(`${API.ADMIN.USER.CREATE}${id}`);
+        const headers = await buildAuthHeaders();
+        const response = await axios.delete(`${API.ADMIN.USER.CREATE}${id}`, { headers });
         return response.data;
     } catch (error: Error | any) {
         throw new Error(error.response?.data?.message

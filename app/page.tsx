@@ -52,9 +52,9 @@ export default function Home() {
       <header className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-8 lg:px-16 py-5 flex items-center justify-between">
           <Image src="/images/logo.png" alt="logo" width={150} height={40} className="object-contain" />
-          <Link href="/admin_login" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-5 py-3 rounded-xl transition-all font-semibold">
+          <a href="/admin_login" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-5 py-3 rounded-xl transition-all font-semibold">
             <Shield className="w-5 h-5" />Admin Portal
-          </Link>
+          </a>
         </div>
       </header>
 
