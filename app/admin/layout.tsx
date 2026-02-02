@@ -1,0 +1,17 @@
+import { ReactNode } from "react";
+import AdminHeader from "./_components/Header";
+import AdminSidebar from "./_components/Sidebar";
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
+	return (
+		<div className="flex h-screen bg-gray-50">
+			<AdminSidebar />
+			<div className="flex min-w-0 flex-1 flex-col">
+				<AdminHeader />
+				<main className="flex-1 overflow-y-auto px-6 py-8">
+					{children}
+				</main>
+			</div>
+		</div>
+	);
+}
