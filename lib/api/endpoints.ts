@@ -2,7 +2,7 @@ export const API ={
     AUTH: {
         REGISTER: "/api/auth/register", 
         LOGIN: "/api/auth/login",
-        USER: "/api/auth/user",
+        WHOAMI: "/api/auth/whoami",
         UPDATEPROFILE: "/api/auth/update-profile",
     },
     ADMIN: {

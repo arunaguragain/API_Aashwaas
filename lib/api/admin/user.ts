@@ -24,7 +24,7 @@ export const getUserById = async (id: string) => {
 export const createUser = async (userData: any) => {
     try {
         const response = await axios.post(
-            API.ADMIN.USER.CREATE,
+            API.AUTH.USER,
             userData,
             {
                 headers: {

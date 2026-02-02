@@ -1,5 +1,6 @@
 "use server";
-import { createUser, getUsers, getUserById, updateUser, deleteUser } from "@/lib/api/admin/user";
+import { getUsers, getUserById, updateUser, deleteUser } from "@/lib/api/admin/user";
+import { createUser as createAuthUser } from "@/lib/api/admin/user";
 import { revalidatePath } from 'next/cache';
 
 export const handleGetUsers = async () => {
@@ -28,7 +29,7 @@ export const handleGetUserById = async (id: string) => {
 
 export const handleCreateUser = async (data: FormData) => {
     try {
-        const response = await createUser(data)
+        const response = await createAuthUser(data)
         if (response.success) {
             revalidatePath('/admin/users');
             return {

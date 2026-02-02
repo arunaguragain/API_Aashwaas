@@ -1,45 +1,57 @@
-import axios from "./axios"; 
-import {API} from "./endpoints";
-// registerData:  any -> can be scheme object
-export const registerUser = async( registerData: any) => {
-    try{
-        const response = await axios.post(
-            API.AUTH.REGISTER, // backend route path
-            registerData // Data to send to backend (req.body)
-        );
-        return response.data;// respose ko body,
-        //what is returned from backend - controller
-       
-    } catch (err: Error | any) {
-        // if 4xx ot 5xx counts as error
-        throw new Error
-        (
-            err.response?.data?.message // from backend
-            || err.message // general error message
-            || "Registration failed" //fallback message
- 
-        );
-    }
+import { LoginData, RegisterData } from "@/app/(auth)/schema";
+import axios from "./axios";
+import { API } from "./endpoints";
+
+export const register = async (registerData: RegisterData) => {
+  try {
+    const response = await axios.post(API.AUTH.REGISTER, registerData);
+    return response.data;
+  } catch (error: Error | any) {
+    throw new Error(
+      error.response?.data?.message || error.message || "Registration failed"
+    );
+  }
 }
- 
-export const loginUser = async( loginData: any) => {
-    try{
-        const response = await axios.post(
-            API.AUTH.LOGIN, // backend route path
-            loginData // Data to send to backend (req.body)
-        );
-        return response.data;// respose ko body,
-        //what is returned from backend - controller
-       
-    } catch (err: Error | any) {
-        // if 4xx ot 5xx counts as error
-        throw new Error
-        (
-            err.response?.data?.message // from backend
-            || err.message // general error message
-            || "Login failed" //fallback message
- 
-        );
-    }
+
+export const login = async (loginData: LoginData) => {
+  try {
+    const response = await axios.post(API.AUTH.LOGIN, loginData);
+    return response.data;
+  } catch (error: Error | any) {
+    throw new Error(
+      error.response?.data?.message || error.message || "Login failed"
+    );
+  }
 }
+
+export const whoAmI = async () => {
+  try {
+    const response = await axios.get(API.AUTH.WHOAMI);
+    return response.data;
+  } catch (error: Error | any) {
+    throw new Error(
+      error.response?.data?.message || error.message || "Whoami failed"
+    );
+  }
+}
+
+export const updateProfile = async (profileData: any) => {
+  try {
+    const response = await axios.put(
+      API.AUTH.UPDATEPROFILE,
+      profileData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: Error | any) {
+    throw new Error(
+      error.response?.data?.message || error.message || "Update profile failed"
+    );
+  }
+}
+
  
