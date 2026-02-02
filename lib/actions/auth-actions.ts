@@ -1,6 +1,5 @@
 "use server";
 import { LoginData, RegisterData } from "@/app/(auth)/schema";
-import { redirect } from "next/navigation";
 import { register, login, whoAmI, updateProfile } from "@/lib/api/auth";
 import { clearAuthCookies, setAuthToken, setUserData } from "@/lib/cookie";
 import { revalidatePath } from "next/cache";
@@ -46,8 +45,12 @@ export const handleLogin = async (data: LoginData) => {
 }
 
 export const handleLogout = async () => {
-    await clearAuthCookies();
-    return redirect("/login");
+    try {
+        await clearAuthCookies();
+        return { success: true };
+    } catch (error: Error | any) {
+        return { success: false, message: error.message || "Logout failed" };
+    }
 }
 
 export async function handleWhoAmI() {
