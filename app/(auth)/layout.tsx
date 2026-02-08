@@ -89,8 +89,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
   const title = isLogin ? config.content.login : config.content.register;
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className={`hidden lg:flex lg:w-1/2 xl:w-[45%] bg-gradient-to-br ${colors.bg} relative overflow-hidden`}>
+    <div className="h-screen overflow-hidden overflow-x-hidden flex bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className={`hidden lg:flex lg:w-1/2 xl:w-[45%] bg-gradient-to-br ${colors.bg} relative overflow-hidden h-full`}>
         <div className="absolute inset-0">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px)',
@@ -100,21 +100,21 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
 
-        <div className="relative z-10 flex flex-col min-h-screen py-12 px-12 w-full">
-          <div className="mb-16">
-            <Image src="/images/logo.png" alt="logo" width={250} height={40} className="object-contain drop-shadow-sm" priority />
+        <div className="relative z-10 flex flex-col h-full py-9 px-9 w-full">
+          <div className="mb-12">
+            <Image src="/images/logo.png" alt="logo" width={190} height={40} className="object-contain drop-shadow-sm" priority />
           </div>
 
-          <div className="space-y-12 max-w-md">
+          <div className="space-y-8 max-w-md">
             <div>
-              <h1 className={`text-5xl font-bold leading-tight mb-4 tracking-tight ${colors.heading}`}>{title}</h1>
-              <p className={`text-lg leading-relaxed ${colors.body}`}>{config.content.description}</p>
+              <h1 className={`text-3xl font-bold leading-tight mb-3 tracking-tight ${colors.heading}`}>{title}</h1>
+              <p className={`text-sm leading-relaxed ${colors.body}`}>{config.content.description}</p>
             </div>
 
             <div className="space-y-7">
               {config.features.map((feature, i) => (
-                <div key={i} className={`flex items-center gap-4 rounded-2xl p-4 border ${colors.border} bg-white/95 hover:shadow-lg transition-all group`}>
-                  <div className="text-3xl shrink-0 transform group-hover:scale-110 transition-transform">{feature.icon}</div>
+                <div key={i} className={`flex items-center gap-3 rounded-2xl p-2.5 border ${colors.border} bg-white/95 hover:shadow-lg transition-all group`}>
+                  <div className="text-xl shrink-0 transform group-hover:scale-110 transition-transform">{feature.icon}</div>
                   <span className={`${colors.feature} font-medium`}>{feature.text}</span>
                 </div>
               ))}
@@ -127,7 +127,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 { value: '50+', label: 'NGOs' }
               ].map((stat, i) => (
                 <div key={i}>
-                  <div className={`text-3xl font-bold ${colors.heading}`}>{stat.value}</div>
+                  <div className={`text-xl font-bold ${colors.heading}`}>{stat.value}</div>
                   <div className={`text-xs ${colors.body} uppercase tracking-wider`}>{stat.label}</div>
                 </div>
               ))}
@@ -145,24 +145,26 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col min-h-screen">
-        <div className="p-6 lg:p-8 relative z-50">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              router.push('/');
-            }}
-            type="button"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-all group cursor-pointer"
-          >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to Home</span>
-          </button>
-        </div>
+      <div className="flex-1 h-full overflow-y-auto">
+        <div className="min-h-full flex flex-col">
+          <div className="p-4 lg:p-5 relative z-50">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push('/');
+              }}
+              type="button"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-all group cursor-pointer"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <span>Back to Home</span>
+            </button>
+          </div>
 
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
-          {children}
+          <div className="flex-1 flex items-center justify-center px-6 py-8">
+            {children}
+          </div>
         </div>
       </div>
     </div>
