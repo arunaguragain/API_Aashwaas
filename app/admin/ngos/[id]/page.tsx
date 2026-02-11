@@ -14,6 +14,7 @@ export default function AdminNGODetailPage() {
   const [ngo, setNgo] = useState<NgoModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [photoOpen, setPhotoOpen] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -47,7 +48,7 @@ export default function AdminNGODetailPage() {
 
   if (error || !ngo) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-8 max-w-4xl mx-auto">
         <p className="text-sm text-gray-600">{error ?? "NGO not found."}</p>
         <Link href="/admin/ngos" className="mt-4 inline-flex text-sm font-semibold text-blue-600">
           Back to NGOs
@@ -57,7 +58,7 @@ export default function AdminNGODetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">{ngo.name}</h1>
@@ -79,31 +80,41 @@ export default function AdminNGODetailPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
-          <div className="mt-4 space-y-2 text-sm text-gray-600">
-            <p>Contact person: {ngo.contactPerson}</p>
-            <p>Email: {ngo.email}</p>
-            <p>Phone: {ngo.phone}</p>
-            <p>Address: {ngo.address}</p>
-          </div>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-gray-900">Details</h2>
-          <div className="mt-4 space-y-2 text-sm text-gray-600">
-            <p>Focus areas: {ngo.focusAreas.join(", ")}</p>
-            <p>Photo: {ngo.image ? "" : "None"}</p>
-          </div>
-          {ngo.image && (
-            <div className="mt-4">
-              <img
-                src={resolveNgoPhotoUrl(ngo.image)}
-                alt="NGO photo"
-                className="h-40 w-full rounded-lg object-cover"
-              />
+      <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <div className="grid gap-0 md:[grid-template-columns:320px_1fr] items-start">
+          <div className="max-w-[320px]">
+            <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
+            <div className="mt-4 space-y-2 text-sm text-gray-600">
+              <p>Contact person: {ngo.contactPerson}</p>
+              <p>Email: {ngo.email}</p>
+              <p>Phone: {ngo.phone}</p>
+              <p>Address: {ngo.address}</p>
             </div>
-          )}
+
+            <div className="mt-4 border-t border-gray-100 pt-3">
+              <h3 className="text-sm font-semibold text-gray-900">Details</h3>
+              <div className="mt-3 space-y-2 text-sm text-gray-600">
+                <p>Focus areas: {ngo.focusAreas?.length ? ngo.focusAreas.join(", ") : "N/A"}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Photo</h2>
+            <div className="mt-4">
+              {ngo.image ? (
+                <div className="rounded-lg overflow-hidden bg-slate-50 max-w-[720px] mx-auto">
+                  <img
+                    src={resolveNgoPhotoUrl(ngo.image)}
+                    alt={`${ngo.name} photo preview`}
+                    className="w-full h-96 object-cover cursor-pointer"
+                  />
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600">No photo available</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -176,7 +176,7 @@ export default function AdminNGOEditPage() {
               id="name"
               value={form.name}
               onChange={(event) => updateField("name", event.target.value)}
-              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
             />
           </div>
           <div>
@@ -187,7 +187,7 @@ export default function AdminNGOEditPage() {
               id="registrationNumber"
               value={form.registrationNumber}
               onChange={(event) => updateField("registrationNumber", event.target.value)}
-              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
             />
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function AdminNGOEditPage() {
             id="contactPerson"
             value={form.contactPerson}
             onChange={(event) => updateField("contactPerson", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+            className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
           />
         </div>
 
@@ -213,7 +213,7 @@ export default function AdminNGOEditPage() {
               id="email"
               value={form.email}
               onChange={(event) => updateField("email", event.target.value)}
-              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
             />
           </div>
           <div>
@@ -224,7 +224,7 @@ export default function AdminNGOEditPage() {
               id="phone"
               value={form.phone}
               onChange={(event) => updateField("phone", event.target.value)}
-              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
             />
           </div>
         </div>
@@ -237,7 +237,7 @@ export default function AdminNGOEditPage() {
             id="address"
             value={form.address}
             onChange={(event) => updateField("address", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+            className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
           />
         </div>
 
@@ -251,7 +251,7 @@ export default function AdminNGOEditPage() {
               value={form.focusAreas}
               onChange={(event) => updateField("focusAreas", event.target.value)}
               placeholder="Education, Shelter, Nutrition"
-              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
             />
           </div>
           <div>
@@ -263,7 +263,7 @@ export default function AdminNGOEditPage() {
               type="file"
               accept="image/*"
               onChange={(event) => handlePhotos(event.target.files)}
-              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
             />
           </div>
         </div>
@@ -284,13 +284,23 @@ export default function AdminNGOEditPage() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-70"
-        >
-          {saving ? "Saving..." : "Save changes"}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-70"
+          >
+            {saving ? "Saving..." : "Save changes"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push(`/admin/ngos/${id}`)}
+            className="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
