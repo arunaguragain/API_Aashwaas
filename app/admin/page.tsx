@@ -1,12 +1,11 @@
 "use client"
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Users, Package, TrendingUp } from "lucide-react";
-import { DonationsApi } from "@/lib/api/donations";
+import { DonationsApi } from "@/lib/api/donor/donations";
 import { TasksApi } from "@/lib/api/admin/tasks";
 import { getUsers } from "@/lib/api/admin/user";
 import {ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Brush, PieChart, Pie, Cell, BarChart, Bar, LabelList, } from "recharts";
 import { NGOsApi } from "@/lib/api/admin/ngos";
-// import NGOsApi from "@/lib/api/admin/ngos";
 
 export default function AdminDashboard() {
   const [rawDonations, setRawDonations] = useState<any[]>([]);
@@ -80,7 +79,7 @@ export default function AdminDashboard() {
             name: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : `Day ${i + 1}`,
             Donations: Number(d.quantity) || 1,
           })),
-          recent: donationsArray.slice(0, 6).map((d: any) => ({
+          recent: donationsArray.slice(0, 9).map((d: any) => ({
             name: (function () {
               try {
                 const donor = d.donorName ?? d.donorId ?? d.donor;
@@ -343,7 +342,7 @@ export default function AdminDashboard() {
               <tbody>
                 {(stats.recent || []).map((r, i) => (
                   <tr key={i} className="border-t">
-                    <td className="py-1 text-sm">{r.name}</td>
+                    <td className="py-1 text-sm text-zinc-900">{r.name}</td>
                     <td className="py-1 text-xs text-zinc-500">{r.time}</td>
                     <td className="py-1 text-xs text-zinc-500">{r.category}</td>
                     <td className="py-1 text-xs text-zinc-500">{r.address}</td>
