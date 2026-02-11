@@ -9,8 +9,16 @@ export default function CreateUserForm() {
 
     const [pending, startTransition] = useTransition();
     const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<UserData>({
-        resolver: zodResolver(UserSchema)
+        resolver: zodResolver(UserSchema),
+        defaultValues: {
+            role: "donor"
+        }
     });
+    const roleOptions = [
+        { value: "admin", label: "Admin" },
+        { value: "donor", label: "Donor" },
+        { value: "volunteer", label: "Volunteer" },
+    ];
     const [error, setError] = useState<string | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,19 +54,17 @@ export default function CreateUserForm() {
                 formData.append('phone', data.phone);
                 formData.append('password', data.password);
                 formData.append('confirmPassword', data.confirmPassword);
-
+                formData.append('role', data.role);
                 if (data.image) {
                     formData.append('image', data.image);
                 }
                 const response = await handleCreateUser(formData);
-
                 if (!response.success) {
                     throw new Error(response.message || 'Create profile failed');
                 }
                 reset();
                 handleDismissImage();
                 toast.success('Profile Created successfully');
-
             } catch (error: Error | any) {
                 toast.error(error.message || 'Create profile failed');
                 setError(error.message || 'Create profile failed');
@@ -73,6 +79,18 @@ export default function CreateUserForm() {
                 <p className="text-sm text-gray-500">Add a new user to the system</p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                                    <select
+                                        className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-500"
+                                        {...register("role")}
+                                    >
+                                        {roleOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>{option.label}</option>
+                                        ))}
+                                    </select>
+                                    {errors.role && <p className="text-xs text-red-600">{errors.role.message}</p>}
+                                </div>
                 <div className="mb-4">
                 {previewImage ? (
                     <div className="relative w-24 h-24">

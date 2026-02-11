@@ -10,6 +10,7 @@ export const UserSchema = z
     phone: z.string().min(10, { message: "Enter a valid phone number" }),
     password: z.string().min(6, { message: "Minimum 6 characters" }),
     confirmPassword: z.string().min(6, { message: "Minimum 6 characters" }),
+    role: z.enum(["admin", "donor", "volunteer"]),
     image: z
       .instanceof(File)
       .optional()
@@ -25,7 +26,15 @@ export const UserSchema = z
     message: "Passwords do not match",
   });
 
-export type UserData = z.infer<typeof UserSchema>;
+export type UserData = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  role: "admin" | "donor" | "volunteer";
+  image?: File;
+};
 
 export const UserEditSchema = UserSchema.partial();
 export type UserEditData = z.infer<typeof UserEditSchema>;

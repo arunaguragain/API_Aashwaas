@@ -2,10 +2,11 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Users, Package, TrendingUp } from "lucide-react";
 import { DonationsApi } from "@/lib/api/donations";
-import { TasksApi } from "@/lib/api/tasks";
-import { NGOsApi } from "@/lib/api/ngos";
+import { TasksApi } from "@/lib/api/admin/tasks";
 import { getUsers } from "@/lib/api/admin/user";
 import {ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Brush, PieChart, Pie, Cell, BarChart, Bar, LabelList, } from "recharts";
+import { NGOsApi } from "@/lib/api/admin/ngos";
+// import NGOsApi from "@/lib/api/admin/ngos";
 
 export default function AdminDashboard() {
   const [rawDonations, setRawDonations] = useState<any[]>([]);
@@ -59,11 +60,11 @@ export default function AdminDashboard() {
 
         const ngosRes = await NGOsApi?.list ? await NGOsApi.list() : { data: [] };
 
-        const totalQuantity = donationsArray.reduce((sum: number, d: any) => sum + (d.quantity || 0), 0);
+        const totalQuantity = donationsArray.reduce((sum: number, d: any) => sum + (Number(d.quantity) || 0), 0);
         const regionsMap: Record<string, number> = {};
         donationsArray.forEach((d: any) => {
           const region = d.city || d.region || "Unknown";
-          regionsMap[region] = (regionsMap[region] || 0) + (d.quantity || 0);
+          regionsMap[region] = (regionsMap[region] || 0) + (Number(d.quantity) || 0);
         });
         const regions = Object.keys(regionsMap).slice(0, 8).map((k) => ({ name: k, value: regionsMap[k] }));
 
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
           pending: (tasksRes?.data || []).filter((t: any) => t.status === "pending").length,
           chartData: donationsArray.slice(0, 12).map((d: any, i: number) => ({
             name: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : `Day ${i + 1}`,
-            Donations: d.quantity || 1,
+            Donations: Number(d.quantity) || 1,
           })),
           recent: donationsArray.slice(0, 6).map((d: any) => ({
             name: (function () {
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
             time: d.createdAt ? new Date(d.createdAt).toLocaleString() : "Just now",
             email: undefined,
             category: d.ngoName || d.title || d.itemName || "General",
-            amount: d.quantity || 0,
+            amount: Number(d.quantity) || 0,
             address: d.pickupLocation || d.city || "-",
           })),
           volunteers: (usersList || []).filter((u: any) => (u.role || "").toLowerCase() === "volunteer").length,
@@ -115,10 +116,10 @@ export default function AdminDashboard() {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = d.toLocaleDateString();
-      const sum = donations.reduce((s: number, it: any) => {
+        const sum = donations.reduce((s: number, it: any) => {
         if (!it.createdAt) return s;
         const dt = new Date(it.createdAt).toLocaleDateString();
-        if (dt === key) return s + (it.quantity || 0);
+        if (dt === key) return s + (Number(it.quantity) || 0);
         return s;
       }, 0);
       out.push({ name: d.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' }), Donations: sum });
@@ -142,7 +143,7 @@ export default function AdminDashboard() {
     const map: Record<string, number> = {};
     (filteredDonations || []).forEach((d: any) => {
       const r = d.city || d.region || 'Unknown';
-      map[r] = (map[r] || 0) + (d.quantity || 0);
+      map[r] = (map[r] || 0) + (Number(d.quantity) || 0);
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, value]) => ({ name, value }));
   }, [filteredDonations]);
@@ -151,7 +152,7 @@ export default function AdminDashboard() {
     const map: Record<string, number> = {};
     (filteredDonations || []).forEach((d: any) => {
       const key = d.itemName || d.title || d.ngoName || 'Other';
-      map[key] = (map[key] || 0) + (d.quantity || 0);
+      map[key] = (map[key] || 0) + (Number(d.quantity) || 0);
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value }));
   }, [filteredDonations]);
@@ -160,7 +161,7 @@ export default function AdminDashboard() {
     const map: Record<string, number> = {};
     (filteredDonations || []).forEach((d: any) => {
       const key = d.ngoName || d.title || d.itemName || 'General';
-      map[key] = (map[key] || 0) + (d.quantity || 0);
+      map[key] = (map[key] || 0) + (Number(d.quantity) || 0);
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, value]) => ({ name, value }));
   }, [filteredDonations]);
