@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {NGOsApi, resolveNgoPhotoUrl, AdminNGOsApi } from "@/lib/api/admin/ngos";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 
 type FormState = {
@@ -26,6 +27,7 @@ export default function AdminNGOEditPage() {
   const [form, setForm] = useState<FormState | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const { pushToast } = useToast();
 
   useEffect(() => {
     if (!id) {
@@ -117,6 +119,7 @@ export default function AdminNGOEditPage() {
       );
 
       router.push(`/admin/ngos/${id}`);
+      pushToast({ title: 'NGO updated', description: 'NGO updated successfully', tone: 'success' });
     } catch (error) {
       const message =
         (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data
@@ -124,6 +127,7 @@ export default function AdminNGOEditPage() {
         (error as { response?: { data?: { message?: string; error?: string } } })?.response?.data
           ?.error ??
         (error as Error)?.message;
+      pushToast({ title: 'Unable to update NGO', description: message || 'Unable to update NGO right now', tone: 'error' });
       setError(message ? `Unable to update NGO: ${message}` : "Unable to update NGO right now.");
     } finally {
       setSaving(false);

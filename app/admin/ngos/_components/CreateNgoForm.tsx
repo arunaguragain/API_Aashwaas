@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNGOsApi } from "@/lib/api/admin/ngos";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 type FormState = {
   name: string;
@@ -17,6 +18,7 @@ type FormState = {
 
 export default function CreateNgoForm() {
   const router = useRouter();
+  const { pushToast } = useToast();
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -91,6 +93,7 @@ export default function CreateNgoForm() {
         photoFile
       );
 
+      pushToast({ title: 'NGO created', description: 'NGO created successfully', tone: 'success' });
       router.push(`/admin/ngos/${result.data.id}`);
     } catch (error) {
       const responseData = (error as { response?: { data?: unknown; status?: number } })?.response?.data;
@@ -112,6 +115,7 @@ export default function CreateNgoForm() {
             ? JSON.stringify(responseData)
             : "";
       console.error("NGO create failed", { status, responseText });
+      pushToast({ title: 'Unable to create NGO', description: message || 'Unable to create NGO right now', tone: 'error' });
       setErrors({
         form: message
           ? `Unable to create NGO: ${message}`

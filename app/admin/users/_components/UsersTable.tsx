@@ -5,6 +5,8 @@ import ReactDOM from "react-dom";
 import Link from "next/link";
 import axios from "@/lib/api/axios";
 import { resolveNgoPhotoUrl } from "@/lib/api/admin/ngos";
+import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 type User = any;
 
@@ -13,17 +15,19 @@ const resolveUserPhotoUrl = (value: string) => {
   if (value.startsWith("http") || value.startsWith("data:") || value.startsWith("/")) return value;
   const base = (axios.defaults && (axios.defaults as any).baseURL) ? (axios.defaults as any).baseURL : "";
   const prefix = base.endsWith("/") ? base.slice(0, -1) : base;
-  // backend serves uploads at /item_photos — use that route so files resolve
   return `${prefix}/item_photos/${value}`;
 };
 
 export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
   const [items, setItems] = useState<User[]>(initialUsers || []);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [perPage, setPerPage] = useState(10);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState("");
   const [filterHost, setFilterHost] = useState<HTMLElement | null>(null);
+  const { pushToast } = useToast();
 
   useEffect(() => setItems(initialUsers || []), [initialUsers]);
 
@@ -59,8 +63,44 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
     if (page > pages) setPage(pages);
   }, [pages, page]);
 
+  const handleConfirmDelete = async (id: string) => {
+    setPendingDeleteId(null);
+    setDeletingId(id);
+    try {
+      const base = (axios.defaults && (axios.defaults as any).baseURL) ? (axios.defaults as any).baseURL : '';
+      const url = `${base}/api/admin/users/${id}`;
+      const headers: Record<string, string> = {};
+      try {
+        if (typeof document !== 'undefined' && document.cookie) {
+          const m = document.cookie.match(/(?:^|; )auth_token=([^;]+)/);
+          const token = m ? decodeURIComponent(m[1]) : null;
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
+      } catch (err) {}
+      const res = await fetch(url, { method: 'DELETE', headers });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => null);
+        throw new Error(txt || `Delete failed (${res.status})`);
+      }
+      setItems((prev) => prev.filter((it) => (it._id || it.id) !== id));
+      pushToast({ title: 'User deleted', description: 'User deleted successfully', tone: 'success' });
+    } catch (e: any) {
+      pushToast({ title: 'Unable to delete user', description: e?.message || '', tone: 'error' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        title="Confirm delete"
+        description="Are you sure you want to delete this user? This action cannot be undone."
+        onCancel={() => setPendingDeleteId(null)}
+        onConfirm={() => pendingDeleteId ? handleConfirmDelete(pendingDeleteId) : undefined}
+        loading={!!(pendingDeleteId && deletingId === pendingDeleteId)}
+      />
       {/* Render filters into header host via portal when available, otherwise inline */}
       {(() => {
         const filterNode = (
@@ -137,7 +177,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
                           </svg>
                         </Link>
-                        <Link href={user._id || user.id ? `/admin/users/${user._id || user.id}/edit` : '#'} className="inline-flex h-9 w-9 items-center justify-center rounded bg-sky-200 border border-sky-300 text-sky-900 hover:opacity-95 shadow-sm" title="Edit">
+                        <Link href={user._id || user.id ? `/admin/users/${user._id || user.id}/edit` : '#'} className={`inline-flex h-9 w-9 items-center justify-center rounded bg-sky-200 border border-sky-300 text-sky-900 hover:opacity-95 shadow-sm ${deletingId === (user._id || user.id) ? 'opacity-60 pointer-events-none' : ''}`} title="Edit">
                           <span className="sr-only">Edit</span>
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4h6l3 3v6" />
@@ -146,51 +186,26 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                         </Link>
                         <button
                           type="button"
-                          onClick={async () => {
-                            const ok = confirm("Delete this user? This action cannot be undone.");
-                            if (!ok) return;
-                            try {
-                              const id = (user._id || user.id);
-                              if (!id || id === 'undefined') {
-                                alert('Cannot delete: missing user id');
-                                return;
-                              }
-                              const base = (axios.defaults && (axios.defaults as any).baseURL) ? (axios.defaults as any).baseURL : '';
-                              const url = `${base}/api/admin/users/${id}`;
-
-                              // Avoid credentialed CORS (credentials: "include") which requires
-                              // backend to return Access-Control-Allow-Credentials: true.
-                              // Instead, prefer sending an Authorization header if an auth token
-                              // exists in a cookie named `auth_token` (set by your login flow).
-                              const headers: Record<string, string> = {};
-                              try {
-                                if (typeof document !== 'undefined' && document.cookie) {
-                                  const m = document.cookie.match(/(?:^|; )auth_token=([^;]+)/);
-                                  const token = m ? decodeURIComponent(m[1]) : null;
-                                  if (token) headers['Authorization'] = `Bearer ${token}`;
-                                }
-                              } catch (err) {
-                                // ignore
-                              }
-
-                              const res = await fetch(url, { method: 'DELETE', headers });
-                              if (!res.ok) {
-                                const txt = await res.text().catch(() => null);
-                                throw new Error(txt || `Delete failed (${res.status})`);
-                              }
-                              setItems((prev) => prev.filter((it) => (it._id || it.id) !== id));
-                            } catch (e: any) {
-                              alert("Unable to delete user right now. " + (e?.message || ""));
+                          onClick={() => {
+                            const id = (user._id || user.id);
+                            if (!id || id === 'undefined') {
+                              pushToast({ title: 'Cannot delete', description: 'Missing user id', tone: 'error' });
+                              return;
                             }
+                            setPendingDeleteId(id);
                           }}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded bg-rose-200 border border-rose-300 text-rose-900 hover:opacity-95 shadow-sm"
+                          className={`inline-flex h-9 w-9 items-center justify-center rounded bg-rose-200 border border-rose-300 text-rose-900 hover:opacity-95 shadow-sm ${deletingId === (user._id || user.id) ? 'opacity-60 pointer-events-none' : ''}`}
                           title="Delete"
                         >
                           <span className="sr-only">Delete</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 3h4l1 4H9l1-4z" />
-                          </svg>
+                          {deletingId === (user._id || user.id) ? (
+                            <svg className="h-5 w-5 animate-spin text-rose-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="3" stroke="currentColor" strokeOpacity="0.25" /><path d="M22 12a10 10 0 00-10-10" strokeWidth="3" stroke="currentColor" /></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 3h4l1 4H9l1-4z" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </td>

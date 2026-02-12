@@ -4,16 +4,21 @@ import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import Link from "next/link";
 import { resolveNgoPhotoUrl } from "@/lib/api/admin/ngos";
+import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 type NGO = any;
 
 export default function NgoTable({ initialNgos, loading = false, onDelete }: { initialNgos: NGO[]; loading?: boolean; onDelete?: (id: string) => void; }) {
   const [items, setItems] = useState<NGO[]>(initialNgos || []);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [perPage, setPerPage] = useState(10);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [focusFilter, setFocusFilter] = useState<string>("");
   const [filterHost, setFilterHost] = useState<HTMLElement | null>(null);
+  const { pushToast } = useToast();
 
   useEffect(() => setItems(initialNgos || []), [initialNgos]);
 
@@ -54,6 +59,23 @@ export default function NgoTable({ initialNgos, loading = false, onDelete }: { i
     if (page > pages) setPage(pages);
   }, [pages, page]);
 
+  const handleConfirmDelete = async (id: string) => {
+    setPendingDeleteId(null);
+    setDeletingId(id);
+    try {
+      if (onDelete) {
+        await Promise.resolve(onDelete(id));
+      } else {
+        setItems((prev) => prev.filter((it) => (it.id || it._id) !== id));
+      }
+      pushToast({ title: 'NGO deleted', description: 'Deleted successfully', tone: 'success' });
+    } catch (e: any) {
+      pushToast({ title: 'Unable to delete NGO', description: e?.message || '', tone: 'error' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   useEffect(() => {
     const host = document.getElementById("ngos-filters-host");
     if (host) setFilterHost(host);
@@ -61,6 +83,14 @@ export default function NgoTable({ initialNgos, loading = false, onDelete }: { i
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        title="Confirm delete"
+        description="Are you sure you want to delete this NGO? This action cannot be undone."
+        onCancel={() => setPendingDeleteId(null)}
+        onConfirm={() => pendingDeleteId ? handleConfirmDelete(pendingDeleteId) : undefined}
+        loading={!!(pendingDeleteId && deletingId === pendingDeleteId)}
+      />
       {/* Render filters into header host via portal when available, otherwise inline */}
       {(() => {
         const node = (
@@ -131,7 +161,7 @@ export default function NgoTable({ initialNgos, loading = false, onDelete }: { i
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
                         </svg>
                       </Link>
-                      <Link href={`/admin/ngos/${ngo.id || ngo._id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded bg-sky-200 border border-sky-300 text-sky-900 hover:opacity-95 shadow-sm" title="Edit">
+                      <Link href={`/admin/ngos/${ngo.id || ngo._id}/edit`} className={`inline-flex h-9 w-9 items-center justify-center rounded bg-sky-200 border border-sky-300 text-sky-900 hover:opacity-95 shadow-sm ${deletingId === (ngo.id || ngo._id) ? 'opacity-60 pointer-events-none' : ''}`} title="Edit">
                         <span className="sr-only">Edit</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4h6l3 3v6" />
@@ -140,16 +170,21 @@ export default function NgoTable({ initialNgos, loading = false, onDelete }: { i
                       </Link>
                       <button type="button" onClick={() => {
                         const id = ngo.id || ngo._id;
-                        const ok = window.confirm("Delete this NGO? This action cannot be undone.");
-                        if (!ok) return;
-                        if (onDelete) onDelete(id);
-                        else setItems((prev) => prev.filter((it) => (it.id || it._id) !== id));
-                      }} className="inline-flex h-9 w-9 items-center justify-center rounded bg-rose-200 border border-rose-300 text-rose-900 hover:opacity-95 shadow-sm" title="Delete">
+                        if (!id) {
+                          pushToast({ title: 'Cannot delete', description: 'Missing NGO id', tone: 'error' });
+                          return;
+                        }
+                        setPendingDeleteId(id);
+                      }} className={`inline-flex h-9 w-9 items-center justify-center rounded bg-rose-200 border border-rose-300 text-rose-900 hover:opacity-95 shadow-sm ${deletingId === (ngo.id || ngo._id) ? 'opacity-60 pointer-events-none' : ''}`} title="Delete">
                         <span className="sr-only">Delete</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 3h4l1 4H9l1-4z" />
-                        </svg>
+                        {deletingId === (ngo.id || ngo._id) ? (
+                          <svg className="h-5 w-5 animate-spin text-rose-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="3" stroke="currentColor" strokeOpacity="0.25" /><path d="M22 12a10 10 0 00-10-10" strokeWidth="3" stroke="currentColor" /></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 3h4l1 4H9l1-4z" />
+                          </svg>
+                        )}
                       </button>
                     </div>
                   </td>

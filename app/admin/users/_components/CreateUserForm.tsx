@@ -3,12 +3,13 @@ import { Controller, useForm } from "react-hook-form";
 import { UserData, UserSchema } from "@/app/admin/users/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState, useTransition } from "react";
-import { toast } from "react-toastify";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 import { handleCreateUser } from "@/lib/actions/admin/user-action";
 import { useRouter } from "next/navigation";
 export default function CreateUserForm() {
 
     const router = useRouter();
+    const { pushToast } = useToast();
 
     const [pending, startTransition] = useTransition();
     const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<UserData>({
@@ -67,11 +68,11 @@ export default function CreateUserForm() {
                 }
                 reset();
                 handleDismissImage();
-                toast.success('Profile Created successfully');
+                pushToast({ title: 'User created', description: 'Profile created successfully', tone: 'success' });
                 // navigate to users list after successful creation
                 router.push('/admin/users');
             } catch (error: Error | any) {
-                toast.error(error.message || 'Create profile failed');
+                pushToast({ title: 'Unable to create user', description: error.message || 'Create profile failed', tone: 'error' });
                 setError(error.message || 'Create profile failed');
             }
         });

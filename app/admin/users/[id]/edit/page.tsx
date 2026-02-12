@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "@/lib/api/axios";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 export default function EditPage() {
   const params = useParams();
@@ -14,6 +15,7 @@ export default function EditPage() {
   const [form, setForm] = useState({ name: "", email: "", role: "user" });
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const { pushToast } = useToast();
 
   useEffect(() => {
     let mounted = true;
@@ -107,9 +109,11 @@ export default function EditPage() {
         // (removed debug logging)
         throw new Error(safeText);
       }
+      pushToast({ title: 'User updated', description: 'User saved successfully', tone: 'success' });
       router.push('/admin/users');
     } catch (err: any) {
       setError(err?.message || 'Unable to save user');
+      pushToast({ title: 'Unable to save user', description: err?.message || 'Unable to save user', tone: 'error' });
     } finally {
       setSaving(false);
     }
