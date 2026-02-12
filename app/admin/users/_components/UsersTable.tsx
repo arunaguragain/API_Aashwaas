@@ -3,9 +3,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import Link from "next/link";
+import axios from "@/lib/api/axios";
 import { resolveNgoPhotoUrl } from "@/lib/api/admin/ngos";
 
 type User = any;
+
+const resolveUserPhotoUrl = (value: string) => {
+  if (!value) return value;
+  if (value.startsWith("http") || value.startsWith("data:") || value.startsWith("/")) return value;
+  const base = (axios.defaults && (axios.defaults as any).baseURL) ? (axios.defaults as any).baseURL : "";
+  const prefix = base.endsWith("/") ? base.slice(0, -1) : base;
+  // backend serves uploads at /item_photos — use that route so files resolve
+  return `${prefix}/item_photos/${value}`;
+};
 
 export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
   const [items, setItems] = useState<User[]>(initialUsers || []);
@@ -79,7 +89,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
       })()}
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow">
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div>
           <table className="w-full">
             <thead className="bg-gray-200 sticky top-0 z-10">
             <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-800">
@@ -98,8 +108,17 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
               </tr>
             ) : (
               paged.map((user: User, idx: number) => {
-                const photo = (user.image || user.photo || user.avatar || "").toString();
-                const src = photo ? resolveNgoPhotoUrl(photo) : "/images/user.png";
+                const photo = (user.profilePicture || user.image || user.photo || user.avatar || "").toString();
+                let src = "/images/user.png";
+                if (photo) {
+                  const lower = photo.toLowerCase();
+                  // treat common default names as missing and use local placeholder
+                  if (lower === "default-profile.png" || lower.includes("default") || lower === "user.png") {
+                    src = "/images/user.png";
+                  } else {
+                    src = resolveUserPhotoUrl(photo) || resolveNgoPhotoUrl(photo) || "/images/user.png";
+                  }
+                }
                 return (
                   <tr key={user._id || user.id} className="text-sm text-gray-800 hover:bg-gray-100">
                     <td className="px-4 py-4">{(page - 1) * perPage + idx + 1}</td>
@@ -111,14 +130,14 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                     <td className="px-4 py-4 text-gray-700 capitalize">{user.role || "user"}</td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <Link href={`/admin/users/${user._id || user.id}`} className="inline-flex h-9 w-9 items-center justify-center rounded bg-amber-200 border border-amber-300 text-amber-900 hover:opacity-95 shadow-sm" title="View">
+                        <Link href={user._id || user.id ? `/admin/users/${user._id || user.id}` : '#'} className="inline-flex h-9 w-9 items-center justify-center rounded bg-amber-200 border border-amber-300 text-amber-900 hover:opacity-95 shadow-sm" title="View">
                           <span className="sr-only">View</span>
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
                           </svg>
                         </Link>
-                        <Link href={`/admin/users/${user._id || user.id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded bg-sky-200 border border-sky-300 text-sky-900 hover:opacity-95 shadow-sm" title="Edit">
+                        <Link href={user._id || user.id ? `/admin/users/${user._id || user.id}/edit` : '#'} className="inline-flex h-9 w-9 items-center justify-center rounded bg-sky-200 border border-sky-300 text-sky-900 hover:opacity-95 shadow-sm" title="Edit">
                           <span className="sr-only">Edit</span>
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4h6l3 3v6" />
@@ -131,11 +150,37 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                             const ok = confirm("Delete this user? This action cannot be undone.");
                             if (!ok) return;
                             try {
-                              const res = await fetch(`/api/admin/users/${user._id || user.id}`, { method: "DELETE", credentials: "include" });
-                              if (!res.ok) throw new Error("Delete failed");
-                              setItems((prev) => prev.filter((it) => (it._id || it.id) !== (user._id || user.id)));
-                            } catch (e) {
-                              alert("Unable to delete user right now.");
+                              const id = (user._id || user.id);
+                              if (!id || id === 'undefined') {
+                                alert('Cannot delete: missing user id');
+                                return;
+                              }
+                              const base = (axios.defaults && (axios.defaults as any).baseURL) ? (axios.defaults as any).baseURL : '';
+                              const url = `${base}/api/admin/users/${id}`;
+
+                              // Avoid credentialed CORS (credentials: "include") which requires
+                              // backend to return Access-Control-Allow-Credentials: true.
+                              // Instead, prefer sending an Authorization header if an auth token
+                              // exists in a cookie named `auth_token` (set by your login flow).
+                              const headers: Record<string, string> = {};
+                              try {
+                                if (typeof document !== 'undefined' && document.cookie) {
+                                  const m = document.cookie.match(/(?:^|; )auth_token=([^;]+)/);
+                                  const token = m ? decodeURIComponent(m[1]) : null;
+                                  if (token) headers['Authorization'] = `Bearer ${token}`;
+                                }
+                              } catch (err) {
+                                // ignore
+                              }
+
+                              const res = await fetch(url, { method: 'DELETE', headers });
+                              if (!res.ok) {
+                                const txt = await res.text().catch(() => null);
+                                throw new Error(txt || `Delete failed (${res.status})`);
+                              }
+                              setItems((prev) => prev.filter((it) => (it._id || it.id) !== id));
+                            } catch (e: any) {
+                              alert("Unable to delete user right now. " + (e?.message || ""));
                             }
                           }}
                           className="inline-flex h-9 w-9 items-center justify-center rounded bg-rose-200 border border-rose-300 text-rose-900 hover:opacity-95 shadow-sm"

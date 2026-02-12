@@ -5,7 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { handleCreateUser } from "@/lib/actions/admin/user-action";
+import { useRouter } from "next/navigation";
 export default function CreateUserForm() {
+
+    const router = useRouter();
 
     const [pending, startTransition] = useTransition();
     const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<UserData>({
@@ -65,6 +68,8 @@ export default function CreateUserForm() {
                 reset();
                 handleDismissImage();
                 toast.success('Profile Created successfully');
+                // navigate to users list after successful creation
+                router.push('/admin/users');
             } catch (error: Error | any) {
                 toast.error(error.message || 'Create profile failed');
                 setError(error.message || 'Create profile failed');
@@ -74,67 +79,81 @@ export default function CreateUserForm() {
     };
     return (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold text-gray-900">Create User</h1>
-                <p className="text-sm text-gray-500">Add a new user to the system</p>
+            <div className="mb-6 flex items-start justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold text-gray-900">Create User</h1>
+                    <p className="text-sm text-gray-500">Add a new user to the system</p>
+                </div>
+                <div className="w-40">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <select
+                        className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-500"
+                        {...register("role")}
+                    >
+                        {roleOptions.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                    </select>
+                    {errors.role && <p className="text-xs text-red-600">{errors.role.message}</p>}
+                </div>
             </div>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                                    <select
-                                        className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-500"
-                                        {...register("role")}
-                                    >
-                                        {roleOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>{option.label}</option>
-                                        ))}
-                                    </select>
-                                    {errors.role && <p className="text-xs text-red-600">{errors.role.message}</p>}
-                                </div>
-                <div className="mb-4">
-                {previewImage ? (
-                    <div className="relative w-24 h-24">
-                        <img
-                            src={previewImage}
-                            alt="Profile Image Preview"
-                            className="w-24 h-24 rounded-full object-cover"
-                        />
+                <div className="flex items-start gap-6">
+                    <div className="flex-shrink-0">
+                        {previewImage ? (
+                            <div className="relative w-24 h-24">
+                                <img
+                                    src={previewImage}
+                                    alt="Profile Image Preview"
+                                    className="w-24 h-24 rounded-full object-cover"
+                                />
+                                <Controller
+                                    name="image"
+                                    control={control}
+                                    render={({ field: { onChange } }) => (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDismissImage(onChange)}
+                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
+                                <img src="/images/user.png" alt="placeholder" className="w-12 h-12" />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
                         <Controller
                             name="image"
                             control={control}
                             render={({ field: { onChange } }) => (
-                                <button
-                                    type="button"
-                                    onClick={() => handleDismissImage(onChange)}
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
-                                >
-                                    ✕
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <label className="inline-flex items-center rounded-md bg-white px-3 py-2 border border-gray-300 text-sm text-gray-700 cursor-pointer hover:bg-gray-50">
+                                        Upload Image
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
+                                            accept=".jpg,.jpeg,.png,.webp"
+                                            className="hidden"
+                                        />
+                                    </label>
+                                    {previewImage && (
+                                        <button type="button" onClick={() => handleDismissImage(onChange)} className="text-sm text-red-600">Remove</button>
+                                    )}
+                                </div>
                             )}
                         />
+                        {errors.image && <p className="text-sm text-red-600">{errors.image.message}</p>}
                     </div>
-                ) : (
-                    <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span className="text-gray-600">No Image</span>
-                    </div>
-                )}
-
-                </div>
-                <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
-                <Controller
-                    name="image"
-                    control={control}
-                    render={({ field: { onChange } }) => (
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
-                            accept=".jpg,.jpeg,.png,.webp"
-                        />
-                    )}
-                />
-                {errors.image && <p className="text-sm text-red-600">{errors.image.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -216,13 +235,23 @@ export default function CreateUserForm() {
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={isSubmitting || pending}
-                    className="h-11 w-full rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60"
-                >
-                    {isSubmitting || pending ? "Creating account..." : "Create account"}
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting || pending}
+                        className="h-11 flex-1 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60"
+                    >
+                        {isSubmitting || pending ? "Creating account..." : "Create account"}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => router.push('/admin/users')}
+                        className="h-11 flex-1 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                    >
+                        Cancel
+                    </button>
+                    
+                </div>
             </form>
         </div>
     );

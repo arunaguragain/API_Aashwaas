@@ -89,7 +89,7 @@ export default function NgoTable({ initialNgos, loading = false, onDelete }: { i
       })()}
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow">
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div>
           <table className="w-full">
             <thead className="bg-gray-200 sticky top-0 z-10">
             <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-800">
