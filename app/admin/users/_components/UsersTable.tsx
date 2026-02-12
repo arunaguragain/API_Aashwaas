@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import ReactDOM from "react-dom";
 import Link from "next/link";
 import { resolveNgoPhotoUrl } from "@/lib/api/admin/ngos";
 
@@ -12,8 +13,15 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState("");
+  const [filterHost, setFilterHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => setItems(initialUsers || []), [initialUsers]);
+
+  useEffect(() => {
+    // find the host element in the page header where filters should appear
+    const host = document.getElementById("users-filters-host");
+    if (host) setFilterHost(host);
+  }, []);
 
   const roles = useMemo(() => {
     const set = new Set<string>();
@@ -43,33 +51,37 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <input
-            aria-label="Search users"
-            placeholder="Search users by name or email..."
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-            className="w-72 rounded-md border border-gray-400 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
-          />
+      {/* Render filters into header host via portal when available, otherwise inline */}
+      {(() => {
+        const filterNode = (
+          <div className="flex items-center gap-3">
+            <input
+              aria-label="Search users"
+              placeholder="Search users by name or email..."
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+              className="w-72 rounded-md border border-gray-400 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            />
 
-          <select
-            value={roleFilter}
-            onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
-          >
-            <option value="">All roles</option>
-            {roles.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-        </div>
-        <div />
-      </div>
+            <select
+              value={roleFilter}
+              onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            >
+              <option value="">All roles</option>
+              {roles.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+        );
+        return filterHost ? ReactDOM.createPortal(filterNode, filterHost) : <div>{filterNode}</div>;
+      })()}
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow">
-        <table className="w-full">
-          <thead className="bg-gray-200">
+        <div className="max-h-[60vh] overflow-y-auto">
+          <table className="w-full">
+            <thead className="bg-gray-200 sticky top-0 z-10">
             <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-800">
               <th className="px-4 py-3">No</th>
               <th className="px-4 py-3">Profile Picture</th>
@@ -78,8 +90,8 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Action</th>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-300">
+            </thead>
+            <tbody className="divide-y divide-gray-300">
             {paged.length === 0 ? (
               <tr>
                 <td className="px-6 py-6 text-sm text-gray-600" colSpan={6}>No users found.</td>
@@ -142,7 +154,8 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
               })
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
