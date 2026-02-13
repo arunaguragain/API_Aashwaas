@@ -12,7 +12,7 @@ export default function DonorLoginPage() {
       userType="Donor"
       onSubmit={handleSubmit}
       registerLink="/donor_register"
-      forgotPasswordLink="/donor/forgot-password"
+      forgotPasswordLink="/forgot-password"
       showGoogleSignIn={true}
     />
   );

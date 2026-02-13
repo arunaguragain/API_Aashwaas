@@ -12,7 +12,7 @@ export default function VolunteerLoginPage() {
       userType="Volunteer"
       onSubmit={handleSubmit}
       registerLink="/volunteer_register"
-      forgotPasswordLink="/volunteer/forgot-password"
+      forgotPasswordLink="/forgot-password"
       showGoogleSignIn={true}
     />
   );

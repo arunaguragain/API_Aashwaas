@@ -5,6 +5,8 @@ export const API = {
         LOGIN: "/api/auth/login",
         WHOAMI: "/api/auth/whoami",
         UPDATEPROFILE: "/api/auth/update-profile",
+        FORGOT_PASSWORD: "/api/auth/request-password-reset",
+        RESET_PASSWORD: (token: string) => `/api/auth/reset-password/${token}`,
     },
     // Public NGO routes
     NGO: {

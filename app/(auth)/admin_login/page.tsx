@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
       userType="Admin"
       onSubmit={handleSubmit}
       registerLink={undefined} 
-      forgotPasswordLink="/admin/forgot-password"
+      forgotPasswordLink="/forgot-password"
       showGoogleSignIn={false}
     />
   );

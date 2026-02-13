@@ -27,3 +27,17 @@ export const registerSchema = z.object({
 });
 
 export type RegisterData = z.infer<typeof registerSchema>;
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email({ message: "Enter a valid email" }),
+});
+export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z.object({
+  password: passwordSchema,
+  confirmPassword: z.string(),
+}).refine((v) => v.password === v.confirmPassword, {
+  path: ["confirmPassword"],
+  message: "Passwords do not match",
+});
+export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
