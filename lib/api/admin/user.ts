@@ -22,7 +22,7 @@ export const getUsers = async () => {
 export const getUserById = async (id: string) => {
     try {
         const headers = await buildAuthHeaders();
-        const response = await axios.get(`${API.ADMIN.USER.CREATE}${id}`, { headers });
+        const response = await axios.get(API.ADMIN.USER.GET_ONE(id), { headers });
         return response.data;
     } catch (error: Error | any) {
         throw new Error(error.response?.data?.message

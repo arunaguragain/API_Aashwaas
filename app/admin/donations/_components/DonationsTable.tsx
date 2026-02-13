@@ -127,8 +127,6 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
         loading={!!(pendingDeleteId && deletingId === pendingDeleteId)}
       />
 
-
-
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow">
         <div>
           <table className="w-full">

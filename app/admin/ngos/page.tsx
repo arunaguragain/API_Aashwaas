@@ -36,9 +36,8 @@ export default function AdminNGOPage() {
     load();
   }, []);
 
+  // Only rely on custom confirmation in NgoTable for delete confirmation
   const handleDelete = async (id: string) => {
-    const ok = window.confirm("Delete this NGO? This action cannot be undone.");
-    if (!ok) return;
     try {
       await AdminNGOsApi.adminRemove(id);
       setItems((prev) => prev.filter((item) => item.id !== id));

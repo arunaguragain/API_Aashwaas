@@ -32,9 +32,8 @@ export default function AdminDonationsPage() {
     load();
   }, []);
 
+  // Only rely on ConfirmDialog in DonationsTable for delete confirmation
   const handleDelete = async (id: string) => {
-    const ok = window.confirm("Delete this donation? This action cannot be undone.");
-    if (!ok) return;
     try {
       await AdminDonationsApi.remove(id);
       setItems((prev) => prev.filter((i) => (i.id || i._id) !== id));
