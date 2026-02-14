@@ -28,11 +28,11 @@ export default function ConfirmDialog({
         <div className="text-sm font-semibold text-gray-900">{title}</div>
         {description && <div className="mt-2 text-sm text-gray-600">{description}</div>}
         <div className="mt-4 flex justify-end gap-2">
-          <button onClick={onCancel} className="rounded border border-gray-200 bg-white px-3 py-1 text-sm">{cancelLabel}</button>
+          <button onClick={onCancel} className="rounded-full bg-rose-100 border border-gray-500 bg-white px-3 py-1 text-sm">{cancelLabel}</button>
           <button
             onClick={async () => { await onConfirm(); }}
             disabled={loading}
-            className="rounded bg-rose-600 px-3 py-1 text-sm text-white disabled:opacity-60"
+            className="rounded-full bg-rose-100 border border-rose-200 text-rose-800 hover:bg-rose-200 px-3 py-1 text-sm font-semibold shadow-sm disabled:opacity-60 transition"
           >
             {loading ? 'Deleting…' : confirmLabel}
           </button>

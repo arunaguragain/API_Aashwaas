@@ -80,6 +80,17 @@ export const TasksApi = {
       throw new Error(err?.response?.data?.message || err.message || "Delete task failed");
     }
   },
+
+  async update(id: string, payload: Partial<Task>): Promise<{ data: Task; source: "api" | "mock" }> {
+    try {
+      const response = await axiosInstance.post(API.ADMIN.TASK.UPDATE(id), payload);
+      const payloadData = response.data as any;
+      const data = payloadData?.data ?? payloadData;
+      return { data, source: "api" };
+    } catch (err) {
+      throw new Error("Update task failed");
+    }
+  },
 };
 
 export default TasksApi;
