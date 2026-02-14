@@ -38,7 +38,12 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
     setItems(initialDonations || []);
     (async () => {
       const updated = await Promise.all((initialDonations || []).map(async (donation) => {
-        if (!donation.donorName && donation.donorId && !donation.donor) {
+        if (
+          !donation.donorName &&
+          donation.donorId &&
+          typeof donation.donorId === 'string' &&
+          !donation.donor
+        ) {
           try {
             const user = await getUserById(donation.donorId);
             return { ...donation, donorName: user?.name || user?.fullName || "—" };

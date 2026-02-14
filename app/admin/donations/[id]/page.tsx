@@ -126,11 +126,27 @@ export default function AdminDonationDetailPage() {
       return;
     }
     try {
-      await AdminDonationsApi.assign(id, volunteerId);
+      // If ngoId is selected, send both; else just volunteerId
+      await AdminDonationsApi.assign(id, volunteerId, ngoId || undefined);
       pushToast({ title: 'Volunteer assigned', description: '', tone: 'success' });
       load();
     } catch (e: any) {
       pushToast({ title: 'Unable to assign volunteer', description: e?.message || '', tone: 'error' });
+    }
+  };
+
+  // Handler to assign NGO to donation
+  const handleAssignNGO = async () => {
+    if (!volunteerId || !ngoId) {
+      pushToast({ title: 'Please select both a volunteer and an NGO', description: '', tone: 'error' });
+      return;
+    }
+    try {
+      await AdminDonationsApi.assign(id, volunteerId, ngoId);
+      pushToast({ title: 'Volunteer and NGO assigned', description: '', tone: 'success' });
+      load();
+    } catch (e: any) {
+      pushToast({ title: 'Unable to assign volunteer and NGO', description: e?.message || '', tone: 'error' });
     }
   };
 
@@ -184,7 +200,8 @@ export default function AdminDonationDetailPage() {
                   || "—"
                 }</p>
                 <p><span className="font-medium text-gray-900">Pickup location:</span> {item.city || item.pickupLocation || 'Not provided'}</p>
-                <p><span className="font-medium text-gray-900">NGO:</span> {item.ngoName || 'To be assigned'}</p>
+                <p><span className="font-medium text-gray-900">Assigned Volunteer:</span> {item.assignment?.volunteerName || item.assignment?.volunteerId || 'To be assigned'}</p>
+                <p><span className="font-medium text-gray-900">NGO:</span> {item.assignment?.ngoName || item.assignment?.ngoId || 'To be assigned'}</p>
                 <p><span className="font-medium text-gray-900">Category:</span> {item.category}</p>
                 <p><span className="font-medium text-gray-900">Condition:</span> {item.condition}</p>
                 <p><span className="font-medium text-gray-900">Quantity:</span> {item.quantity}</p>
@@ -224,7 +241,7 @@ export default function AdminDonationDetailPage() {
                     <option value="">Select NGO</option>
                     {ngoOptions.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
                   </select>
-                  <button onClick={handleAssignVolunteer} className="rounded bg-sky-600 px-3 py-1 text-sm text-white">Assign</button>
+                  <button onClick={handleAssignNGO} className="rounded bg-sky-600 px-3 py-1 text-sm text-white">Assign</button>
                 </div>
               </div>
             </div>
