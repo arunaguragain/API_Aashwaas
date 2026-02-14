@@ -18,11 +18,10 @@ import {
 
 const navItems = [
 	{ href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-	{ href: "/admin/donations", label: "Donations", icon: Package },
 	{ href: "/admin/ngos", label: "NGO Management", icon: Building2 },
 	{ href: "/admin/users", label: "User Management", icon: UserCog },
-	{ href: "/admin/volunteers", label: "Volunteers", icon: Users },
-	{ href: "/admin/tasks", label: "Task Assignment", icon: ClipboardList },
+	{ href: "/admin/donations", label: "Donations", icon: Package },
+	{ href: "/admin/tasks", label: "Task Management", icon: ClipboardList },
 	{ href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];
 

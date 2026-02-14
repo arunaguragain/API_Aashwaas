@@ -50,5 +50,13 @@ export const API = {
             APPROVE: (id: string) => `/api/admin/donations/${id}/approve`,
             ASSIGN: (id: string) => `/api/admin/donations/${id}/assign`,
         },
+        TASK: {
+            LIST: "/api/admin/tasks",
+            GET: (id: string) => `/api/admin/tasks/${id}`,
+            CREATE: "/api/admin/tasks",
+            UPDATE: (id: string) => `/api/admin/tasks/${id}`,
+            UPDATE_STATUS: (id: string) => `/api/admin/tasks/${id}/status`,
+            DELETE: (id: string) => `/api/admin/tasks/${id}`,
+        },
     },
 };
