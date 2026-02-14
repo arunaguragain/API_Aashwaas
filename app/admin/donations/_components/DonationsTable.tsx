@@ -156,7 +156,7 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
                   <td className="px-6 py-6 text-sm text-gray-600" colSpan={6}>No donations found.</td>
                 </tr>
               ) : (
-                paged.map((don: Donation, idx: number) => (
+                  paged.map((don: Donation, idx: number) => (
                   <tr key={don.id || don._id} className="text-sm text-gray-800 hover:bg-gray-100">
                     <td className="px-4 py-4">{(page - 1) * perPage + idx + 1}</td>
                     <td className="px-4 py-4">
@@ -187,10 +187,25 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
                           </svg>
                         </Link>
-                        {don.status === 'pending' && (
-                          <button onClick={() => handleApprove(don.id || don._id)} className="inline-flex items-center justify-center rounded-full bg-green-100 border border-green-200 text-green-800 hover:bg-green-200 shadow-sm px-2 py-1 text-xs font-medium">Approve</button>
-                        )}
-                        <button onClick={() => handleAssign(don.id || don._id)} className="inline-flex items-center justify-center rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 shadow-sm px-2 py-1 text-xs font-medium">Assign</button>
+                         {(don.status === 'pending') && (
+                           <>
+                             <button onClick={() => handleApprove(don.id || don._id)} className="inline-flex items-center justify-center rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 shadow-sm px-2 py-1 text-xs font-medium">Approve</button>
+                             <Link
+                               href={`/admin/donations/${don.id || don._id}`}
+                               className="inline-flex items-center justify-center rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 shadow-sm px-2 py-1 text-xs font-medium"
+                             >
+                               Assign
+                             </Link>
+                           </>
+                         )}
+                         {don.status === 'approved' && (
+                           <Link
+                             href={`/admin/donations/${don.id || don._id}`}
+                             className="inline-flex items-center justify-center rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 shadow-sm px-2 py-1 text-xs font-medium"
+                           >
+                             Assign
+                           </Link>
+                         )}
                         <button type="button" onClick={() => setPendingDeleteId(don.id || don._id)} className={`inline-flex items-center justify-center rounded-full bg-rose-100 border border-rose-200 text-rose-800 hover:bg-rose-200 shadow-sm px-2 py-1 text-xs font-medium ${deletingId === (don.id || don._id) ? 'opacity-60 pointer-events-none' : ''}`} title="Delete">
                           {deletingId === (don.id || don._id) ? (
                             <svg className="h-4 w-4 animate-spin text-rose-700" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="3" stroke="currentColor" strokeOpacity="0.25" /><path d="M22 12a10 10 0 00-10-10" strokeWidth="3" stroke="currentColor" /></svg>

@@ -187,11 +187,18 @@ export default function AdminDonationDetailPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
-          <div className="grid gap-0 md:[grid-template-columns:320px_1fr] items-start">
-            <div className="max-w-[320px]">
-              <h2 className="text-lg font-semibold text-gray-900">Details</h2>
-              <div className="mt-4 space-y-2 text-sm text-gray-600">
+        <div className="relative rounded-2xl shadow-lg border border-gray-100 bg-white p-12 min-h-[520px]">
+          {/* Status badge in top right */}
+          {item.status && (
+            <div className="absolute top-6 right-8 z-10">
+              <Badge tone={item.status} label={String(item.status)} />
+            </div>
+          )}
+          <div className="flex flex-col md:flex-row gap-16 items-start">
+            {/* Details Section */}
+            <div className="w-full md:w-1/3 max-w-xs flex-1 mx-auto md:mx-0">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Details</h2>
+              <div className="space-y-2 text-base text-gray-700">
                 <p><span className="font-medium text-gray-900">Donor:</span> {
                   donorName
                   || (typeof item?.donorId === 'string' ? item.donorId : undefined)
@@ -207,21 +214,51 @@ export default function AdminDonationDetailPage() {
                 <p><span className="font-medium text-gray-900">Quantity:</span> {item.quantity}</p>
                 <p><span className="font-medium text-gray-900">Description:</span> {item.description}</p>
               </div>
-
-              {/* Action buttons inside card */}
-              <div className="mt-6 flex flex-wrap gap-2">
-                {item.status && <Badge tone={item.status} label={String(item.status)} />}
+              {/* Action buttons */}
+              <div className="mt-6 flex flex-wrap gap-3 items-center">
                 {item.status === 'pending' && (
-                  <button onClick={handleApprove} className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white">Approve</button>
+                  <button
+                    onClick={handleApprove}
+                    className="inline-flex items-center rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 shadow-sm px-4 py-2 text-sm font-semibold transition"
+                  >
+                    Approve
+                  </button>
                 )}
-                <button onClick={() => setConfirmOpen(true)} className="inline-flex items-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white">Delete</button>
+                {item.status === 'approved' && (
+                  <button
+                    type="button"
+                    onClick={handleAssignNGO}
+                    className="rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 px-4 py-2 text-sm font-semibold shadow-sm transition"
+                  >
+                    Assign Volunteer & NGO
+                  </button>
+                )}
+                <button
+                  onClick={() => setConfirmOpen(true)}
+                  className="inline-flex items-center rounded-full bg-rose-100 border border-rose-200 text-rose-800 hover:bg-rose-200 shadow-sm px-4 py-2 text-sm font-semibold transition"
+                >
+                  Delete
+                </button>
               </div>
+            </div>
 
-              {/* Volunteer assignment section */}
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assign Volunteer</label>
-                <div className="flex gap-2">
-                  <select value={volunteerId} onChange={e => setVolunteerId(e.target.value)} className="rounded border border-gray-300 px-2 py-1 text-sm">
+            {/* Assignment section  */}
+            <div className="w-full md:w-1/3 max-w-xs flex-1 mx-auto md:mx-0 flex flex-col justify-start">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Assign Volunteer & NGO</h2>
+              <form
+                className="flex flex-col gap-4"
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleAssignNGO();
+                }}
+              >
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">Select Volunteer</label>
+                  <select
+                    value={volunteerId}
+                    onChange={e => setVolunteerId(e.target.value)}
+                    className="rounded border border-gray-300 px-3 py-2 text-sm w-full focus:ring-2 focus:ring-blue-200"
+                  >
                     <option value="">Select volunteer</option>
                     {volunteerOptions.map(v => (
                       <option key={v._id || v.id} value={v._id || v.id}>
@@ -229,39 +266,47 @@ export default function AdminDonationDetailPage() {
                       </option>
                     ))}
                   </select>
-                  <button onClick={handleAssignVolunteer} className="rounded bg-sky-600 px-3 py-1 text-sm text-white">Assign</button>
                 </div>
-              </div>
-
-              {/* NGO assignment section */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Assign NGO</label>
-                <div className="flex gap-2">
-                  <select value={ngoId} onChange={e => setNgoId(e.target.value)} className="rounded border border-gray-300 px-2 py-1 text-sm">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">Select NGO</label>
+                  <select
+                    value={ngoId}
+                    onChange={e => setNgoId(e.target.value)}
+                    className="rounded border border-gray-300 px-3 py-2 text-sm w-full focus:ring-2 focus:ring-blue-200"
+                  >
                     <option value="">Select NGO</option>
-                    {ngoOptions.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
+                    {ngoOptions.map(n => (
+                      <option key={n.id} value={n.id}>{n.name}</option>
+                    ))}
                   </select>
-                  <button onClick={handleAssignNGO} className="rounded bg-sky-600 px-3 py-1 text-sm text-white">Assign</button>
                 </div>
-              </div>
+                <button
+                  type="submit"
+                  className="rounded-full bg-sky-100 border border-sky-200 text-sky-800 hover:bg-sky-200 px-4 py-2 text-sm font-semibold shadow-sm transition self-start mt-2"
+                >
+                  Assign Volunteer & NGO
+                </button>
+              </form>
             </div>
-
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Photo</h2>
-              <div className="mt-4">
+            {/* Photo Section */}
+            <div className="w-full md:w-1/3 max-w-xs flex-1 flex flex-col items-center justify-center mx-auto md:mx-0">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Photo</h2>
+              <div className="w-full flex justify-center">
                 {item.media ? (
-                  <div className="rounded-lg overflow-hidden bg-slate-50 max-w-[320px] mx-auto">
+                  <div className="rounded-xl overflow-hidden bg-slate-100 shadow max-w-xs w-full aspect-video flex items-center justify-center">
                     <img
                       src={`${(axios.defaults && (axios.defaults as any).baseURL ? (axios.defaults as any).baseURL : "http://localhost:5050")}/item_photos/${item.media}`}
                       alt={item.title || item.itemName || "Donation image"}
-                      className="w-full h-48 object-cover cursor-pointer"
+                      className="w-full h-48 object-cover"
                     />
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-600">No photo available</p>
+                  <p className="text-base text-gray-500">No photo available</p>
                 )}
               </div>
             </div>
+
+           
           </div>
         </div>
       </div>
