@@ -7,7 +7,7 @@ import { TasksApi } from "@/lib/api/admin/tasks";
 type Task = {
   id?: string;
   _id?: string;
-  donationTitle?: string;
+  title?: string;
   donationId?: string;
   status: string;
   pickupLocation?: string;
@@ -56,7 +56,7 @@ export default function TaskTable({ tasks: initialTasks }: TaskTableProps) {
             <thead className="bg-gray-200 sticky top-0 z-10">
               <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-800">
                 <th className="px-4 py-3">No</th>
-                <th className="px-4 py-3">Task</th>
+                <th className="px-4 py-3">Title</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Pickup Location</th>
                 <th className="px-4 py-3">Drop Location</th>
@@ -76,7 +76,7 @@ export default function TaskTable({ tasks: initialTasks }: TaskTableProps) {
                 tasks.map((task, idx) => (
                   <tr key={task.id || task._id || idx} className="text-sm text-gray-800 hover:bg-gray-100">
                     <td className="px-4 py-4">{idx + 1}</td>
-                    <td className="px-4 py-4 font-medium text-gray-900">{task.donationTitle || task.donationId}</td>
+                    <td className="px-4 py-4 font-medium text-gray-900">{task.title || '-'}</td>
                     <td className="px-4 py-4"><Badge label={task.status} tone={task.status} /></td>
                     <td className="px-4 py-4">{task.pickupLocation || "-"}</td>
                     <td className="px-4 py-4">{task.dropLocation || "-"}</td>

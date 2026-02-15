@@ -38,8 +38,8 @@ export const AdminDonationsApi = {
 
   async assign(id: string, volunteerId: string, ngoId?: string): Promise<{ data: DonationModel; source: "api" | "mock" }> {
     try {
-      // Send both volunteerId and ngoId if provided, as required by backend
-      const payload: any = { volunteerId };
+      // Send volunteerId, ngoId, and required title as required by backend DTO
+      const payload: any = { donationId: id, volunteerId, title: "Assigned Task" };
       if (ngoId) payload.ngoId = ngoId;
       await axios.post(API.ADMIN.DONATION.ASSIGN(id), payload);
       const refreshed = await axios.get(API.ADMIN.DONATION.GET_ONE(id));

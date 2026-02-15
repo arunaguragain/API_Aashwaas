@@ -114,7 +114,6 @@ export default function CreateNgoForm() {
           : responseData
             ? JSON.stringify(responseData)
             : "";
-      console.error("NGO create failed", { status, responseText });
       pushToast({ title: 'Unable to create NGO', description: message || 'Unable to create NGO right now', tone: 'error' });
       setErrors({
         form: message

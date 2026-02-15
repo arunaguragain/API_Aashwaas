@@ -44,6 +44,7 @@ export default function AdminTasksPage() {
           let ngo = null;
           let donorContact = "-";
           let volunteerName = "-";
+          let title = typeof task.title === 'string' ? task.title : '';
           try {
             donation = task.donationId ? (await AdminDonationsApi.getById(task.donationId)).data : null;
             if (donation?.donorId && typeof donation.donorId === "object") {
@@ -55,6 +56,10 @@ export default function AdminTasksPage() {
               } catch (err) {
                 donorContact = "-";
               }
+            }
+            // Prefer donation.itemName or donation.title as fallback for title
+            if (!title) {
+              title = donation?.itemName || donation?.title || '';
             }
           } catch (err) {}
           if (task.volunteerId) {
@@ -70,7 +75,7 @@ export default function AdminTasksPage() {
           } catch {}
           return {
             ...task,
-            donationTitle: donation?.itemName || donation?.title || task.donationId,
+            title,
             pickupLocation: donation?.pickupLocation,
             dropLocation: ngo?.address,
             donorContact,

@@ -35,7 +35,6 @@ export default function AdminSidebar() {
 			router.push("/admin_login");
 			return;
 		}
-		console.error(res.message || "Logout failed");
 	};
 
 	return (

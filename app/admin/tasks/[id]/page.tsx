@@ -76,11 +76,12 @@ export default function AdminTaskDetailPage() {
         try {
           ngo = ngoId && typeof ngoId === 'string' ? (await AdminNGOsApi.adminGetById(ngoId)).data : null;
         } catch {}
+        // Always use the latest pickup/drop location from the task object if present, else fallback
         setTask({
           ...data,
-          donationTitle: donation?.itemName || donation?.title || (typeof data.donationId === 'string' ? data.donationId : data.donationId?._id),
-          pickupLocation: donation?.pickupLocation,
-          dropLocation: ngo?.address,
+          title: typeof data.title === 'string' && data.title ? data.title : (donation?.itemName || donation?.title || ''),
+          pickupLocation: data.pickupLocation || donation?.pickupLocation || '',
+          dropLocation: data.dropLocation || ngo?.address || '',
           donorContact,
           ngoContact: ngo ? `${ngo.contactPerson || ""} (${ngo.phone || ngo.email || ""})` : "-",
           ngoName: ngo?.name || null,
@@ -173,8 +174,9 @@ export default function AdminTaskDetailPage() {
             <h2 className="text-lg font-semibold text-gray-900">Details</h2>
             <div className="mt-4 space-y-2 text-sm text-gray-600">
               <p><span className="font-medium">Donation:</span> {
-                typeof task.donationTitle === 'object' && task.donationTitle !== null
-                  ? `${task.donationTitle.itemName || task.donationTitle.title || ''}${task.donationTitle.category ? ' (' + task.donationTitle.category + ')' : ''}`
+                // Show donation name/title from fetched donation object if available, else fallback
+                task.donationId && typeof task.donationId === 'object' && (task.donationId.itemName || task.donationId.title)
+                  ? `${task.donationId.itemName || task.donationId.title}${task.donationId.category ? ' (' + task.donationId.category + ')' : ''}`
                   : (task.donationTitle || <span className="italic text-gray-400">-</span>)
               }</p>
               <p><span className="font-medium">Pickup Location:</span> {task.pickupLocation || <span className="italic text-gray-400">-</span>}</p>

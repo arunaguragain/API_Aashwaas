@@ -83,12 +83,14 @@ export const TasksApi = {
 
   async update(id: string, payload: Partial<Task>): Promise<{ data: Task; source: "api" | "mock" }> {
     try {
-      const response = await axiosInstance.post(API.ADMIN.TASK.UPDATE(id), payload);
+      const response = await axiosInstance.put(API.ADMIN.TASK.UPDATE(id), payload);
       const payloadData = response.data as any;
       const data = payloadData?.data ?? payloadData;
       return { data, source: "api" };
-    } catch (err) {
-      throw new Error("Update task failed");
+    } catch (err: any) {
+      // Surface backend error message if available
+      const backendMsg = err?.response?.data?.message || err?.message || "Update task failed";
+      throw new Error(backendMsg);
     }
   },
 };
