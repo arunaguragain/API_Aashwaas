@@ -7,6 +7,9 @@ export const WishlistSchema = z.object({
   notes: z.string().optional(),
   donorId: z.string().optional(),
   status: z.enum(["active", "fulfilled", "cancelled"]).default("active"),
+  amountNeeded: z.number().optional(),
+  amountRaised: z.number().optional(),
+  imageUrl: z.string().optional(),
 });
 
 export type WishlistType = z.infer<typeof WishlistSchema>;

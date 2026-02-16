@@ -186,8 +186,8 @@ export default function MyDonationsPage() {
               
                 {String(d.status || '').toLowerCase() === 'pending' && (
                   <div className="mt-5 flex gap-3">
-                    <Link href={`/user/donor/donation/${d._id}`} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:opacity-95">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Link href={`/user/donor/donation/${d._id}`} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:opacity-95">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
                       </svg>
                       Edit

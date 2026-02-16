@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import axios from "@/lib/api/axios";
 import { handleCreateDonorDonation, handleGetDonorDonation, handleUpdateDonorDonation } from "@/lib/actions/donor/donation-actions";
 import { DonationModel } from "@/app/(platform)/donations/schemas";
+import { WishlistApi } from "@/lib/api/donor/wishlist";
 
 type DonationFormProps = {
   donationId?: string | null;
@@ -33,6 +34,7 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
   const [form, setForm] = useState<Omit<DonationModel, "_id">>(initialForm);
   const [loading, setLoading] = useState(false);
   const [loadingDonation, setLoadingDonation] = useState(false);
+  const [prefillWishlist, setPrefillWishlist] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
@@ -122,6 +124,32 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
       .finally(() => setLoadingDonation(false));
   }, [effectiveId]);
 
+  // Prefill from wishlist when creating a new donation via ?wishlistId=...
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (effectiveId) return; // do not override when editing
+    const wishlistId = searchParams?.get?.("wishlistId");
+    if (!wishlistId) return;
+    setLoadingDonation(true);
+    WishlistApi.getById(wishlistId)
+      .then((res) => {
+        const w = res?.data ?? res;
+        setPrefillWishlist(w);
+        setForm((prev) => ({
+          ...prev,
+          itemName: w.title || prev.itemName,
+          category: w.category || prev.category,
+          description: w.notes || prev.description,
+          quantity: String((w.quantity ?? prev.quantity ?? 1)),
+          media: w.imageUrl || prev.media,
+          donorId: w.donorId?._id || w.donorId || prev.donorId,
+        }));
+        if (w.imageUrl) setPhotoPreview(w.imageUrl);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingDonation(false));
+  }, [searchParams, effectiveId]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -158,6 +186,8 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
       if (effectiveId) {
         res = await handleUpdateDonorDonation(effectiveId, formData);
       } else {
+        const wishlistId = searchParams?.get?.("wishlistId");
+        if (wishlistId) formData.append("wishlistId", wishlistId);
         res = await handleCreateDonorDonation(formData);
       }
 
