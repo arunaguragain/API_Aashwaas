@@ -25,6 +25,14 @@ export const API = {
         ASSIGN: (id: string) => `/api/tasks/${id}/assign`,
         UPDATE_STATUS: (id: string) => `/api/tasks/${id}/status`,
     },
+    REVIEWS: {
+        LIST: "/api/reviews",
+        CREATE: "/api/reviews",
+        MY: "/api/reviews/my",
+        GET: (id: string) => `/api/reviews/${id}`,
+        UPDATE: (id: string) => `/api/reviews/${id}`,
+        DELETE: (id: string) => `/api/reviews/${id}`,
+    },
     // Admin routes 
     ADMIN: {
         USER: {
