@@ -4,7 +4,6 @@ import LoginForm from "../_components/LoginForm";
 
 export default function DonorLoginPage() {
   const handleSubmit = (values: { email: string; password: string }) => {
-    console.log("Donor login:", values);
   };
 
   return (

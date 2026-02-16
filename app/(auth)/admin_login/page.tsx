@@ -4,7 +4,6 @@ import LoginForm from "../_components/LoginForm";
 
 export default function AdminLoginPage() {
   const handleSubmit = (values: { email: string; password: string }) => {
-    console.log("Admin login:", values);
   };
 
   return (

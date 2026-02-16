@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import UserSidebar from "./UserSidebar";
+import UserHeader from "./UserHeader";
 
 interface UserLayoutProps {
   children: ReactNode;
@@ -9,14 +10,22 @@ interface UserLayoutProps {
   userName?: string;
 }
 
-export default function UserLayout({ children, userType, userName = "Aruna" }: UserLayoutProps) {
+const SIDEBAR_WIDTH = 220; // px, matches w-55 (55*4)
+const UserLayout = ({ children, userType, userName }: UserLayoutProps) => {
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <UserSidebar userType={userType} />
-
-      <main className="flex-1 p-8">
-        {children}
-      </main>
+      <div
+        className="flex flex-col min-h-screen"
+        style={{ marginLeft: SIDEBAR_WIDTH }}
+      >
+        <UserHeader userType={userType} />
+        <main className="flex-1 p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
-}
+};
+
+export default UserLayout;
