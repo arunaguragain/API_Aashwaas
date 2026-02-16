@@ -74,7 +74,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({ userType }) => {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-medium transition ${
                     isActive
-                      ? "bg-green-50 text-green-700"
+                      ? "bg-blue-50 text-blue-700"
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >

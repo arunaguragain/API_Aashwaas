@@ -12,39 +12,54 @@ type Props = {
   canModify?: boolean;
 };
 
-const stars = (n: number) => Array.from({ length: n }).map((_, i) => <span key={i}>★</span>);
+const stars = (n: number) => (
+  <div className="flex gap-1">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <span
+        key={i}
+        className={
+          i < n
+            ? "text-yellow-500 text-lg"
+            : "text-gray-300 text-lg"
+        }
+      >★</span>
+    ))}
+  </div>
+);
 
 const ReviewItem: React.FC<Props> = ({ review, onEdit, onDelete, deleting, canModify }) => {
   const id = (review as any)._id ?? (review as any).id ?? "";
   return (
-    <Card noPadding className="p-3">
-      <div className="flex items-start justify-between">
-        <div className="w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-yellow-600 font-semibold text-sm">{stars(review.rating)}</div>
-            <div className="text-xs text-gray-500">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}</div>
-          </div>
-          {review.comment && <p className="mt-2 text-sm text-gray-700 line-clamp-3">{review.comment}</p>}
+    <Card noPadding className="p-4 md:p-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          {stars(review.rating)}
+          <div className="text-xs text-gray-500 font-medium">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}</div>
         </div>
+        {review.comment && <p className="mt-2 text-base text-gray-800 font-normal">{review.comment}</p>}
 
-        <div className="ml-4 flex flex-col gap-2 items-end">
-          {canModify ? (
-            <>
-              {onEdit && (
-                <button onClick={() => onEdit(review)} className="text-sm rounded-md bg-slate-50 px-3 py-1 text-slate-700 hover:bg-slate-100">
-                  Edit
-                </button>
-              )}
-              {onDelete && (
-                <button onClick={() => onDelete(review._id)} className="text-sm rounded-md border border-rose-200 px-3 py-1 text-rose-600 hover:bg-rose-50">
-                  {deleting ? "Deleting..." : "Delete"}
-                </button>
-              )}
-            </>
-          ) : (
-            <div className="text-xs text-gray-400">Not editable</div>
-          )}
-        </div>
+        {canModify ? (
+          <div className="mt-4 flex flex-row gap-2 items-end">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(review)}
+                className="text-xs rounded-full bg-[#009966] px-5 py-1.5 text-white font-bold shadow-sm hover:bg-[#007a53] transition border-none min-w-[80px]"
+              >
+                Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(review._id)}
+                className="text-xs rounded-full border border-[#e57373] px-5 py-1.5 text-[#b71c1c] font-bold shadow-sm  hover:bg-[#ffeaea] transition min-w-[80px]"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="text-xs text-gray-400 mt-4 flex items-end">Not editable</div>
+        )}
       </div>
     </Card>
   );
