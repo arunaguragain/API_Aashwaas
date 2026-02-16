@@ -91,7 +91,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({ userType }) => {
         <div className="border-t border-gray-200 pt-4" />
         <div className="space-y-1">
           <Link
-            href="/user/profile"
+            href="/user/donor/profile"
             className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <User className="h-4 w-4" /> Profile

@@ -29,7 +29,13 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userType }) => {
             <div className="hidden lg:flex items-center gap-3 px-2">
               <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-white shadow-sm flex-shrink-0">
                 <img
-                  src={user?.avatar ?? '/images/user.png'}
+                  src={
+                    user?.profilePicture
+                      ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5050'}/item_photos/${user.profilePicture}`
+                      : user?.avatar
+                        ? user.avatar
+                        : '/images/user.png'
+                  }
                   alt={user?.name ?? 'avatar'}
                   className="w-full h-full object-cover"
                 />
