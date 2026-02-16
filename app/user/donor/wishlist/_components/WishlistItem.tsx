@@ -7,6 +7,7 @@ import React from "react";
 
 export default function WishlistItem({ item }: { item: any }) {
   const remaining = (Number(item.amountNeeded || 0) - Number(item.amountRaised || 0)) || 0;
+  const isFulfilled = (item.status || '').toString().toLowerCase() === 'fulfilled' || remaining <= 0;
   return (
     <Card noPadding className="overflow-hidden">
       <div className="p-4 bg-white">
@@ -25,14 +26,16 @@ export default function WishlistItem({ item }: { item: any }) {
             <div className="mt-2">
               <Badge label={item.category || "Other"} tone={"silver"} />
             </div>
-            <div className="mt-4">
-              <Link href={`/user/donor/donation?wishlistId=${item.id || item._id}`} className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:opacity-95">Donate Now</Link>
-            </div>
+            {!isFulfilled && (
+              <div className="mt-4">
+                <Link href={`/user/donor/donation?wishlistId=${item.id || item._id}`} className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:opacity-95">Donate Now</Link>
+              </div>
+            )}
           </div>
         </div>
         <div className="mt-3 flex items-center justify-between text-sm text-gray-600">
           <div>{item.donorId?.name ?? item.donorId ?? "You"}</div>
-          <div className="uppercase text-xs font-semibold">{(item.status || "active").slice(0, 10)}</div>
+          <div className="uppercase text-xs font-semibold">{isFulfilled ? 'FULFILLED' : (item.status || "active").slice(0, 10)}</div>
         </div>
       </div>
     </Card>

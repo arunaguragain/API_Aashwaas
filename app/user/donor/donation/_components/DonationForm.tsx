@@ -191,7 +191,7 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
         res = await handleCreateDonorDonation(formData);
       }
 
-      if (res.success) {
+        if (res.success) {
         setSuccess(true);
         setTouched({});
         setPhotoFile(null);
@@ -200,7 +200,13 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
           setPhotoPreview(null);
         }
         if (onSuccess) onSuccess();
-        else setTimeout(() => router.push("/user/donor/my-donations"), 700);
+        else {
+          const wishlistId = searchParams?.get?.("wishlistId");
+          setTimeout(() => {
+            if (wishlistId) router.push("/user/donor/wishlist");
+            else router.push("/user/donor/my-donations");
+          }, 700);
+        }
       } else {
         // helpful message when backend doesn't support donor update
         if ((res as any).status === 404 || /not ?found/i.test(res.message || "")) {

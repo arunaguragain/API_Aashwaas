@@ -23,15 +23,38 @@ export default function TopNav() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const params = new URLSearchParams(searchParams.toString());
     const next = query.trim();
-    if (next) {
-      params.set("q", next);
-    } else {
-      params.delete("q");
+    // determine target page based on query keywords or nav labels
+    const lower = next.toLowerCase();
+    let target = "/donations";
+    let q = next;
+    for (const item of navItems) {
+      const label = item.label.toLowerCase();
+      if (lower === label) {
+        target = item.href;
+        q = "";
+        break;
+      }
+      if (lower.startsWith(label + ":") || lower.startsWith(label + " ")) {
+        target = item.href;
+        q = next.slice(label.length).replace(/^[:\s]+/, "").trim();
+        break;
+      }
+      if (lower.includes(label) && next.length < 30) {
+        // short queries mentioning a section likely mean navigate there
+        target = item.href;
+        break;
+      }
     }
-    const queryString = params.toString();
-    router.replace(queryString ? `${pathname}?${queryString}` : pathname);
+
+    if (!q) {
+      router.push(target);
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set("q", q);
+    router.push(`${target}?${params.toString()}`);
   };
 
   return (
