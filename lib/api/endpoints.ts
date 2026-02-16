@@ -33,6 +33,15 @@ export const API = {
         UPDATE: (id: string) => `/api/reviews/${id}`,
         DELETE: (id: string) => `/api/reviews/${id}`,
     },
+    WISHLIST: {
+        LIST: "/api/wishlists",
+        CREATE: "/api/wishlists",
+        MY: "/api/wishlists/my",
+        BY_DONOR: (donorId: string) => `/api/wishlists/donor/${donorId}`,
+        GET: (id: string) => `/api/wishlists/${id}`,
+        UPDATE: (id: string) => `/api/wishlists/${id}`,
+        DELETE: (id: string) => `/api/wishlists/${id}`,
+    },
     // Admin routes 
     ADMIN: {
         USER: {
