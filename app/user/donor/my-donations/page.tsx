@@ -91,7 +91,7 @@ export default function MyDonationsPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-700">You haven't added any donations yet.</div>
       )}
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 mt-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 mt-4">
         <ConfirmDialog
           open={!!pendingDeleteId}
           title="Confirm cancel"
@@ -108,7 +108,7 @@ export default function MyDonationsPage() {
             <Card key={d._id} noPadding className="overflow-hidden">
               <div className="flex items-start justify-between">
                 <div className="w-full">
-                  <div className="relative h-44 w-full rounded-md overflow-hidden mb-4">
+                  <div className="relative h-40 w-full rounded-md overflow-hidden mb-3">
                     {d.media ? (
                       <img
                         src={`${(axios.defaults && (axios.defaults as any).baseURL) ? (axios.defaults as any).baseURL : (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5050")}/item_photos/${d.media}`}
@@ -136,7 +136,7 @@ export default function MyDonationsPage() {
                       </div>
                     )}
 
-                    <span className="absolute left-4 top-4 inline-flex items-center rounded-md bg-white/80 px-3 py-1 text-sm font-semibold text-slate-900 backdrop-blur">
+                    <span className="absolute left-4 top-4 inline-flex items-center rounded-md bg-white/80 px-2 py-0.5 text-xs font-semibold text-slate-900 backdrop-blur">
                       {d.quantity ?? '1'} items
                     </span>
 
@@ -147,10 +147,10 @@ export default function MyDonationsPage() {
                 </div>
               </div>
 
-              <div className="p-6 bg-white">
+              <div className="p-3 bg-white">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900">{d.itemName}</h2>
+                    <h2 className="text-base font-semibold text-gray-900">{d.itemName}</h2>
                     <p className="text-sm text-gray-600 mt-1">{d.category}</p>
                   </div>
                   <div className="ml-4">
@@ -158,9 +158,9 @@ export default function MyDonationsPage() {
                   </div>
                 </div>
 
-                <p className="mt-3 text-sm text-gray-700 line-clamp-3">{d.description}</p>
+                <p className="mt-3 text-sm text-gray-700 line-clamp-2">{d.description}</p>
 
-                <div className="mt-4 rounded-lg bg-slate-50 p-4 text-sm text-gray-600">
+                <div className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -184,34 +184,36 @@ export default function MyDonationsPage() {
                 </div>
               </div>
               
-                <div className="mt-5 flex gap-3">
-                <Link href={`/user/donor/donation/${d._id}`} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:opacity-95">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-                  </svg>
-                  Edit
-                </Link>
-                <button
-                  onClick={() => setPendingDeleteId(d._id ?? null)}
-                  disabled={deletingId === (d._id || undefined)}
-                  className={`flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 ${deletingId === (d._id || undefined) ? 'opacity-60 pointer-events-none' : ''}`}
-                >
-                  {deletingId === (d._id || undefined) ? (
-                    <svg className="h-4 w-4 animate-spin text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <circle cx="12" cy="12" r="10" strokeWidth="3" stroke="currentColor" strokeOpacity="0.25" />
-                      <path d="M22 12a10 10 0 00-10-10" strokeWidth="3" stroke="currentColor" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                      <path d="M10 11v6"></path>
-                      <path d="M14 11v6"></path>
-                    </svg>
-                  )}
-                  Cancel
-                </button>
-              </div>
+                {String(d.status || '').toLowerCase() === 'pending' && (
+                  <div className="mt-5 flex gap-3">
+                    <Link href={`/user/donor/donation/${d._id}`} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:opacity-95">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                      </svg>
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => setPendingDeleteId(d._id ?? null)}
+                      disabled={deletingId === (d._id || undefined)}
+                      className={`flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 px-3 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50 ${deletingId === (d._id || undefined) ? 'opacity-60 pointer-events-none' : ''}`}
+                    >
+                      {deletingId === (d._id || undefined) ? (
+                        <svg className="h-4 w-4 animate-spin text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <circle cx="12" cy="12" r="10" strokeWidth="3" stroke="currentColor" strokeOpacity="0.25" />
+                          <path d="M22 12a10 10 0 00-10-10" strokeWidth="3" stroke="currentColor" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                          <path d="M10 11v6"></path>
+                          <path d="M14 11v6"></path>
+                        </svg>
+                      )}
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             </Card>
           );
