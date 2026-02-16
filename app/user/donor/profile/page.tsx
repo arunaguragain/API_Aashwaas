@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import UserLayout from "../../_components/UserLayout";
 import axios from "@/lib/api/axios";
+
 export default function DonorProfile() {
   const [user, setUser] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
@@ -96,8 +96,6 @@ export default function DonorProfile() {
   }
 
   return (
-    <UserLayout userType="donor" userName={user.name || "Donor"}>
-
       <div className="p-0">
         <h1 className="text-3xl font-bold mb-2">My Profile</h1>
         <p className="mb-6 text-gray-500">Manage your account information and view your donation statistics</p>
@@ -232,6 +230,5 @@ export default function DonorProfile() {
           <div className="mt-2 text-green-700 text-xl font-bold">{user.itemsDonated || 0} items</div>
         </div>
       </div>
-    </UserLayout>
   );
 }

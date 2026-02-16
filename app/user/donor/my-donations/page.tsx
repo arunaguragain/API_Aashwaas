@@ -66,7 +66,13 @@ export default function MyDonationsPage() {
         {donations.map((d) => (
           <div key={d._id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             {d.media ? (
-              <img src={`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5050'}/item_photos/${d.media}`} alt={d.itemName || 'photo'} className="h-40 w-full object-cover rounded-md mb-3" />
+              <img
+                src={`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5050'}/item_photos/${d.media}`}
+                alt={d.itemName || 'photo'}
+                loading="lazy"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/item-placeholder.png'; }}
+                className="h-40 w-full object-cover rounded-md mb-3"
+              />
             ) : (
               <div className="h-40 w-full rounded-md bg-gray-100 mb-3 flex items-center justify-center text-gray-400">No image</div>
             )}
@@ -75,7 +81,7 @@ export default function MyDonationsPage() {
             <p className="mt-2 text-sm text-gray-700 truncate">{d.description}</p>
             <div className="mt-3 flex items-center justify-between text-sm">
               <div className="text-gray-600">Qty: {d.quantity}</div>
-              <div className="text-gray-600">{new Date(d.createdAt || '').toLocaleDateString()}</div>
+              <div className="text-gray-600">{d.createdAt ? new Date(d.createdAt).toLocaleDateString() : ''}</div>
             </div>
             <div className="mt-3 flex gap-2">
               <Link href={`/user/donor/donation/${d._id}`} className="text-sm text-sky-600">View</Link>

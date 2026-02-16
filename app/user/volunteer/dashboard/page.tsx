@@ -1,13 +1,12 @@
 "use client";
 
 import { CheckCircle, TrendingUp, Award } from "lucide-react";
-import UserLayout from "../../_components/UserLayout";
 
 export default function VolunteerDashboard() {
   const userName = "Aruna";
 
   return (
-    <UserLayout userType="volunteer" userName={userName}>
+    <>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Welcome back, {userName} !</h1>
@@ -141,6 +140,6 @@ export default function VolunteerDashboard() {
           </table>
         </div>
       </div>
-    </UserLayout>
+    </>
   );
 }

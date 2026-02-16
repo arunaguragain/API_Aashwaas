@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { handleCreateDonorDonation } from "@/lib/actions/donor/donation-actions";
-import { DonationModel, DonationCategory, DonationCondition, DonationStatus } from "@/app/(platform)/donations/schemas";
+import { DonationModel } from "@/app/(platform)/donations/schemas";
 
 export default function AddDonation() {
   const router = useRouter();
-  const initialForm: Omit<DonationModel, "id" | "createdAt"> = {
+  const initialForm: Omit<DonationModel, "_id"> = {
     itemName: "",
     category: "Books",
     description: "",
@@ -18,9 +18,8 @@ export default function AddDonation() {
     donorId: "",
     ngoId: "",
     status: "pending",
-    _id: "",
   };
-  const [form, setForm] = useState<Omit<DonationModel, "id" | "createdAt">>(initialForm);
+  const [form, setForm] = useState<Omit<DonationModel, "_id">>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
@@ -73,7 +72,7 @@ export default function AddDonation() {
         formData.append("donationPhoto", photoFile);
       }
       // donorId and status are set server-side
-      const res = await handleCreateDonorDonation(form);
+      const res = await handleCreateDonorDonation(formData);
       if (res.success) {
         setSuccess(true);
         // navigate to My Donations list where the new item will appear

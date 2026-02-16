@@ -1,21 +1,20 @@
 "use client";
 
 import { Heart, TrendingUp, Award, Calendar, Package, Clock, MapPin } from "lucide-react";
-import UserLayout from "../../_components/UserLayout";
 
 export default function DonorDashboard() {
   const userName = "Aruna";
 
   return (
-    <UserLayout userType="donor" userName={userName}>
+    <>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Welcome back, {userName} !</h1>
         <p className="text-gray-500 mt-1">Here's an overview of your donation activity</p>
       </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-6 mb-8">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
             <div className="absolute top-4 right-4 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <Package className="w-6 h-6 text-blue-600" />
@@ -152,6 +151,6 @@ export default function DonorDashboard() {
             </table>
           </div>
         </div>
-    </UserLayout>
+    </>
   );
 }
