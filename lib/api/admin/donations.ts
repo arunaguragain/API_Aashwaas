@@ -1,6 +1,6 @@
+import { DonationListParams, DonationModel } from "@/app/(platform)/donations/schemas";
 import axios from "../axios";
 import { API } from "../endpoints";
-import type { DonationModel, DonationListParams } from "@/app/(platform)/donations/schemas";
 
 export const AdminDonationsApi = {
   async list(params?: DonationListParams): Promise<{ data: DonationModel[]; source: "api" | "mock" }> {

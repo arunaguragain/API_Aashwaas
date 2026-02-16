@@ -30,12 +30,13 @@ export const handleCreateDonorDonation = async (payload: any) => {
 	}
 };
 
-export const handleUpdateDonorDonation = async (id: string, payload: Partial<Omit<DonationModel, "id" | "createdAt">>) => {
+export const handleUpdateDonorDonation = async (id: string, payload: any) => {
 	try {
 		const result = await DonationsApi.update(id, payload);
 		return { success: true, data: result.data };
 	} catch (error: any) {
-		return { success: false, message: error.message || "Update donation failed" };
+		const status = error?.response?.status;
+		return { success: false, message: error?.response?.data?.message || error.message || "Update donation failed", status };
 	}
 };
 

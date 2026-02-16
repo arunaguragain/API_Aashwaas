@@ -122,8 +122,6 @@ export default function MyDonationsPage() {
                             img.src = `/item_photos/${d.media}`;
                             return;
                           }
-                          // final fallback + diagnostic log
-                          console.warn(`Failed to load donation media: ${d.media}`, img.src);
                           img.src = '/images/user.png';
                         }}
                         className="absolute inset-0 h-full w-full object-cover"

@@ -45,9 +45,13 @@ export const DonationsApi = {
     }
   },
 
-  async update(id: string, payload: Partial<Omit<DonationModel, "id" | "createdAt">>): Promise<{ data: DonationModel; source: "api" | "mock" }> {
+  async update(id: string, payload: Partial<Omit<DonationModel, "id" | "createdAt">> | FormData): Promise<{ data: DonationModel; source: "api" | "mock" }> {
     try {
-      const response = await axios.patch(API.DONATION.GET(id), payload);
+      const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
+      const response = isFormData
+        ? await axios.put(API.DONATION.UPDATE(id), payload, { headers: { "Content-Type": "multipart/form-data" } })
+        : await axios.put(API.DONATION.UPDATE(id), payload as any);
+
       const data = (response.data as { data?: DonationModel }).data ?? response.data;
       return { data, source: "api" };
     } catch (error: any) {
@@ -57,7 +61,7 @@ export const DonationsApi = {
 
   async remove(id: string): Promise<{ data: { id: string }; source: "api" | "mock" }> {
     try {
-      await axios.delete(API.DONATION.GET(id));
+      await axios.delete(API.DONATION.DELETE(id));
       return { data: { id }, source: "api" };
     } catch (error: any) {
       throw new Error(error?.response?.data?.message || error.message || "Delete donation failed");

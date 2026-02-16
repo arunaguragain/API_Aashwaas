@@ -8,18 +8,17 @@ export const API = {
         FORGOT_PASSWORD: "/api/auth/request-password-reset",
         RESET_PASSWORD: (token: string) => `/api/auth/reset-password/${token}`,
     },
-    // Public NGO routes
     NGO: {
         LIST: "/api/ngos",
         GET: (id: string) => `/api/ngos/${id}`,
     },
-    // Public Donation routes
     DONATION: {
         LIST: "/api/donations",
         GET: (id: string) => `/api/donations/${id}`,
         CREATE: "/api/donations",
+        UPDATE: (id: string) => `/api/donations/${id}`,
+        DELETE: (id: string) => `/api/donations/${id}`,
     },
-    // Public Task routes
     TASK: {
         LIST: "/api/tasks",
         GET: (id: string) => `/api/tasks/${id}`,
