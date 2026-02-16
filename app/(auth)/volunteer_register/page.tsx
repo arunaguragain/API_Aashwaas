@@ -1,9 +1,11 @@
 "use client";
-
 import RegsiterForm from "../_components/RegisterForm";
+import { RegisterData } from "../schema";
+import { handleRegister } from "@/lib/actions/auth-actions";
 
 export default function VolunteerRegisterPage() {
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: RegisterData) => {
+    await handleRegister({ ...values, role: "volunteer" });
   };
 
   return (

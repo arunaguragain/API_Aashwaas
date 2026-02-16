@@ -21,7 +21,7 @@ interface UserSidebarProps {
 }
 
 const navItemsDonor = [
-  { href: "/user/donor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/user/donor/dashboard", label: "Home", icon: LayoutDashboard },
   { href: "/user/donor/my-donations", label: "My Donations", icon: Package },
   { href: "/user/donor/donation", label: "Add Donation", icon: PlusCircle },
   { href: "/user/donor/ngos", label: "NGO Directory", icon: Building2 },
@@ -33,6 +33,7 @@ const navItemsVolunteer = [
   { href: "/user/volunteer/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/user/volunteer/my-tasks", label: "My Tasks", icon: ClipboardList },
   { href: "/user/volunteer/history", label: "History", icon: Package },
+  { href: "/user/donor/reviews", label: "Reviews", icon: Star },
 ];
 
 const UserSidebar: React.FC<UserSidebarProps> = ({ userType }) => {

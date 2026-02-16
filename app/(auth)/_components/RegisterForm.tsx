@@ -46,7 +46,10 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
   const onSubmitForm = async (data: RegisterData) => {
     setErrorMessage("");
     try {
-      const res = await handleRegister(data);
+      // Ensure role is set for Volunteer
+      const res = await handleRegister(
+        userType === "Volunteer" ? { ...data, role: "volunteer" } : data
+      );
       if (!res.success) {
         throw new Error(res.message || "Registration failed");
       }

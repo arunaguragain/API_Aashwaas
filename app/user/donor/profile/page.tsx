@@ -319,7 +319,7 @@ export default function DonorProfile() {
             <div className="font-semibold mb-2">Quick Actions</div>
             <button onClick={() => router.push('/user/donor/donation')} className="bg-purple-600 text-white px-4 py-2 rounded">Add donation</button>
             <button onClick={() => router.push('/user/donor/my-donations')} className="bg-gray-200 px-4 py-2 rounded">View Donations</button>
-            <button className="bg-gray-200 px-4 py-2 rounded">View NGOs</button>
+            <button onClick={() => router.push('/user/donor/ngos')}  className="bg-gray-200 px-4 py-2 rounded">View NGOs</button>
           </div>
         </div>
         {/* Impact This Year */}
