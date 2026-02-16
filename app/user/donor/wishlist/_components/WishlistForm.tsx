@@ -32,8 +32,11 @@ export default function WishlistForm({ wishlistId, onSuccess }: Props) {
     setLoadingItem(true);
     handleGetWishlist(effectiveId)
       .then((res) => {
-        if (res.success && res.data) setForm((prev) => ({ ...prev, ...(res.data as any) }));
-        else setError(res.message || "Failed to load wishlist");
+        if (res.success && res.data) {
+          const raw = res.data as any;
+          const donorId = raw?.donorId && typeof raw.donorId === "object" ? (raw.donorId.id ?? raw.donorId._id ?? String(raw.donorId)) : raw?.donorId;
+          setForm((prev) => ({ ...prev, ...raw, donorId }));
+        } else setError(res.message || "Failed to load wishlist");
       })
       .catch((e) => setError(e?.message || "Failed to load wishlist"))
       .finally(() => setLoadingItem(false));
@@ -52,8 +55,11 @@ export default function WishlistForm({ wishlistId, onSuccess }: Props) {
       if (res.success) {
         if (onSuccess) onSuccess();
         else router.push("/user/donor/wishlist");
-      } else {
-        setError(res.message || "Failed to save");
+        const payload = { ...form } as any;
+        if (payload.donorId && typeof payload.donorId === "object") payload.donorId = payload.donorId.id ?? payload.donorId._id ?? String(payload.donorId);
+        let res2;
+        if (effectiveId) res2 = await handleUpdateWishlist(effectiveId, payload);
+        else res2 = await handleCreateWishlist(payload);
       }
     } catch (err: any) {
       setError(err?.message || "Failed to save");
