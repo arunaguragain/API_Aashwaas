@@ -72,24 +72,39 @@ export default function WishlistForm({ wishlistId, onSuccess }: Props) {
       {error && <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">{error}</div>}
 
       <form onSubmit={handleSubmit} className="relative space-y-6 rounded-xl border border-gray-200 bg-white p-6">
-        {(loading || loadingItem) && (
-          <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/70 p-6">
-            <div className="w-full max-w-3xl animate-pulse">
-              <div className="h-6 w-1/3 rounded bg-gray-200" />
-              <div className="mt-4 h-8 w-full rounded bg-gray-200" />
+          {(loading || loadingItem) && (
+            <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/70 p-6">
+              <div className="w-full max-w-3xl animate-pulse">
+                <div className="h-6 w-1/3 rounded bg-gray-200" />
+                <div className="mt-4 h-8 w-full rounded bg-gray-200" />
+                <div className="mt-2 grid grid-cols-2 gap-4">
+                  <div className="h-8 rounded bg-gray-200" />
+                  <div className="h-8 rounded bg-gray-200" />
+                </div>
+                <div className="mt-3 h-40 rounded bg-gray-200" />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         <div>
           <label className="text-sm font-semibold text-gray-900">Title</label>
-          <input name="title" value={form.title} onChange={handleChange} className="mt-2 w-full rounded-md border border-gray-300 p-2" />
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm disabled:opacity-70"
+          />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="text-sm font-semibold text-gray-900">Category</label>
-            <select name="category" value={form.category} onChange={handleChange} className="mt-2 w-full rounded-md border border-gray-300 p-2">
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm disabled:opacity-70"
+            >
               <option>Clothes</option>
               <option>Books</option>
               <option>Electronics</option>
@@ -101,13 +116,24 @@ export default function WishlistForm({ wishlistId, onSuccess }: Props) {
 
           <div>
             <label className="text-sm font-semibold text-gray-900">Planned Date</label>
-            <input type="date" name="plannedDate" value={form.plannedDate || ""} onChange={handleChange} className="mt-2 w-full rounded-md border border-gray-300 p-2" />
+            <input
+              type="date"
+              name="plannedDate"
+              value={form.plannedDate || ""}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm disabled:opacity-70"
+            />
           </div>
         </div>
 
         <div>
           <label className="text-sm font-semibold text-gray-900">Notes</label>
-          <textarea name="notes" value={form.notes || ""} onChange={handleChange} className="mt-2 w-full rounded-md border border-gray-300 p-2" />
+          <textarea
+            name="notes"
+            value={form.notes || ""}
+            onChange={handleChange}
+            className="mt-2 w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm disabled:opacity-70"
+          />
         </div>
 
         <div className="flex items-center gap-3">
