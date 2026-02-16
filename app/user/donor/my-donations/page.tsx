@@ -42,7 +42,7 @@ export default function MyDonationsPage() {
   }, []);
 
   return (
-    <div className="p-6">
+    <div className="p-0">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">My Donations</h1>

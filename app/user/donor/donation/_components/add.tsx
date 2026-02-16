@@ -75,6 +75,11 @@ export default function AddDonation() {
       const res = await handleCreateDonorDonation(formData);
       if (res.success) {
         setSuccess(true);
+        // clear form and previews immediately
+        setForm(initialForm);
+        setTouched({});
+        setPhotoFile(null);
+        setPhotoPreview(null);
         // navigate to My Donations list where the new item will appear
         setTimeout(() => {
           router.push("/user/donor/my-donations");
@@ -274,7 +279,6 @@ export default function AddDonation() {
           >
             {loading ? "Adding..." : "Add Donation"}
           </button>
-
           <button
             type="button"
             onClick={() => {
@@ -293,6 +297,7 @@ export default function AddDonation() {
           >
             Cancel
           </button>
+
           
         </div>
       </form>

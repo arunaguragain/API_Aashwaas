@@ -1,8 +1,13 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "@/lib/api/axios";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { handleListDonorDonations } from "@/lib/actions/donor/donation-actions";
 
 export default function DonorProfile() {
+  const auth = useAuth();
+  const router = useRouter();
   const [user, setUser] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
@@ -11,24 +16,118 @@ export default function DonorProfile() {
   const [editError, setEditError] = React.useState("");
   const [editing, setEditing] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    let mounted = true;
     async function fetchUser() {
       setLoading(true);
       setError("");
       try {
         const res = await import("@/lib/actions/auth-actions").then(m => m.handleWhoAmI());
         if (res.success) {
-          setUser(res.data);
+          if (mounted) setUser(res.data);
         } else {
-          setError(res.message || "Failed to fetch user data");
+          if (mounted) setError(res.message || "Failed to fetch user data");
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch user data");
+        if (mounted) setError(err.message || "Failed to fetch user data");
       }
-      setLoading(false);
+      if (mounted) setLoading(false);
     }
-    fetchUser();
-  }, []);
+
+    if (auth.user) {
+      setUser(auth.user);
+      setLoading(false);
+    } else {
+      fetchUser();
+    }
+
+    return () => { mounted = false };
+  }, [auth.user]);
+
+  // Compute donation aggregates client-side and merge into user state.
+  useEffect(() => {
+    let mounted = true;
+    const computeTotals = async () => {
+      if (!user) return;
+      try {
+        const donorId = user._id || user.id;
+        // Try server-side filtered list first
+        let res = await handleListDonorDonations({ donorId });
+        let donations: any[] = [];
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          // If server returned results, ensure they belong to this donor. If not, apply client-side filter.
+          const allReturned = res.data as any[];
+          const extractId = (d: any) => {
+            if (!d) return null;
+            // donorId may be a string or an object like { _id } or { id }
+            const cand = d.donorId ?? d.donor ?? d.donor_id ?? d.user;
+            if (!cand) return null;
+            if (typeof cand === "string") return cand;
+            if (typeof cand === "number") return String(cand);
+            if (typeof cand === "object") return cand._id || cand.id || null;
+            return null;
+          };
+          const allMatch = allReturned.every((d: any) => {
+            const did = extractId(d);
+            return did && String(did) === String(donorId);
+          });
+          if (allMatch) {
+            donations = allReturned;
+          } else {
+            // server did not filter; apply client-side filter on returned array
+            donations = allReturned.filter((d: any) => {
+              const did = extractId(d);
+              return did && String(did) === String(donorId);
+            });
+          }
+        } else {
+          // Fallback: fetch all donations and filter client-side
+          try {
+            const all = await handleListDonorDonations({});
+            if (all && all.success && Array.isArray(all.data)) {
+              const extractId = (d: any) => {
+                if (!d) return null;
+                const cand = d.donorId ?? d.donor ?? d.donor_id ?? d.user;
+                if (!cand) return null;
+                if (typeof cand === "string") return cand;
+                if (typeof cand === "number") return String(cand);
+                if (typeof cand === "object") return cand._id || cand.id || null;
+                return null;
+              };
+              donations = all.data.filter((d: any) => {
+                const did = extractId(d);
+                return did && String(did) === String(donorId);
+              });
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        const totalDonations = donations.length;
+        const itemsDonated = donations.reduce((sum: number, d: any) => {
+          const qRaw = d.quantity;
+          let q = 0;
+          if (typeof qRaw === "number") q = qRaw;
+          else if (typeof qRaw === "string") {
+            const parsed = parseInt(qRaw.replace(/[^0-9-]/g, ""), 10);
+            q = isNaN(parsed) ? 0 : parsed;
+          }
+          return sum + q;
+        }, 0);
+        const impactPoints = totalDonations * 10;
+        if (mounted) {
+          const merged = { ...user, totalDonations, itemsDonated, impactPoints };
+          setUser(merged);
+          try { auth.setUser && auth.setUser(merged); } catch (e) {}
+        }
+      } catch (err) {
+        // ignore errors
+      }
+    };
+    computeTotals();
+    return () => { mounted = false };
+  }, [user?._id, user?.id]);
 
   const handleEditProfile = () => {
     setEditData({
@@ -218,8 +317,8 @@ export default function DonorProfile() {
           {/* Quick Actions */}
           <div className="bg-white rounded-lg shadow p-6 min-w-55 flex flex-col gap-2">
             <div className="font-semibold mb-2">Quick Actions</div>
-            <button className="bg-purple-600 text-white px-4 py-2 rounded">Update Profile Picture</button>
-            <button className="bg-gray-200 px-4 py-2 rounded">View Donations</button>
+            <button onClick={() => router.push('/user/donor/donation')} className="bg-purple-600 text-white px-4 py-2 rounded">Add donation</button>
+            <button onClick={() => router.push('/user/donor/my-donations')} className="bg-gray-200 px-4 py-2 rounded">View Donations</button>
             <button className="bg-gray-200 px-4 py-2 rounded">View NGOs</button>
           </div>
         </div>
@@ -227,7 +326,7 @@ export default function DonorProfile() {
         <div className="mt-8 bg-green-100 rounded-lg p-6 text-center">
           <div className="font-semibold mb-2">Your Impact this year</div>
           <div>Keep up the amazing work!</div>
-          <div className="mt-2 text-green-700 text-xl font-bold">{user.itemsDonated || 0} items</div>
+            <div className="mt-2 text-green-700 text-xl font-bold">{user.impactPoints || 0} pts</div>
         </div>
       </div>
   );
