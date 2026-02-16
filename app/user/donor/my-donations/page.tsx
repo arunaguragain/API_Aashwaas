@@ -91,7 +91,7 @@ export default function MyDonationsPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-700">You haven't added any donations yet.</div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         <ConfirmDialog
           open={!!pendingDeleteId}
           title="Confirm cancel"
