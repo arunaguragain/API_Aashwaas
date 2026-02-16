@@ -161,10 +161,19 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
                     <td className="px-4 py-4">{(page - 1) * perPage + idx + 1}</td>
                     <td className="px-4 py-4">
                       <img
-                        src={don.media ? `${(axios.defaults && (axios.defaults as any).baseURL ? (axios.defaults as any).baseURL : "http://localhost:5050")}/item_photos/${don.media}` : "/images/item-placeholder.png"}
+                        src={don.media ? `${(axios.defaults && (axios.defaults as any).baseURL ? (axios.defaults as any).baseURL : "http://localhost:5050")}/item_photos/${don.media}` : "/images/user.png"}
                         alt={don.title || don.itemName || "Donation image"}
                         className="h-10 w-10 rounded object-cover border border-gray-200 bg-gray-100"
-                        onError={e => { e.currentTarget.src = "/images/item-placeholder.png"; }}
+                        onError={e => {
+                          const img = e.currentTarget as HTMLImageElement;
+                          if (!(img.dataset as any).triedRelative) {
+                            (img.dataset as any).triedRelative = '1';
+                            img.src = `/item_photos/${don.media}`;
+                            return;
+                          }
+                          console.warn('Failed to load donation media:', don.media, img.src);
+                          img.src = "/images/user.png";
+                        }}
                       />
                     </td>
                     <td className="px-4 py-4 font-medium text-gray-900">{don.title || don.itemName}</td>

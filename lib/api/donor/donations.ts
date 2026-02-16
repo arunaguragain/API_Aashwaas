@@ -30,8 +30,14 @@ export const DonationsApi = {
   async create(payload: any): Promise<{ data: DonationModel; source: "api" | "mock" }> {
     try {
       let response;
-      // Send payload (axios will set headers appropriately)
-      response = await axios.post(API.DONATION.CREATE, payload);
+      // If payload is FormData, send as multipart/form-data so file fields are received correctly by the API.
+      const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
+      if (isFormData) {
+        response = await axios.post(API.DONATION.CREATE, payload, { headers: { "Content-Type": "multipart/form-data" } });
+      } else {
+        response = await axios.post(API.DONATION.CREATE, payload);
+      }
+
       const data = (response.data as { data?: DonationModel }).data ?? response.data;
       return { data, source: "api" };
     } catch (error: any) {
