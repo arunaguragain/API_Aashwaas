@@ -69,16 +69,16 @@ export async function handleWhoAmI() {
     }
 }
 
-export async function handleUpdateProfile(profileData: FormData) {
+export async function handleUpdateProfile(userId: string, profileData: FormData) {
     try {
-        const result = await updateProfile(profileData);
-        if (result.success) {
-            await setUserData(result.data);
+        const result = await updateProfile(userId, profileData);
+        if (result.success || result._id || result.id) {
+            await setUserData(result.data || result);
             revalidatePath("/user/profile");
             return {
                 success: true,
                 message: "Profile updated successfully",
-                data: result.data
+                data: result.data || result
             };
         }
         return { success: false, message: result.message || "Failed to update profile" };

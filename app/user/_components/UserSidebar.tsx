@@ -23,7 +23,7 @@ interface UserSidebarProps {
 const navItemsDonor = [
   { href: "/user/donor/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/user/donor/my-donations", label: "My Donations", icon: Package },
-  { href: "/user/donor/add-donation", label: "Add Donation", icon: PlusCircle },
+  { href: "/user/donor/donation", label: "Add Donation", icon: PlusCircle },
   { href: "/user/donor/ngo-directory", label: "NGO Directory", icon: Building2 },
   { href: "/user/donor/wishlist", label: "Wishlist", icon: ClipboardList },
   { href: "/user/donor/reviews", label: "Reviews", icon: Star },

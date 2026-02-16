@@ -35,10 +35,10 @@ export const whoAmI = async () => {
   }
 }
 
-export const updateProfile = async (profileData: any) => {
+export const updateProfile = async (userId: string, profileData: any) => {
   try {
     const response = await axios.put(
-      API.AUTH.UPDATEPROFILE,
+      `/api/auth/${userId}`,
       profileData,
       {
         headers: {
