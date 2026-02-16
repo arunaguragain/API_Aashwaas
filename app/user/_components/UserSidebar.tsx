@@ -33,7 +33,7 @@ const navItemsVolunteer = [
   { href: "/user/volunteer/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/user/volunteer/my-tasks", label: "My Tasks", icon: ClipboardList },
   { href: "/user/volunteer/history", label: "History", icon: Package },
-  { href: "/user/donor/reviews", label: "Reviews", icon: Star },
+  { href: "/user/volunteer/reviews", label: "Reviews", icon: Star },
 ];
 
 const UserSidebar: React.FC<UserSidebarProps> = ({ userType }) => {
@@ -92,17 +92,19 @@ const UserSidebar: React.FC<UserSidebarProps> = ({ userType }) => {
         <div className="border-t border-gray-200 pt-4" />
         <div className="space-y-1">
           <Link
-            href="/user/donor/profile"
+            href={userType === "donor" ? "/user/donor/profile" : "/user/volunteer/profile"}
             className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <User className="h-4 w-4" /> Profile
           </Link>
-          <Link
-            href="/user/settings"
-            className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <Settings className="h-4 w-4" /> Settings
-          </Link>
+          {userType === "donor" && (
+            <Link
+              href="/user/settings"
+              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <Settings className="h-4 w-4" /> Settings
+            </Link>
+          )}
           <button
             type="button"
             onClick={onLogout}
