@@ -42,7 +42,8 @@ export const handleUpdateReview = async (id: string, payload: Partial<{ rating?:
     const result = await ReviewsApi.update(id, payload);
     return { success: true, data: result.data };
   } catch (error: any) {
-    return { success: false, message: error?.response?.data?.message || error?.message || "Update review failed" };
+    const status = error?.response?.status;
+    return { success: false, message: error?.response?.data?.message || error?.message || "Update review failed", status };
   }
 };
 
@@ -51,6 +52,7 @@ export const handleRemoveReview = async (id: string) => {
     const result = await ReviewsApi.remove(id);
     return { success: true, data: result.data };
   } catch (error: any) {
-    return { success: false, message: error?.message || "Delete review failed" };
+    const status = error?.response?.status;
+    return { success: false, message: error?.response?.data?.message || error?.message || "Delete review failed", status };
   }
 };

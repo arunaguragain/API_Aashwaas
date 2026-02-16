@@ -22,17 +22,36 @@ const ReviewForm: React.FC<Props> = ({ initial, onCancel, onSubmit, submitting, 
     await onSubmit({ rating, comment });
   };
 
+  const [hover, setHover] = React.useState<number | null>(null);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="flex items-center gap-3">
         <label className="text-sm font-medium w-20">Rating</label>
-        <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="rounded-md border px-3 py-2 text-sm w-32">
-          {[5, 4, 3, 2, 1].map((v) => (
-            <option key={v} value={v}>
-              {v} ★
-            </option>
-          ))}
-        </select>
+        <div role="radiogroup" aria-label="Rating" className="inline-flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((v) => {
+            const filled = (hover ?? rating) >= v;
+            return (
+              <button
+                key={v}
+                type="button"
+                aria-checked={rating === v}
+                role="radio"
+                onClick={() => setRating(v)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowLeft" || e.key === "ArrowDown") setRating((r) => Math.max(1, (r ?? 1) - 1));
+                  if (e.key === "ArrowRight" || e.key === "ArrowUp") setRating((r) => Math.min(5, (r ?? 1) + 1));
+                }}
+                onMouseEnter={() => setHover(v)}
+                onMouseLeave={() => setHover(null)}
+                className={`inline-flex items-center justify-center rounded px-2 py-1 text-xl leading-none focus:outline-none ${filled ? 'text-yellow-400' : 'text-slate-300'}`}
+                title={`${v} star${v > 1 ? 's' : ''}`}
+              >
+                <span aria-hidden>{filled ? '★' : '☆'}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div>
