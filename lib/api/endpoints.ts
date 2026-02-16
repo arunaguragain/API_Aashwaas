@@ -22,8 +22,10 @@ export const API = {
     TASK: {
         LIST: "/api/tasks",
         GET: (id: string) => `/api/tasks/${id}`,
-        ASSIGN: (id: string) => `/api/tasks/${id}/assign`,
         UPDATE_STATUS: (id: string) => `/api/tasks/${id}/status`,
+        acceptTask: (id: string) => `/api/tasks/${id}/accept`,
+        completeTask: (id: string) => `/volunteer/tasks/${id}/complete`,
+        cancelTask: (id: string) => `/volunteer/tasks/${id}/cancel`,
     },
     REVIEWS: {
         LIST: "/api/reviews",
