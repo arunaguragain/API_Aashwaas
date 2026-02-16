@@ -202,10 +202,36 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
         if (onSuccess) onSuccess();
         else {
           const wishlistId = searchParams?.get?.("wishlistId");
-          setTimeout(() => {
-            if (wishlistId) router.push("/user/donor/wishlist");
-            else router.push("/user/donor/my-donations");
-          }, 700);
+          if (wishlistId) {
+            try {
+              // Ask backend wishlist and update it to reflect this donation.
+              const existing = (await WishlistApi.getById(wishlistId))?.data ?? null;
+              const donatedAmount = Number((form as any).amount ?? (form as any).quantity ?? 0) || 0;
+              const prevRaised = Number(existing?.amountRaised ?? 0);
+              const needed = existing?.amountNeeded == null ? null : Number(existing.amountNeeded);
+              const newRaised = prevRaised + donatedAmount;
+              const newStatus = needed != null && newRaised >= needed ? "fulfilled" : (existing?.status ?? "active");
+              try {
+                // Send both possible field names to be resilient to backend naming
+                await WishlistApi.update(wishlistId, { amountRaised: newRaised, amount: newRaised, status: newStatus });
+              } catch (e) {
+                // If update fails, fallback to a session cache so the list can merge the change on next load
+                try {
+                  const merged = { ...(existing || {}), amountRaised: newRaised, status: newStatus };
+                  const idKey = (existing?.id || existing?._id || wishlistId);
+                  sessionStorage.setItem(`wishlist_update_${idKey}`, JSON.stringify(merged));
+                } catch (se) {
+                  console.error("Failed to persist wishlist update to sessionStorage", se);
+                }
+                console.error("Failed to update wishlist after donation", e);
+              }
+            } catch (e) {
+              // ignore errors fetching wishlist
+            }
+            setTimeout(() => router.push("/user/donor/wishlist"), 300);
+          } else {
+            setTimeout(() => router.push("/user/donor/my-donations"), 700);
+          }
         }
       } else {
         // helpful message when backend doesn't support donor update

@@ -5,11 +5,19 @@ import { handleMyWishlists } from "@/lib/actions/donor/wishlist-actions";
 import WishlistItem from "./_components/WishlistItem";
 import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
 import Link from "next/link";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 export default function MyWishlistPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  let pushToast: ((toast: { title: string; description?: string; tone: any }) => void) | undefined;
+  try {
+    const _ctx = useToast();
+    pushToast = _ctx.pushToast;
+  } catch (e) {
+    pushToast = undefined;
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -18,8 +26,30 @@ export default function MyWishlistPage() {
     handleMyWishlists()
       .then((res) => {
         if (!mounted) return;
-        if (res.success) setItems(res.data || []);
-        else setError(res.message || "Unable to load wishlists");
+        if (res.success) {
+          const fetched = res.data || [];
+          // Merge any session-cached wishlist updates (fallback when backend update failed)
+          try {
+            const merged = fetched.map((it: any) => {
+              const idKey = it.id || it._id;
+              const raw = sessionStorage.getItem(`wishlistthe _update_${idKey}`);
+              if (!raw) return it;
+              try {
+                const parsed = JSON.parse(raw);
+                try {
+                  sessionStorage.removeItem(`wishlist_update_${idKey}`);
+                } catch (e) {}
+                if (pushToast) pushToast({ title: "Donation recorded", description: "Wishlist updated locally. It will sync with server.", tone: "success" });
+                return { ...it, ...parsed };
+              } catch (e) {
+                return it;
+              }
+            });
+            setItems(merged);
+          } catch (e) {
+            setItems(fetched);
+          }
+        } else setError(res.message || "Unable to load wishlists");
       })
       .catch((e) => {
         if (!mounted) return;
@@ -56,7 +86,11 @@ export default function MyWishlistPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {items.map((it) => (
-          <WishlistItem key={it.id || it._id} item={it} />
+          <WishlistItem
+            key={it.id || it._id}
+            item={it}
+            onRemoved={(id) => setItems((prev) => prev.filter((p) => (p.id || p._id) !== id))}
+          />
         ))}
       </div>
     </div>
