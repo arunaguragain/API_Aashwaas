@@ -1,8 +1,9 @@
 "use client";
 
-import { Heart, TrendingUp, Award, Calendar, Package, Clock, MapPin } from "lucide-react";
-import { useEffect, useState } from "react";
+import { TrendingUp, Award, Package } from "lucide-react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { handleListDonorDonations } from "@/lib/actions/donor/donation-actions";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 
 type Donation = {
   _id: string;
@@ -20,7 +21,6 @@ const DonorDashboardPage = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const userName = "Aruna";
 
   useEffect(() => {
     async function fetchDonations() {
@@ -44,107 +44,134 @@ const DonorDashboardPage = () => {
 
   // Calculate stats
   const totalDonations = donations.length;
-  // Example: Impact score calculation (replace with real logic)
   const impactScore = totalDonations * 10;
-  // Example: Trends (replace with real chart logic)
-  const monthlyTrends = Array(12).fill(0);
-  donations.forEach(d => {
-    // Example: count per month (replace with real date parsing)
-    // monthlyTrends[monthIndex] += 1;
-  });
-
-  // Example: Upcoming pickups (filter donations with status 'assigned' or 'pending')
   const upcomingPickups = donations.filter(d => d.status === "assigned" || d.status === "pending");
 
-  // Example: Recent donations (last 5)
-  const recentDonations = donations.slice(0, 5);
+  const formatDate = (d?: string) => {
+    if (!d) return "TBD";
+    try {
+      const dt = new Date(d);
+      return dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    } catch {
+      return d;
+    }
+  };
+
+  // Build chart data for last N days
+  const buildChartData = useCallback((items: Donation[], days = 30) => {
+    const out: { name: string; Donations: number }[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toDateString();
+      const sum = items.reduce((s, it) => {
+        const created = it.pickupDate || it.pickupTime || (it as any).createdAt;
+        if (!created) return s;
+        const dt = new Date(created).toDateString();
+        if (dt === key) return s + (Number(it.quantity) || 0);
+        return s;
+      }, 0);
+      out.push({ name: d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), Donations: sum });
+    }
+    return out;
+  }, []);
+
+  const chartData = useMemo(() => buildChartData(donations, 30), [donations, buildChartData]);
+
+  const pieData = useMemo(() => {
+    const map: Record<string, number> = {};
+    donations.forEach(d => {
+      const key = d.category || 'Other';
+      map[key] = (map[key] || 0) + (Number(d.quantity) || 0);
+    });
+    return Object.entries(map).slice(0, 6).map(([name, value]) => ({ name, value }));
+  }, [donations]);
+  const PIE_COLORS = ['#1E3A8A', '#7C3AED', '#06B6D4', '#F59E0B', '#10B981', '#EF4444'];
 
   return (
-    <>
-      {/* Welcome & About Section */}
-      <div className="mb-8 flex flex-col md:flex-row items-center gap-8">
-        <img src="/images/aashwaas_logo.png" alt="Aashwaas Logo" className="w-32 h-32 rounded-full shadow-md" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Aashwaas, {userName}!</h1>
-          <p className="text-gray-600 mb-4">Aashwaas is a platform connecting donors, volunteers, and NGOs to make a real impact. Start your journey by exploring donations, NGOs, and your profile.</p>
-          <div className="flex gap-4">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold" onClick={() => window.location.href='/user/donor/donation'}>Donate Now</button>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold" onClick={() => window.location.href='/user/donor/my-donations'}>My Donations</button>
-            <button className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold" onClick={() => window.location.href='/user/donor/ngos'}>Explore NGOs</button>
+    <div>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Donor Dashboard</h1>
+      <p className="text-sm text-gray-600 mb-4">A quick summary of your recent activity and impact.</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <Package className="h-5 w-5 text-blue-600" />
+            <span className="text-sm text-gray-500">Total Donations</span>
+          </div>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">{totalDonations}</p>
+        </div>
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <Award className="h-5 w-5 text-yellow-600" />
+            <span className="text-sm text-gray-500">Impact Score</span>
+          </div>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">{impactScore}</p>
+        </div>
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="h-5 w-5 text-green-600" />
+            <span className="text-sm text-gray-500">Growth</span>
+          </div>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">{upcomingPickups.length}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-semibold text-gray-900">Donations Overview</h2>
+            <div className="text-sm text-gray-500">Last 30 days</div>
+          </div>
+          <div style={{ height: 260 }}>
+            {loading ? (
+              <div className="flex items-center justify-center h-full text-gray-500">Loading chart…</div>
+            ) : error ? (
+              <div className="text-red-500">{error}</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="donColor" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#4f46e5" stopOpacity={0.85} />
+                      <stop offset="100%" stopColor="#4f46e5" stopOpacity={0.06} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" tick={{ fill: '#64748b' }} />
+                  <YAxis tick={{ fill: '#64748b' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e6edf6" />
+                  <Tooltip formatter={(v: any) => [v, 'Items']} />
+                  <Area type="monotone" dataKey="Donations" stroke="#4f46e5" strokeWidth={2} fill="url(#donColor)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Donation Breakdown</h3>
+          <div className="flex items-center justify-center">
+            <ResponsiveContainer width={260} height={240}>
+              <PieChart>
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={36}>
+                  {pieData.map((entry, idx) => (
+                    <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {pieData.map((p, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                <span style={{ width: 12, height: 12, background: PIE_COLORS[i % PIE_COLORS.length], display: 'inline-block', borderRadius: 3 }} />
+                <span>{p.name} ({p.value})</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      {/* Gallery Section */}
-      <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <img src="/images/gallery1.jpg" alt="Gallery 1" className="rounded-xl shadow-md w-full h-48 object-cover" />
-        <img src="/images/gallery2.jpg" alt="Gallery 2" className="rounded-xl shadow-md w-full h-48 object-cover" />
-        <img src="/images/gallery3.jpg" alt="Gallery 3" className="rounded-xl shadow-md w-full h-48 object-cover" />
-      </div>
-
-      {/* Basic Analytics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center">
-          <Package className="w-8 h-8 text-blue-600 mb-2" />
-          <p className="text-sm text-gray-500 mb-2">Total Donations</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{totalDonations}</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center">
-          <Award className="w-8 h-8 text-yellow-600 mb-2" />
-          <p className="text-sm text-gray-500 mb-2">Impact Score</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{impactScore}</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center">
-          <TrendingUp className="w-8 h-8 text-green-600 mb-2" />
-          <p className="text-sm text-gray-500 mb-2">Active Pickups</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{upcomingPickups.length}</p>
-        </div>
-      </div>
-
-      {/* Recent Donations Table */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Donations</h2>
-          <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" onClick={() => window.location.href='/user/donor/my-donations'}>
-            View All
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          {loading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Item</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Category</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Quantity</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">NGO</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentDonations.map((donation) => (
-                  <tr key={donation._id} className="border-b border-gray-100">
-                    <td className="py-4 px-4 text-sm text-gray-900">{donation.itemName}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{donation.category}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{donation.quantity}</td>
-                    <td className="py-4 px-4 text-sm text-gray-600">{donation.ngoId || "N/A"}</td>
-                    <td className="py-4 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${donation.status === "completed" ? "bg-green-100 text-green-700" : donation.status === "pending" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"}`}>
-                        {donation.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
 
