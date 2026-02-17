@@ -93,11 +93,11 @@ export default function MyTasksPage() {
       // If a related donation exists, try to reset its status so it becomes assignable again
       if (donationId) {
         try {
-          await DonationsApi.update(donationId, { status: 'approved', assignment: null, ngoId: null });
+          await DonationsApi.update(donationId, { status: 'approved', ngoId: undefined });
           pushToast({ title: "Task rejected", description: "Related donation reset to approved", tone: "success" });
         } catch (err: any) {
           // If public update is not allowed, still consider task rejected but inform user
-          pushToast({ title: "Task rejected", description: "Could not update donation status (permission issue)", tone: "warning" });
+          pushToast({ title: "Task rejected", description: "Could not update donation status (permission issue)", tone: "error" });
         }
       } else {
         pushToast({ title: "Task rejected successfully", tone: "success" });
