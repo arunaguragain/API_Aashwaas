@@ -29,6 +29,20 @@ const stars = (n: number) => (
 
 const ReviewItem: React.FC<Props> = ({ review, onEdit, onDelete, deleting, canModify }) => {
   const id = (review as any)._id ?? (review as any).id ?? "";
+  const resolveAuthorName = (r: any) => {
+    if (!r) return "Unknown";
+    // common shapes: r.user (object), r.userId (string or object), r.userName / r.authorName
+    const u = r.user ?? r.author ?? null;
+    const nameFromUserObj = u ? (u.name ?? u.fullName ?? u.firstName ?? u.username ?? null) : null;
+    if (nameFromUserObj) return nameFromUserObj;
+    if (typeof r.userName === "string" && r.userName) return r.userName;
+    if (typeof r.authorName === "string" && r.authorName) return r.authorName;
+    if (r.userId && typeof r.userId === "object") {
+      return r.userId.name ?? r.userId.fullName ?? r.userId.firstName ?? String(r.userId._id ?? r.userId.id ?? "Unknown");
+    }
+    if (r.userId && typeof r.userId === "string") return r.userId;
+    return "Unknown";
+  };
   return (
     <Card noPadding className="p-4 md:p-4">
       <div className="flex flex-col gap-2">
@@ -37,6 +51,7 @@ const ReviewItem: React.FC<Props> = ({ review, onEdit, onDelete, deleting, canMo
           <div className="text-xs text-gray-500 font-medium">{review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}</div>
         </div>
         {review.comment && <p className="mt-2 text-base text-gray-800 font-normal">{review.comment}</p>}
+        <div className="text-sm text-gray-600">By: <span className="font-medium text-gray-800">{resolveAuthorName(review)}</span></div>
 
         {canModify ? (
           <div className="mt-4 flex flex-row gap-2 items-end">
