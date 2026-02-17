@@ -5,12 +5,16 @@ import { fetchVolunteerTasks, acceptVolunteerTask, cancelVolunteerTask, complete
 import { DonationsApi } from "@/lib/api/donor/donations";
 import { NGOsApi } from "@/lib/api/admin/ngos";
 import Card from "@/app/(platform)/_components/Card";
+import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 export default function MyTasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [confirmReject, setConfirmReject] = useState<{ open: boolean; taskId: string | null }>({ open: false, taskId: null });
+  const { pushToast } = useToast();
 
   const loadTasks = async () => {
     setLoading(true);
@@ -70,10 +74,20 @@ export default function MyTasksPage() {
     setActionLoading(taskId + "-reject");
     try {
       await cancelVolunteerTask(taskId);
-      await loadTasks();
-    } catch (e) {
+      setTasks((prev) => prev.filter((t) => t._id !== taskId));
+      pushToast({
+        title: "Task rejected successfully",
+        tone: "success",
+      });
+    } catch (e: any) {
+      pushToast({
+        title: "Failed to reject task",
+        description: e?.message || "An error occurred.",
+        tone: "error",
+      });
     }
     setActionLoading(null);
+    setConfirmReject({ open: false, taskId: null });
   };
 
   const handleComplete = async (taskId: string) => {
@@ -129,7 +143,7 @@ export default function MyTasksPage() {
                       <button
                         className="rounded-full bg-rose-100 border border-rose-200 text-rose-800 font-semibold shadow-sm px-5 py-2 text-sm transition hover:bg-rose-200 disabled:opacity-60 w-32"
                         disabled={actionLoading === task._id + "-reject"}
-                        onClick={() => handleReject(task._id)}
+                        onClick={() => setConfirmReject({ open: true, taskId: task._id })}
                       >
                         {actionLoading === task._id + "-reject" ? "Rejecting..." : "Reject"}
                       </button>
@@ -137,7 +151,7 @@ export default function MyTasksPage() {
                   )}
                   {task.status === "accepted" && (
                     <button
-                      className="rounded-full bg-[color:var(--cocoa-900)] text-white font-semibold shadow-sm px-5 py-2 text-sm transition hover:-translate-y-0.5 disabled:opacity-60 w-32"
+                      className="rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 font-semibold shadow-sm px-5 py-2 text-sm transition hover:bg-emerald-200 disabled:opacity-60 w-40 whitespace-nowrap"
                       disabled={actionLoading === task._id + "-complete"}
                       onClick={() => handleComplete(task._id)}
                     >
@@ -155,6 +169,20 @@ export default function MyTasksPage() {
             );
           })}
         </div>
+      )}
+      {confirmReject.open && (
+        <ConfirmDialog
+          open={confirmReject.open}
+          title="Reject Task"
+          description="Are you sure you want to reject this task? This action cannot be undone."
+          onCancel={() => setConfirmReject({ open: false, taskId: null })}
+          onConfirm={async () => {
+            if (confirmReject.taskId) await handleReject(confirmReject.taskId);
+          }}
+          confirmLabel="Reject"
+          cancelLabel="Cancel"
+          loading={!!(actionLoading && confirmReject.taskId && actionLoading === confirmReject.taskId + "-reject")}
+        />
       )}
     </div>
   );

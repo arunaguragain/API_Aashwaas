@@ -24,8 +24,8 @@ export const API = {
         GET: (id: string) => `/api/tasks/${id}`,
         UPDATE_STATUS: (id: string) => `/api/tasks/${id}/status`,
         acceptTask: (id: string) => `/api/tasks/${id}/accept`,
-        completeTask: (id: string) => `/volunteer/tasks/${id}/complete`,
-        cancelTask: (id: string) => `/volunteer/tasks/${id}/cancel`,
+        completeTask: (id: string) => `/api/tasks/${id}/complete`,
+        cancelTask: (id: string) => `/api/tasks/${id}/cancel`,
     },
     REVIEWS: {
         LIST: "/api/reviews",
