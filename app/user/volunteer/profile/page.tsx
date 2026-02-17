@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import axios from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-// import { handleListVolunteerTasks } from "@/lib/actions/volunteer-actions";
+import { fetchVolunteerTasks } from "@/lib/actions/volunteer/task-actions";
 
 
 export default function VolunteerProfile() {
@@ -52,56 +52,23 @@ export default function VolunteerProfile() {
 			if (!user) return;
 			try {
 				const volunteerId = user._id || user.id;
-				let res = await handleListVolunteerTasks({ volunteerId });
 				let tasks: any[] = [];
-				if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-					const allReturned = res.data as any[];
-					const extractId = (t: any) => {
-						if (!t) return null;
-						const cand = t.volunteerId ?? t.volunteer ?? t.volunteer_id ?? t.user;
-						if (!cand) return null;
-						if (typeof cand === "string") return cand;
-						if (typeof cand === "number") return String(cand);
-						if (typeof cand === "object") return cand._id || cand.id || null;
-						return null;
-					};
-					const allMatch = allReturned.every((t: any) => {
-						const vid = extractId(t);
-						return vid && String(vid) === String(volunteerId);
-					});
-					if (allMatch) {
-						tasks = allReturned;
-					} else {
-						tasks = allReturned.filter((t: any) => {
-							const vid = extractId(t);
-							return vid && String(vid) === String(volunteerId);
+				try {
+					const allTasks = await fetchVolunteerTasks();
+					if (Array.isArray(allTasks)) {
+						tasks = allTasks.filter((t: any) => {
+							const vid = t.volunteerId ?? t.volunteer ?? t.volunteer_id ?? t.user;
+							if (!vid) return false;
+							return String(vid) === String(volunteerId);
 						});
 					}
-				} else {
-					try {
-						const all = await handleListVolunteerTasks({});
-						if (all && all.success && Array.isArray(all.data)) {
-							const extractId = (t: any) => {
-								if (!t) return null;
-								const cand = t.volunteerId ?? t.volunteer ?? t.volunteer_id ?? t.user;
-								if (!cand) return null;
-								if (typeof cand === "string") return cand;
-								if (typeof cand === "number") return String(cand);
-								if (typeof cand === "object") return cand._id || cand.id || null;
-								return null;
-							};
-							tasks = all.data.filter((t: any) => {
-								const vid = extractId(t);
-								return vid && String(vid) === String(volunteerId);
-							});
-						}
-					} catch (e) {}
-				}
+				} catch (e) {}
 				const totalTasks = tasks.length;
 				const completedTasks = tasks.filter((t: any) => t.status === "completed").length;
 				const impactPoints = completedTasks * 10;
 				if (mounted) {
-					const merged = { ...user, totalTasks, completedTasks, impactPoints };
+					// Always preserve the role property
+					const merged = { ...user, totalTasks, completedTasks, impactPoints, role: user.role };
 					setUser(merged);
 					try { auth.setUser && auth.setUser(merged); } catch (e) {}
 				}
@@ -150,7 +117,10 @@ export default function VolunteerProfile() {
 			}
 			const res = await import("@/lib/actions/auth-actions").then(m => m.handleUpdateProfile(userId, formData));
 			if (res && res.success && (res.data?._id || res.data?.id)) {
-				setUser(res.data);
+				// Always preserve the role property after profile update
+				const updatedUser = { ...res.data, role: user.role };
+				setUser(updatedUser);
+				try { auth.setUser && auth.setUser(updatedUser); } catch (e) {}
 				setEditing(false);
 			} else {
 				setEditError(res.message || "Failed to update profile");
