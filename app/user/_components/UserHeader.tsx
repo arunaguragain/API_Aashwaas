@@ -62,11 +62,19 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userType }) => {
                 router.replace(qs ? `${pathname}?${qs}` : pathname);
                 return;
               }
+
+              // Map common keywords to actual routes used in this app
               if (lc === 'dashboard' || lc.includes('dash')) target = `/user/${userType}/dashboard`;
-              else if (lc.includes('donat')) target = `/user/${userType}/my-donations`;
-              else if (lc.includes('ngo')) target = `/user/${userType}/ngo-directory`;
+              else if (lc.includes('donat')) {
+                // donations are only for donors; for volunteers fall back to dashboard/search
+                target = userType === 'donor' ? `/user/${userType}/my-donations` : `/user/${userType}/dashboard`;
+              } else if (lc.includes('ngo')) target = `/user/${userType}/ngos`;
               else if (lc.includes('task')) target = `/user/${userType}/my-tasks`;
               else if (lc.includes('history')) target = `/user/${userType}/history`;
+              else if (lc.includes('wishlist')) target = `/user/donor/wishlist`;
+              else if (lc.includes('review') || lc.includes('reviews')) target = `/user/${userType}/reviews`;
+              else if (lc.includes('profile')) target = `/user/${userType}/profile`;
+
               if (target) {
                 const url = `${target}?q=${encodeURIComponent(next)}`;
                 router.push(url);

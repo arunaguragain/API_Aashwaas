@@ -97,14 +97,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({ userType }) => {
           >
             <User className="h-4 w-4" /> Profile
           </Link>
-          {userType === "donor" && (
-            <Link
-              href="/user/settings"
-              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              <Settings className="h-4 w-4" /> Settings
-            </Link>
-          )}
           <button
             type="button"
             onClick={onLogout}
