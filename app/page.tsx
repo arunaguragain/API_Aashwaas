@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Package, Truck, Building } from 'lucide-react';
+import { Package, Truck, Building, ShieldCheck, Smartphone, Users, Globe, BarChart2, TrendingUp } from 'lucide-react';
 import { FaTshirt, FaUtensils, FaBook, FaCouch } from 'react-icons/fa';
 
 export default function Home() {
@@ -175,6 +175,75 @@ export default function Home() {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Furniture</h3>
                 <p className="text-sm text-gray-600 text-center">Household furniture and home essentials in good condition</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="why-choose" className="w-full bg-gray-50 py-16">
+        <div className="max-w-[1100px] mx-auto text-center mb-10 px-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">Why Choose Aashwaas?</h2>
+          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">Built with transparency, efficiency, and impact in mind</p>
+        </div>
+
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">100% Transparent</h4>
+                  <p className="text-sm text-gray-600">Track your donation from pickup to delivery with real-time updates</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">Mobile & Web Access</h4>
+                  <p className="text-sm text-gray-600">Manage donations anytime, anywhere with our cross-platform apps</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">Verified Network</h4>
+                  <p className="text-sm text-gray-600">All volunteers and NGOs are thoroughly verified for your peace of mind</p>
+                </div>
+              </div>
+
+              
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <BarChart2 className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">Impact Analytics</h4>
+                  <p className="text-sm text-gray-600">See the real-world impact of your contributions with detailed reports</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold">Zero Waste Goal</h4>
+                  <p className="text-sm text-gray-600">Maximize resource utilization and minimize waste in the donation process</p>
+                </div>
               </div>
             </div>
           </div>
