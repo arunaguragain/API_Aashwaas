@@ -269,8 +269,8 @@ export default function VolunteerProfile() {
 				<div className="bg-white rounded-lg shadow p-6 min-w-55 flex flex-col gap-2">
 					<div className="font-semibold mb-2">Quick Actions</div>
 					<button onClick={() => router.push('/user/volunteer/dashboard')} className="bg-purple-600 text-white px-4 py-2 rounded">Go to Dashboard</button>
-					<button onClick={() => router.push('/user/volunteer/tasks')} className="bg-gray-200 px-4 py-2 rounded">View Tasks</button>
-					<button onClick={() => router.push('/user/volunteer/profile')}  className="bg-gray-200 px-4 py-2 rounded">View Profile</button>
+					<button onClick={() => router.push('/user/volunteer/my-tasks')} className="bg-gray-200 px-4 py-2 rounded">View Tasks</button>
+					<button onClick={() => router.push('/user/volunteer/ngos')}  className="bg-gray-200 px-4 py-2 rounded">View Ngo</button>
 				</div>
 			</div>
 			{/* Impact This Year */}
@@ -282,16 +282,5 @@ export default function VolunteerProfile() {
 		</div>
 	);
 }
-// }
-// // Replace this stub with the actual implementation or import from your actions file
-// async function handleListVolunteerTasks(params: { volunteerId?: any }): Promise<{ success: boolean; data: any[]; message?: string }> {
-//   // Example implementation: replace with your actual API call
-//   try {
-//     const mod = await import("@/lib/actions/volunteer-actions");
-//     // You may need to adjust the function name and parameters as per your backend
-//     return await mod.handleListVolunteerTasks(params);
-//   } catch (e: any) {
-//     return { success: false, data: [], message: e?.message || "Failed to fetch tasks" };
-//   }
-// }
+
 

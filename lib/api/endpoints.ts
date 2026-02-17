@@ -1,5 +1,5 @@
 export const API = {
-    // Authentication / public auth routes
+    // Authentication / user routes
     AUTH: {
         REGISTER: "/api/auth/register",
         LOGIN: "/api/auth/login",

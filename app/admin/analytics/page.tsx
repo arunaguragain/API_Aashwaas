@@ -158,7 +158,7 @@ const AdminAnalyticsPage = () => {
         );
 
         // Recent Activity
-        setRecent(donations.slice(0, 8).map((d: any) => ({
+        setRecent(donations.slice(0, 4).map((d: any) => ({
           donor: (function () {
             try {
               const donor = d.donorName ?? d.donorId ?? d.donor;
