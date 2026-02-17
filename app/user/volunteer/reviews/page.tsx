@@ -5,7 +5,7 @@ import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
 import { useToast } from "@/app/(platform)/_components/ToastProvider";
 import ReviewForm from "@/app/user/donor/reviews/_components/ReviewForm";
 import ReviewItem from "@/app/user/donor/reviews/_components/ReviewItem";
-import { handleCreateReview, handleListMyReviews, handleRemoveReview, handleUpdateReview } from "@/lib/actions/donor/review-actions";
+import { handleCreateReview, handleListReviews, handleListMyReviews, handleRemoveReview, handleUpdateReview } from "@/lib/actions/donor/review-actions";
 import { useAuth } from "@/context/AuthContext";
 import type { ReviewModel } from "@/app/(platform)/reviews/schemas";
 
@@ -16,6 +16,7 @@ export default function MyVolunteerReviewsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<ReviewModel | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [filter, setFilter] = useState<"all" | "mine">("all");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -58,34 +59,30 @@ export default function MyVolunteerReviewsPage() {
 
   const pushToast = toastCtx ? toastCtx.pushToast : undefined;
 
-  useEffect(() => {
+  const loadReviews = async (currentFilter: "all" | "mine" = filter) => {
     let mounted = true;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await handleListMyReviews({ page: 1, perPage: 50 });
-        if (res.success) {
-          let list = Array.isArray(res.data) ? res.data : [];
-          if (auth?.user) {
-            const filtered = list.filter((it: any) => isOwner(it, auth.user));
-            if (filtered.length !== list.length) {
-              list = filtered;
-            }
-          }
-          if (mounted) setReviews(list);
-        } else {
-          if (mounted) setError(res.message || "Failed to load reviews");
-        }
-      } catch (err: any) {
-        if (mounted) setError(err?.message || "Failed to load reviews");
-      } finally {
-        if (mounted) setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const fn = currentFilter === "mine" ? handleListMyReviews : handleListReviews;
+      const res = await fn({ page: 1, perPage: 50 });
+      if (res.success) {
+        const list = Array.isArray(res.data) ? res.data : [];
+        if (mounted) setReviews(list);
+      } else {
+        if (mounted) setError(res.message || "Failed to load reviews");
       }
-    };
-    load();
+    } catch (err: any) {
+      if (mounted) setError(err?.message || "Failed to load reviews");
+    } finally {
+      if (mounted) setLoading(false);
+    }
     return () => { mounted = false };
-  }, []);
+  };
+
+  useEffect(() => {
+    loadReviews(filter);
+  }, [filter]);
 
   const handleCreate = async (payload: { rating: number; comment?: string }) => {
     setSubmitting(true);
@@ -93,12 +90,7 @@ export default function MyVolunteerReviewsPage() {
       const res = await handleCreateReview(payload);
       if (res.success && res.data) {
         try {
-          const ref = await handleListMyReviews({ page: 1, perPage: 50 });
-          if (ref.success && Array.isArray(ref.data)) {
-            setReviews(ref.data);
-          } else {
-            setReviews((p) => [res.data as ReviewModel, ...p]);
-          }
+          await loadReviews(filter);
         } catch (e) {
           setReviews((p) => [res.data as ReviewModel, ...p]);
         }
@@ -135,7 +127,7 @@ export default function MyVolunteerReviewsPage() {
         if (auth?.user && !isOwner(res.data, auth.user)) {
           const msg = "Server indicates you do not own this review — update not permitted";
           setActionError(msg);
-          const ref = await handleListMyReviews({ page: 1, perPage: 50 });
+          const ref = await (filter === "mine" ? handleListMyReviews({ page: 1, perPage: 50 }) : handleListReviews({ page: 1, perPage: 50 }));
           if (ref.success && Array.isArray(ref.data)) setReviews(ref.data);
           if (pushToast) pushToast({ title: "Unable to update", description: msg, tone: "error" });
         } else {
@@ -147,11 +139,10 @@ export default function MyVolunteerReviewsPage() {
       } else {
         const msg = res.message || "Unable to update review";
         setActionError(msg);
-        if (res.status === 403) {
+          if (res.status === 403) {
           setReviews((prev) => prev.filter((it) => getId(it) !== id));
           try {
-            const ref = await handleListMyReviews({ page: 1, perPage: 50 });
-            if (ref.success && Array.isArray(ref.data)) setReviews(ref.data);
+            await loadReviews(filter);
           } catch (e) {}
         }
         if (pushToast) pushToast({ title: "Unable to update", description: msg, tone: "error" });
@@ -188,17 +179,34 @@ export default function MyVolunteerReviewsPage() {
       if (pushToast) pushToast({ title: "Unable to remove", description: msg, tone: "error" });
     }
     setDeletingId(null);
+    try { await loadReviews(filter); } catch (e) {}
   };
 
   return (
     <div className="p-0">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">My Reviews</h1>
-          <p className="text-sm text-gray-600">View and manage your reviews</p>
+          <h1 className="text-2xl font-semibold text-gray-900">Reviews</h1>
+          <p className="text-sm text-gray-600">View and manage reviews</p>
           {actionError && <div className="mt-2 text-sm text-rose-600">{actionError}</div>}
         </div>
         <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-full bg-gray-100 p-1">
+            <button
+              className={`px-3 py-1 text-sm font-medium rounded-full transition ${filter === "all" ? "bg-blue-200 text-blue-800" : "text-gray-700 hover:bg-blue-50"}`}
+              onClick={() => setFilter("all")}
+              aria-pressed={filter === "all"}
+            >
+              All
+            </button>
+            <button
+              className={`ml-1 px-3 py-1 text-sm font-medium rounded-full transition ${filter === "mine" ? "bg-blue-200 text-blue-800" : "text-gray-700 hover:bg-blue-50"}`}
+              onClick={() => setFilter("mine")}
+              aria-pressed={filter === "mine"}
+            >
+              My Reviews
+            </button>
+          </div>
           <button onClick={() => { setShowForm((s) => !s); setEditing(null); }} className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
             {showForm ? "Close" : "Add Review"}
           </button>
@@ -215,7 +223,7 @@ export default function MyVolunteerReviewsPage() {
       {error && <div className="text-rose-600">{error}</div>}
 
       {!loading && reviews.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-700">You have not added any reviews yet.</div>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-700">No reviews available.</div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 mt-4">
