@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchVolunteerTasks, acceptVolunteerTask, cancelVolunteerTask, completeVolunteerTask, TaskStatus } from "@/lib/actions/volunteer/task-actions";
+import { useAuth } from "@/context/AuthContext";
 import { DonationsApi } from "@/lib/api/donor/donations";
 import { NGOsApi } from "@/lib/api/admin/ngos";
 import Card from "@/app/(platform)/_components/Card";
@@ -15,7 +16,7 @@ export default function MyTasksPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [confirmReject, setConfirmReject] = useState<{ open: boolean; taskId: string | null }>({ open: false, taskId: null });
   const { pushToast } = useToast();
-
+  const auth = useAuth();
   const loadTasks = async () => {
     setLoading(true);
     setError("");
@@ -50,6 +51,16 @@ export default function MyTasksPage() {
         })
       );
       setTasks(tasksWithDetails);
+      // Update global auth user totals so profile reflects latest task counts
+      try {
+        const totalTasks = tasksWithDetails.length;
+        const completedTasks = tasksWithDetails.filter((t: any) => t.status === "completed").length;
+        const impactPoints = completedTasks * 10; // same logic as profile
+        if (auth && auth.user) {
+          const merged = { ...auth.user, totalTasks, completedTasks, impactPoints };
+          try { auth.setUser && auth.setUser(merged); } catch (e) {}
+        }
+      } catch (e) {}
     } catch (e: any) {
       setError(e.message || "Failed to load tasks");
     }

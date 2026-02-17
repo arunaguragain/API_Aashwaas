@@ -59,7 +59,12 @@ export default function VolunteerProfile() {
 						tasks = allTasks.filter((t: any) => {
 							const vid = t.volunteerId ?? t.volunteer ?? t.volunteer_id ?? t.user;
 							if (!vid) return false;
-							return String(vid) === String(volunteerId);
+							// Normalize possible object IDs (e.g. { _id: '...' } or { id: '...' })
+							let vidValue: any = vid;
+							if (typeof vid === "object" && vid !== null) {
+								vidValue = vid._id ?? vid.id ?? (vid.toString ? vid.toString() : vid);
+							}
+							return String(vidValue) === String(volunteerId);
 						});
 					}
 				} catch (e) {}
