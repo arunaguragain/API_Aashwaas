@@ -1,17 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Package, Truck, Building } from 'lucide-react';
+import { FaTshirt, FaUtensils, FaBook, FaCouch } from 'react-icons/fa';
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen scroll-smooth">
       <header className="py-4 bg-white shadow-sm">
         <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between">
           <div>
             <Image src="/images/logo.png" alt="Aashwaas" width={140} height={40} className="object-contain" />
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
-            <Link href="/how-it-works" className="hover:text-gray-900">How It Works</Link>
-            <Link href="/categories" className="hover:text-gray-900">Categories</Link>
+            <Link href="#how-it-works" className="hover:text-gray-900">How It Works</Link>
+            <Link href="#what-you-can-donate" className="hover:text-gray-900">Categories</Link>
             <Link href="/admin_login" aria-label="Admin portal" className="ml-2 inline-flex items-center gap-2 text-sm text-purple-600 group transition px-2 py-1 hover:bg-purple-50">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-current transition-colors duration-200" aria-hidden="true">
                 <path d="M12 2l7 4v5c0 5-3.2 9.7-7 11-3.8-1.3-7-6-7-11V6l7-4z" />
@@ -22,35 +24,35 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="bg-gradient-to-br from-blue-50 via-blue-150 to-white">
-        <div className="max-w-[1600px] mx-auto px-18">
-          <div className="grid md:grid-cols-2 gap-8 items-center pt-8 pb-12">
+      <main className="bg-gradient-to-br from-blue-50 via-blue-200 to-white">
+        <div className="max-w-[1600px] mx-auto px-20">
+          <div className="grid md:grid-cols-2 gap-8 items-center pt-11 pb-12">
           <div className="max-w-2xl">
-            <span className="inline-block mb-4 rounded-full bg-blue-100 text-blue-700 px-4 py-2 text-sm font-medium">Connecting Generosity with Need</span>
+            <span className="inline-block mb-4 rounded-full bg-blue-200 text-blue-700 px-4 py-2 text-sm font-medium">Connecting Generosity with Need</span>
 
-            <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6 text-gray-900">
+            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-gray-900">
               Transform Donations into
               <br />
               <span className="block text-blue-600">Real Impact</span>
             </h1>
 
-            <p className="text-gray-700 mb-4 max-w-xl text-lg">Aashwaas bridges donors, volunteers, and NGOs to reduce waste and maximize the impact of every contribution. Donate goods, volunteer your time, or manage charitable operations—all in one transparent platform.</p>
+            <p className="text-gray-700 mb-4 max-w-xl text-lg">Aashwaas bridges donors, volunteers, and NGOs to reduce waste and maximize the impact of every contribution. Donate goods and volunteer your time all in one transparent platform.</p>
 
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <Link href="/donor_login" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow">Donate Now</Link>
-              <Link href="/volunteer_login" className="inline-flex items-center gap-3 border border-blue-600 text-blue-600 px-5 py-3 rounded-full hover:bg-blue-50">Become a Volunteer</Link>
+              <Link href="/volunteer_login" className="inline-flex items-center gap-3 bg-white border border-blue-600 text-blue-600 px-5 py-3 rounded-full hover:bg-blue-50">Become a Volunteer</Link>
             </div>
 
             <div className="flex items-center gap-6 text-sm text-gray-600">
               <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect x="7" y="2" width="10" height="20" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M12 18h.01" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>Mobile & Web App</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M12 2l7 4v5c0 5-3.2 9.7-7 11-3.8-1.3-7-6-7-11V6l7-4z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M9.5 12.5l1.75 1.75L15 10" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -65,8 +67,120 @@ export default function Home() {
             </div>
           </div>
           </div>
+
         </div>
       </main>
+
+      <section id="how-it-works" className="w-full bg-gray-100 py-16">
+        <div className="max-w-[1100px] mx-auto text-center mb-10 px-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">How Aashwaas Works</h2>
+          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">A simple, transparent process connecting your donations with those who need them most</p>
+        </div>
+
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
+              <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                      <Package className="w-7 h-7 text-blue-600" />
+                    </div>
+
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mb-4">1</div>
+                <h3 className="text-lg font-semibold mb-2">List Your Donation</h3>
+                <p className="text-sm text-gray-600 text-center">Donors register and list items they wish to donate through our web or mobile platform.</p>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
+              <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                      <Truck className="w-7 h-7 text-blue-600" />
+                    </div>
+
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mb-4">2</div>
+                <h3 className="text-lg font-semibold mb-2">Volunteer Pickup</h3>
+                <p className="text-sm text-gray-600 text-center">Verified volunteers are notified and schedule a convenient pickup time from your location.</p>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
+              <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                      <Building className="w-7 h-7 text-blue-600" />
+                    </div>
+
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mb-4">3</div>
+                <h3 className="text-lg font-semibold mb-2">Delivered to NGOs</h3>
+                <p className="text-sm text-gray-600 text-center">Items are delivered to registered NGOs who distribute them to beneficiaries in need.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="what-you-can-donate" className="w-full py-16 bg-white">
+        <div className="max-w-[1100px] mx-auto text-center mb-12 px-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">What You Can Donate</h2>
+          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">We accept a wide range of items to help those in need</p>
+        </div>
+
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="rounded-lg overflow-hidden">
+                <Image src="/images/clothing.jpg" alt="Clothing" width={800} height={420} className="w-full h-[160px] object-cover rounded-lg" />
+              </div>
+              <div className="-mt-6 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                  <FaTshirt className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Clothing</h3>
+                <p className="text-sm text-gray-600 text-center">Gently used clothes, shoes, and accessories for all ages</p>
+              </div>
+            </div>
+
+            <div>
+              <div className="rounded-lg overflow-hidden">
+                <Image src="/images/food.jpg" alt="Food" width={800} height={420} className="w-full h-[160px] object-cover rounded-lg" />
+              </div>
+              <div className="-mt-6 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                  <FaUtensils className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Food</h3>
+                <p className="text-sm text-gray-600 text-center">Non-perishable food items and packaged goods</p>
+              </div>
+            </div>
+
+            <div>
+              <div className="rounded-lg overflow-hidden">
+                <Image src="/images/Stationery.jpg" alt="Stationery" width={800} height={420} className="w-full h-[160px] object-cover rounded-lg" />
+              </div>
+              <div className="-mt-6 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                  <FaBook className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Stationery</h3>
+                <p className="text-sm text-gray-600 text-center">Books, notebooks, pens, and educational materials</p>
+              </div>
+            </div>
+
+            <div>
+              <div className="rounded-lg overflow-hidden">
+                <Image src="/images/furniture.jpg" alt="Furniture" width={800} height={420} className="w-full h-[160px] object-cover rounded-lg" />
+              </div>
+              <div className="-mt-6 flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                  <FaCouch className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Furniture</h3>
+                <p className="text-sm text-gray-600 text-center">Household furniture and home essentials in good condition</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
