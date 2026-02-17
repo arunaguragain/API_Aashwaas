@@ -32,7 +32,7 @@ const navItemsDonor = [
 const navItemsVolunteer = [
   { href: "/user/volunteer/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/user/volunteer/my-tasks", label: "My Tasks", icon: ClipboardList },
-  { href: "/user/volunteer/history", label: "History", icon: Package },
+  { href: "/user/volunteer/ngos", label: "NGO Directory", icon: Building2 },
   { href: "/user/volunteer/reviews", label: "Reviews", icon: Star },
 ];
 
