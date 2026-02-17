@@ -68,7 +68,7 @@ export default function MyDonationsPage() {
     setDeletingId(id);
     try {
       await DonationsApi.remove(id);
-      setDonations((prev) => prev.filter((it) => (it._id || (it as any)) !== id));
+      setDonations((prev) => prev.filter((it) => ((it as any)._id || (it as any).id) !== id));
       if (pushToast) pushToast({ title: "Donation cancelled", description: "Your donation was removed.", tone: "success" });
     } catch (e: any) {
       if (pushToast) pushToast({ title: "Unable to cancel", description: e?.message || "Try again", tone: "error" });
