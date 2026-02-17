@@ -9,6 +9,7 @@ import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 export default function MyWishlistPage() {
   const [items, setItems] = useState<any[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   let pushToast: ((toast: { title: string; description?: string; tone: any }) => void) | undefined;
@@ -63,6 +64,12 @@ export default function MyWishlistPage() {
     };
   }, []);
 
+  const availableStatuses = Array.from(new Set(items.map((it) => (it.status || "Pending") as string)));
+  const filteredItems = items.filter((it) => {
+    if (statusFilter === "all") return true;
+    return ((it.status || "Pending").toString().toLowerCase() === statusFilter);
+  });
+
   return (
     <div className="p-0">
       <div className="flex items-center justify-between mb-6">
@@ -70,7 +77,23 @@ export default function MyWishlistPage() {
           <h1 className="text-2xl font-semibold text-gray-900">Wishlist</h1>
           <p className="text-sm text-gray-600">Items you have saved</p>
         </div>
-        <div>
+        <div className="flex items-center gap-3">
+          {items.length > 0 && (
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-700">Filter:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="rounded-md border px-3 py-1 text-sm"
+              >
+                <option value="all">All</option>
+                {availableStatuses.map((s) => (
+                  <option key={s} value={(s || "").toString().toLowerCase()}>{s}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <Link href="/user/donor/wishlist/new" className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
             Add Wishlist
           </Link>
@@ -84,8 +107,12 @@ export default function MyWishlistPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-700">Your wishlist is empty.</div>
       )}
 
+      {items.length > 0 && filteredItems.length === 0 && (
+        <div className="rounded-lg border border-gray-200 bg-white p-6 text-center text-gray-700 mt-4">No wishlist items match the selected status.</div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-        {items.map((it) => (
+        {filteredItems.map((it) => (
           <WishlistItem
             key={it.id || it._id}
             item={it}

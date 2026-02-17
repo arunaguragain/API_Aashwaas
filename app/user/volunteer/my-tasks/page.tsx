@@ -13,6 +13,7 @@ export default function MyTasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [confirmReject, setConfirmReject] = useState<{ open: boolean; taskId: string | null }>({ open: false, taskId: null });
   const { pushToast } = useToast();
@@ -21,7 +22,7 @@ export default function MyTasksPage() {
     setLoading(true);
     setError("");
     try {
-      const data = await fetchVolunteerTasks();
+      const data = await fetchVolunteerTasks(statusFilter && statusFilter !== 'all' ? { status: statusFilter as TaskStatus } : undefined);
       // For each task, fetch donation and NGO details
       const tasksWithDetails = await Promise.all(
         data.map(async (task: any) => {
@@ -69,7 +70,8 @@ export default function MyTasksPage() {
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [statusFilter]);
+
 
   const handleAccept = async (taskId: string) => {
     setActionLoading(taskId + "-accept");
@@ -114,6 +116,19 @@ export default function MyTasksPage() {
   return (
     <div className="p-0">
       <h1 className="text-2xl font-semibold mb-4">My Tasks</h1>
+      <div className="mb-4 flex items-center gap-3">
+        <label className="font-medium">Status:</label>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as TaskStatus | 'all')}
+          className="border rounded px-2 py-1"
+        >
+          <option value="all">All</option>
+          <option value="assigned">Assigned</option>
+          <option value="accepted">Accepted</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
       {loading ? (
         <div>Loading tasks...</div>
       ) : error ? (
