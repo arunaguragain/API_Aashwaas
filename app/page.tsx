@@ -188,67 +188,94 @@ export default function Home() {
         </div>
 
         <div className="max-w-[1200px] mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <ShieldCheck className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">100% Transparent</h4>
-                  <p className="text-sm text-gray-600">Track your donation from pickup to delivery with real-time updates</p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <ShieldCheck className="w-6 h-6 text-blue-600" />
               </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Mobile & Web Access</h4>
-                  <p className="text-sm text-gray-600">Manage donations anytime, anywhere with our cross-platform apps</p>
-                </div>
+              <div>
+                <h4 className="font-semibold">100% Transparent</h4>
+                <p className="text-sm text-gray-600">Track your donation from pickup to delivery with real-time updates</p>
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Verified Network</h4>
-                  <p className="text-sm text-gray-600">All volunteers and NGOs are thoroughly verified for your peace of mind</p>
-                </div>
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <Smartphone className="w-6 h-6 text-blue-600" />
               </div>
-
-              
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <BarChart2 className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Impact Analytics</h4>
-                  <p className="text-sm text-gray-600">See the real-world impact of your contributions with detailed reports</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold">Zero Waste Goal</h4>
-                  <p className="text-sm text-gray-600">Maximize resource utilization and minimize waste in the donation process</p>
-                </div>
+              <div>
+                <h4 className="font-semibold">Mobile & Web Access</h4>
+                <p className="text-sm text-gray-600">Manage donations anytime, anywhere with our cross-platform apps</p>
               </div>
             </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold">Verified Network</h4>
+                <p className="text-sm text-gray-600">All volunteers and NGOs are thoroughly verified for your peace of mind</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <BarChart2 className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold">Impact Analytics</h4>
+                <p className="text-sm text-gray-600">See the real-world impact of your contributions with detailed reports</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <TrendingUp className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold">Zero Waste Goal</h4>
+                <p className="text-sm text-gray-600">Maximize resource utilization and minimize waste in the donation process</p>
+              </div>
+            </div>
+
+            <div className="hidden md:block" />
           </div>
         </div>
       </section>
+
+      <section id="ready-to-make-difference" className="w-full py-16 bg-gradient-to-br from-blue-50 via-blue-200 to-white">
+        <div className="max-w-[1100px] mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900">Ready to Make a Difference?</h2>
+          <p className="mt-3 max-w-2xl mx-auto text-gray-600">Join thousands of donors, volunteers, and organizations creating positive change</p>
+
+          <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
+            <Link href="/donor_login" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow"> 
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.682 4.318 12.682a4.5 4.5 0 010-6.364z" />
+              Start Donating
+            </Link>
+
+            <Link href="/volunteer_login" className="inline-flex items-center gap-3 bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-full hover:bg-blue-50"> 
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m1-4a4 4 0 11-8 0 4 4 0 018 0zM16 11a4 4 0 100-8 4 4 0 000 8z" />
+              Join as Volunteer
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer id="site-footer" className="w-full bg-gray-800 text-gray-200 py-6">
+        <div className="max-w-[1100px] mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+            <div className="flex-shrink-0">
+              <Image src="/images/logo.png" alt="Aashwaas" width={120} height={34} className="object-contain" />
+            </div>
+            <p className="mt-2 text-xs text-gray-400 max-w-xs">Connecting donors, volunteers and NGOs to create measurable social impact.</p>
+            <div className="text-xs text-gray-400 text-center md:text-right">
+              <p>© {new Date().getFullYear()} Aashwaas. All rights reserved.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
 
     </div>
   );
