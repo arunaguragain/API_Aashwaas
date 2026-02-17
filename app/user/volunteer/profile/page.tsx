@@ -273,7 +273,7 @@ export default function VolunteerProfile() {
 				{/* Quick Actions */}
 				<div className="bg-white rounded-lg shadow p-6 min-w-55 flex flex-col gap-2">
 					<div className="font-semibold mb-2">Quick Actions</div>
-					<button onClick={() => router.push('/user/volunteer/dashboard')} className="bg-purple-600 text-white px-4 py-2 rounded">Go to Dashboard</button>
+					<button onClick={() => router.push('/user/volunteer/dashboard')} className="bg-purple-600 text-white px-4 py-2 rounded">Go to Home</button>
 					<button onClick={() => router.push('/user/volunteer/my-tasks')} className="bg-gray-200 px-4 py-2 rounded">View Tasks</button>
 					<button onClick={() => router.push('/user/volunteer/ngos')}  className="bg-gray-200 px-4 py-2 rounded">View Ngo</button>
 				</div>

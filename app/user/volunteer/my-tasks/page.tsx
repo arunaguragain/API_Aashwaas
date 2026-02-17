@@ -87,11 +87,21 @@ export default function MyTasksPage() {
     setActionLoading(taskId + "-reject");
     try {
       await cancelVolunteerTask(taskId);
+      const taskObj = tasks.find((t) => t._id === taskId);
+      const donationId = taskObj?.donation?._id || taskObj?.donation || taskObj?.donationId || null;
       setTasks((prev) => prev.filter((t) => t._id !== taskId));
-      pushToast({
-        title: "Task rejected successfully",
-        tone: "success",
-      });
+      // If a related donation exists, try to reset its status so it becomes assignable again
+      if (donationId) {
+        try {
+          await DonationsApi.update(donationId, { status: 'approved', assignment: null, ngoId: null });
+          pushToast({ title: "Task rejected", description: "Related donation reset to approved", tone: "success" });
+        } catch (err: any) {
+          // If public update is not allowed, still consider task rejected but inform user
+          pushToast({ title: "Task rejected", description: "Could not update donation status (permission issue)", tone: "warning" });
+        }
+      } else {
+        pushToast({ title: "Task rejected successfully", tone: "success" });
+      }
     } catch (e: any) {
       pushToast({
         title: "Failed to reject task",

@@ -3,6 +3,8 @@ import Badge from "@/app/(platform)/_components/Badge";
 import Link from "next/link";
 import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
 import { TasksApi } from "@/lib/api/admin/tasks";
+import { AdminDonationsApi } from "@/lib/api/admin/donations";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 type Task = {
   id?: string;
@@ -27,12 +29,23 @@ export default function TaskTable({ tasks: initialTasks }: TaskTableProps) {
   const [tasks, setTasks] = useState(initialTasks);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { pushToast } = useToast();
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
+    const taskToDelete = tasks.find((t) => (t.id || t._id) === id);
+    const donationId = taskToDelete?.donationId || null;
     try {
       await TasksApi.delete?.(id); 
       setTasks((prev) => prev.filter((task) => (task.id || task._id) !== id));
+      if (donationId) {
+        try {
+          await AdminDonationsApi.update(donationId, { status: 'approved', assignment: null, ngoId: null });
+          pushToast({ title: 'Related donation reset', description: 'Donation status set to approved', tone: 'success' });
+        } catch (err: any) {
+          pushToast({ title: 'Failed to update donation', description: err?.message || '', tone: 'error' });
+        }
+      }
     } catch (err) {
       // Optionally show error toast
     }
