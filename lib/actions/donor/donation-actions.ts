@@ -1,3 +1,4 @@
+"use server";
 import { DonationListParams, DonationModel } from "@/app/(platform)/donations/schemas";
 import { DonationsApi } from "@/lib/api/donor/donations";
 

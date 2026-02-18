@@ -1,3 +1,4 @@
+"use server";
 import { WishlistApi } from "@/lib/api/donor/wishlist";
 
 export const handleListWishlists = async (params?: Record<string, any>) => {

@@ -1,3 +1,4 @@
+"use server";
 import type { ReviewModel, ReviewListParams } from "@/app/(platform)/reviews/schemas";
 import { ReviewsApi } from "@/lib/api/reviews";
 

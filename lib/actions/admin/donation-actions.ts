@@ -1,3 +1,4 @@
+"use server";
 import type { DonationListParams, DonationModel } from "@/app/(platform)/donations/schemas";
 import { AdminDonationsApi } from "@/lib/api/admin/donations";
 import { revalidatePath } from "next/cache";

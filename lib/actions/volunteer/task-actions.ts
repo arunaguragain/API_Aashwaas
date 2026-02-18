@@ -1,3 +1,4 @@
+// "use server";
 import { getMyTasks, acceptTask, completeTask, cancelTask } from "@/lib/api/volunteer/tasks";
 import { VolunteerTask, TaskStatus } from "@/app/(platform)/tasks/schemas";
 
