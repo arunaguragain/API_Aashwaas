@@ -15,9 +15,6 @@ export default function Home() {
             <Link href="#how-it-works" className="hover:text-gray-900">How It Works</Link>
             <Link href="#what-you-can-donate" className="hover:text-gray-900">Categories</Link>
             <Link href="/donor_register" aria-label="Admin portal" className="ml-2 inline-flex items-center gap-2 text-sm text-purple-600 group transition px-2 py-1 hover:bg-purple-50">
-              {/* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-current transition-colors duration-200" aria-hidden="true">
-                <path d="M12 2l7 4v5c0 5-3.2 9.7-7 11-3.8-1.3-7-6-7-11V6l7-4z" />
-              </svg> */}
               <span className="hidden sm:inline text-current transition-colors duration-200">Sign up</span>
             </Link>
           </nav>
@@ -25,18 +22,18 @@ export default function Home() {
       </header>
 
       <main className="bg-gradient-to-br from-blue-50 via-blue-200 to-white">
-        <div className="max-w-[1600px] mx-auto px-20">
-          <div className="grid md:grid-cols-2 gap-8 items-center pt-11 pb-12">
+        <div className="max-w-[1600px] mx-auto px-20 bg-[url('/images/landingpage.png')] bg-cover bg-center shadow-2xl min-h-[520px] relative">
+          <div className="absolute inset-0 bg-black/80 z-10"></div>
+          <div className="absolute inset-0 bg-white/50 z-20 pointer-events-none"></div>
+          <div className="grid md:grid-cols-2 gap-8 items-center pt-11 pb-12 relative z-30">
           <div className="max-w-2xl">
-            <span className="inline-block mb-4 rounded-full bg-blue-200 text-blue-700 px-4 py-2 text-sm font-medium">Connecting Generosity with Need</span>
-
-            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-gray-900">
+            <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-white drop-shadow-lg">
               Transform Donations into
               <br />
-              <span className="block text-blue-600">Real Impact</span>
+              <span className="block text-blue-400 drop-shadow-lg">Real Impact</span>
             </h1>
 
-            <p className="text-gray-700 mb-4 max-w-xl text-lg">Aashwaas bridges donors, volunteers, and NGOs to reduce waste and maximize the impact of every contribution. Donate goods and volunteer your time all in one transparent platform.</p>
+            <p className="text-white mb-4 max-w-xl text-lg drop-shadow-lg">Aashwaas bridges donors, volunteers, and NGOs to reduce waste and maximize the impact of every contribution. Donate goods and volunteer your time all in one transparent platform.</p>
 
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <Link href="/donor_login" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow">Donate Now</Link>
@@ -61,8 +58,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative flex justify-center">
-            <div className="rounded-3xl overflow-hidden shadow-2xl w-full max-w-[760px] h-[420px] md:h-[520px] bg-white">
+          <div className="relative flex justify-center z-40 mt-8">
+            <div className="overflow-hidden shadow-2xl w-full max-w-[760px] h-[420px] md:h-[520px] bg-white rounded-3xl">
               <Image src="/images/landingpage.png" alt="Hero" fill className="w-full h-full object-cover object-center rounded-3xl" />
             </div>
           </div>
