@@ -6,7 +6,7 @@ import { FaTshirt, FaUtensils, FaBook, FaCouch } from 'react-icons/fa';
 export default function Home() {
   return (
     <div className="min-h-screen scroll-smooth">
-      <header className="py-4 bg-white shadow-sm">
+      <header className="sticky top-0 z-50 py-4 bg-white shadow-sm">
         <div className="max-w-[1600px] mx-auto px-6 flex items-center justify-between">
           <div>
             <Image src="/images/logo.png" alt="Aashwaas" width={140} height={40} className="object-contain" />
