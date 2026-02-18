@@ -62,6 +62,9 @@ export const AdminDonationsApi = {
 
   async remove(id: string): Promise<{ data: { id: string }; source: "api" | "mock" }> {
     try {
+      if (!id) {
+        throw new Error("Invalid donation id for delete");
+      }
       await axios.delete(API.ADMIN.DONATION.DELETE(id));
       return { data: { id }, source: "api" };
     } catch (error: any) {

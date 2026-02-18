@@ -19,10 +19,14 @@ axiosInstance.interceptors.request.use(
         try {
             const method = (config.method || '').toString().toLowerCase();
             if (method === 'delete') {
-                const loc = typeof window !== 'undefined' ? window.location.pathname : 'server';
-                // Temporary debug log to help trace accidental deletes
-                // eslint-disable-next-line no-console
-                console.warn('[DEBUG] axios DELETE ->', config.url, 'from', loc, 'at', new Date().toISOString());
+                    const loc = typeof window !== 'undefined' ? window.location.pathname : 'server';
+                    // Temporary debug log to help trace accidental deletes (includes stack trace)
+                    // eslint-disable-next-line no-console
+                    console.warn('[DEBUG] axios DELETE ->', config.url, 'from', loc, 'at', new Date().toISOString());
+                    // eslint-disable-next-line no-console
+                    try { console.trace('[DEBUG] axios DELETE stack trace'); } catch (e) { /* ignore */ }
+                    // eslint-disable-next-line no-console
+                    try { console.warn('[DEBUG] axios DELETE payload/data ->', (config as any).data); } catch (e) { /* ignore */ }
             }
         } catch (e) {
             // ignore logging errors
