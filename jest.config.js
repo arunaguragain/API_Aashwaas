@@ -13,16 +13,10 @@ module.exports = {
     '^.+\\.(ts|tsx|js|jsx)$': [
       'ts-jest',
       {
-        tsconfig: '<rootDir>/tsconfig.json',
         useESM: true,
+        tsconfig: '<rootDir>/tsconfig.json',
       },
     ],
-  },
-  globals: {
-    'ts-jest': {
-      useESM: true,
-      tsconfig: '<rootDir>/tsconfig.json',
-    },
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
 };

@@ -299,7 +299,7 @@ const DonorDashboardPage = () => {
           </div>
         )}
       </div>
-      {/* Reviews Section - moved below donations */}
+      {/* Reviews Section*/}
       <div className="mt-12">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Reviews & Feedback</h2>

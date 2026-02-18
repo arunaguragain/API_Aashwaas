@@ -1,12 +1,19 @@
 
 "use client";
 
+
 import { TrendingUp, Award, Package } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { fetchVolunteerTasks } from '@/lib/actions/volunteer/task-actions';
 import { VolunteerTask } from '@/app/(platform)/tasks/schemas';
 import { useAuth } from '@/context/AuthContext';
+import NgoCard from '@/app/(platform)/_components/NgoCard';
+import Card from '@/app/(platform)/_components/Card';
+import Badge from '@/app/(platform)/_components/Badge';
+import ReviewItem from '@/app/user/donor/reviews/_components/ReviewItem';
+import axios from '@/lib/api/axios';
+import { API } from '@/lib/api/endpoints';
+import { ReviewsApi } from '@/lib/api/reviews';
 
 export default function VolunteerDashboard() {
 
@@ -14,6 +21,13 @@ export default function VolunteerDashboard() {
   const [tasks, setTasks] = useState<VolunteerTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // NGO and Review state
+  const [ngos, setNgos] = useState<any[]>([]);
+  const [ngosLoading, setNgosLoading] = useState(true);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -31,109 +45,136 @@ export default function VolunteerDashboard() {
         if (mounted) setLoading(false);
       }
     }
+
+    async function fetchNgos() {
+      setNgosLoading(true);
+      try {
+        const res = await axios.get(API.NGO.LIST);
+        const payload = res?.data;
+        const data = Array.isArray(payload) ? payload : payload?.data ?? [];
+        if (mounted) setNgos(data);
+      } catch (e) {
+        console.error("Failed to load NGOs", e);
+      } finally {
+        if (mounted) setNgosLoading(false);
+      }
+    }
+
+    async function fetchReviews() {
+      setReviewsLoading(true);
+      try {
+        const res = await ReviewsApi.list({ page: 1, perPage: 50 });
+        if (mounted) setReviews(res.data ?? []);
+        setReviewsError("");
+      } catch (e: any) {
+        if (mounted) setReviewsError(e?.message || "Failed to load reviews");
+      } finally {
+        if (mounted) setReviewsLoading(false);
+      }
+    }
+
     load();
+    fetchNgos();
+    fetchReviews();
     return () => { mounted = false; };
   }, []);
 
-  // Prefer values from profile (auth.user) when available; otherwise compute from tasks
   const totalTasks = auth.user?.totalTasks ?? tasks.length;
   const impactPoints = auth.user?.impactPoints ?? (tasks.filter(t => t.status === 'completed').length * 10);
   const completedTasks = auth.user?.completedTasks ?? tasks.filter(t => t.status === 'completed').length;
   const upcoming = tasks.filter(t => (t.status === 'assigned' || t.status === 'accepted')).length;
 
-  const chartData = useMemo(() => {
-    const map: Record<string, number> = {};
-    tasks.forEach(t => {
-      const d = new Date(t.createdAt || t.assignedAt || t.updatedAt || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-      map[d] = (map[d] || 0) + 1;
-    });
-    return Object.entries(map).map(([name, Tasks]) => ({ name, Tasks }));
-  }, [tasks]);
-
-  const pieData = useMemo(() => {
-    const map: Record<string, number> = {};
-    tasks.forEach(t => { map[t.status] = (map[t.status] || 0) + 1; });
-    return Object.entries(map).map(([name, value]) => ({ name, value }));
-  }, [tasks]);
-
-  const PIE_COLORS = ['#1E3A8A', '#7C3AED', '#06B6D4', '#F59E0B'];
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-1">Volunteer Dashboard</h1>
-      <p className="text-sm text-gray-600 mb-4">Welcome back, here's a quick summary of your volunteer impact.</p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <Package className="h-5 w-5 text-blue-600" />
-            <span className="text-sm text-gray-500">Tasks Completed</span>
-          </div>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{completedTasks}</p>
+      <div className="mb-6 p-4 rounded-lg border-blue-100 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-900 mb-2">Welcome to Aashwaas!</h1>
+          <p className="text-gray-700 mb-2">Thank you for making a difference. Here you can track your tasks, see your impact, and watch your growth as a valued volunteer.</p>
         </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <Award className="h-5 w-5 text-yellow-600" />
-            <span className="text-sm text-gray-500">Impact Points</span>
-          </div>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{impactPoints}</p>
-        </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <TrendingUp className="h-5 w-5 text-green-600" />
-            <span className="text-sm text-gray-500">Upcoming Shifts</span>
-          </div>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{upcoming}</p>
-        </div>
+        <button
+          className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-95 shadow transition mt-4 sm:mt-0"
+          onClick={() => window.location.href='/user/volunteer/my-tasks'}
+        >
+          View My Tasks
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-gray-900">Tasks Overview</h2>
-            <div className="text-sm text-gray-500">Recent</div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+        <Card className="overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <Package className="h-6 w-6 text-blue-600" />
+            <span className="text-base font-semibold text-gray-700">Total Tasks</span>
           </div>
-          <div style={{ height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="taskColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.85} />
-                    <stop offset="100%" stopColor="#10B981" stopOpacity={0.06} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="name" tick={{ fill: '#64748b' }} />
-                <YAxis tick={{ fill: '#64748b' }} />
-                <CartesianGrid strokeDasharray="3 3" stroke="#e6edf6" />
-                <Tooltip formatter={(v: any) => [v, 'Tasks']} />
-                <Area type="monotone" dataKey="Tasks" stroke="#10B981" strokeWidth={2} fill="url(#taskColor)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold text-gray-900">{totalTasks}</span>
+            <Badge label="Tasks" tone="info" />
           </div>
-        </div>
+        </Card>
+        <Card className="overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <Award className="h-6 w-6 text-yellow-600" />
+            <span className="text-base font-semibold text-gray-700">Impact Points</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold text-gray-900">{impactPoints}</span>
+            <Badge label="Impact" tone="warning" />
+          </div>
+        </Card>
+        <Card className="overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <TrendingUp className="h-6 w-6 text-green-600" />
+            <span className="text-base font-semibold text-gray-700">Upcoming Shifts</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-bold text-gray-900">{upcoming}</span>
+            <Badge label="Upcoming" tone="success" />
+          </div>
+        </Card>
+      </div>
 
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Task Categories</h3>
-          <div className="flex items-center justify-center">
-            <ResponsiveContainer width={260} height={240}>
-              <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={36}>
-                  {pieData.map((entry, idx) => (
-                    <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-3">
-            {pieData.map((p, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                <span style={{ width: 12, height: 12, background: PIE_COLORS[i % PIE_COLORS.length], display: 'inline-block', borderRadius: 3 }} />
-                <span>{p.name} ({p.value})</span>
-              </div>
+      {/* NGO Directory Preview */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">NGO Directory</h2>
+          <a href="/user/volunteer/ngos" className="text-blue-600 hover:underline text-sm font-medium">View All</a>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Browse NGOs registered on the platform</p>
+        {ngosLoading ? (
+          <div className="text-gray-500">Loading NGOs…</div>
+        ) : ngos.length === 0 ? (
+          <div className="text-gray-500">No NGOs found.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {ngos.slice(0, 3).map((ngo: any) => (
+              <NgoCard key={ngo.id || ngo._id || ngo.name} ngo={ngo} />
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-12">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Reviews & Feedback</h2>
+          <a href="/user/volunteer/reviews" className="text-blue-600 hover:underline text-sm font-medium">View All</a>
         </div>
+        <p className="text-gray-800 text-base font-medium mb-2">Your voice matters! See what other donors & volunteers are saying, and share your experience to help us improve.</p>
+        <p className="text-gray-500 text-sm mb-4">We value your feedback. Reviews help us build a better platform for all donors, volunteers and NGOs.</p>
+        {reviewsLoading ? (
+          <div className="text-gray-500">Loading reviews…</div>
+        ) : reviewsError ? (
+          <div className="text-red-500">{reviewsError}</div>
+        ) : reviews.length === 0 ? (
+          <div className="text-gray-400 italic">No reviews found.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {reviews.slice(0, 3).map((review: any) => (
+              <ReviewItem key={review._id || review.id} review={review} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
