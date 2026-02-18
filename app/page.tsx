@@ -14,11 +14,11 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
             <Link href="#how-it-works" className="hover:text-gray-900">How It Works</Link>
             <Link href="#what-you-can-donate" className="hover:text-gray-900">Categories</Link>
-            <Link href="/admin_login" aria-label="Admin portal" className="ml-2 inline-flex items-center gap-2 text-sm text-purple-600 group transition px-2 py-1 hover:bg-purple-50">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-current transition-colors duration-200" aria-hidden="true">
+            <Link href="/donor_register" aria-label="Admin portal" className="ml-2 inline-flex items-center gap-2 text-sm text-purple-600 group transition px-2 py-1 hover:bg-purple-50">
+              {/* <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-current transition-colors duration-200" aria-hidden="true">
                 <path d="M12 2l7 4v5c0 5-3.2 9.7-7 11-3.8-1.3-7-6-7-11V6l7-4z" />
-              </svg>
-              <span className="hidden sm:inline text-current transition-colors duration-200">Admin Portal</span>
+              </svg> */}
+              <span className="hidden sm:inline text-current transition-colors duration-200">Sign up</span>
             </Link>
           </nav>
         </div>
