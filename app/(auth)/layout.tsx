@@ -2,7 +2,7 @@
 import { ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Shield, Users, Heart, ArrowLeft } from "lucide-react";
+import { Shield, Users, Heart, ArrowLeft, BarChart2, Clock, ClipboardList, Award, Check } from "lucide-react";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -25,9 +25,9 @@ const USER_CONFIGS = {
       description: "Manage the donation ecosystem with comprehensive oversight and control.",
     },
     features: [
-      { text: 'Complete NGO management', icon: '🏛️' },
-      { text: 'Real-time analytics dashboard', icon: '📊' },
-      { text: 'Advanced security protocols', icon: '🔒' }
+      { text: 'Complete NGO management', icon: <Users className="w-5 h-5 text-purple-700" /> },
+      { text: 'Real-time analytics dashboard', icon: <BarChart2 className="w-5 h-5 text-purple-700" /> },
+      { text: 'Advanced security protocols', icon: <Shield className="w-5 h-5 text-purple-700" /> }
     ]
   },
   volunteer: {
@@ -46,9 +46,9 @@ const USER_CONFIGS = {
       description: "Join our community of dedicated volunteers making real change happen.",
     },
     features: [
-      { text: 'Flexible task management', icon: '📋' },
-      { text: 'Track volunteer hours & impact', icon: '⏱️' },
-      { text: 'Community recognition', icon: '🏆' }
+      { text: 'Flexible task management', icon: <ClipboardList className="w-5 h-5 text-emerald-700" /> },
+      { text: 'Track volunteer hours & impact', icon: <Clock className="w-5 h-5 text-emerald-700" /> },
+      { text: 'Community recognition', icon: <Award className="w-5 h-5 text-emerald-700" /> }
     ]
   },
   donor: {
@@ -67,9 +67,9 @@ const USER_CONFIGS = {
       description: "Transform lives through your generous donations to verified organizations.",
     },
     features: [
-      { text: 'Easy donation tracking', icon: '❤️' },
-      { text: 'Verified NGO network', icon: '✓' },
-      { text: 'Impact visualization', icon: '📊' }
+      { text: 'Easy donation tracking', icon: <Heart className="w-5 h-5 text-sky-700" /> },
+      { text: 'Verified NGO network', icon: <Check className="w-5 h-5 text-sky-700" /> },
+      { text: 'Impact visualization', icon: <BarChart2 className="w-5 h-5 text-sky-700" /> }
     ]
   }
 } as const;
@@ -116,19 +116,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 <div key={i} className={`flex items-center gap-3 rounded-2xl p-2.5 border ${colors.border} bg-white/95 hover:shadow-lg transition-all group`}>
                   <div className="text-xl shrink-0 transform group-hover:scale-110 transition-transform">{feature.icon}</div>
                   <span className={`${colors.feature} font-medium`}>{feature.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/20">
-              {[
-                { value: '50K+', label: 'Active Users' },
-                { value: '1000+', label: 'Items Donated' },
-                { value: '50+', label: 'NGOs' }
-              ].map((stat, i) => (
-                <div key={i}>
-                  <div className={`text-xl font-bold ${colors.heading}`}>{stat.value}</div>
-                  <div className={`text-xs ${colors.body} uppercase tracking-wider`}>{stat.label}</div>
                 </div>
               ))}
             </div>
