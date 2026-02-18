@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/app/(platform)/_components/ConfirmDialog";
 import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
-export default function WishlistItem({ item, onRemoved }: { item: any; onRemoved?: (id: string) => void }) {
+export default function WishlistItem({ item, onRemoved, showActions = true }: { item: any; onRemoved?: (id: string) => void; showActions?: boolean }) {
   const router = useRouter();
   let pushToast: ((toast: { title: string; description?: string; tone: any }) => void) | undefined;
   try {
@@ -103,22 +103,24 @@ export default function WishlistItem({ item, onRemoved }: { item: any; onRemoved
               </div>
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-3 justify-end">
-            {!isFulfilled && (
-              <button onClick={() => setConfirmDonateOpen(true)} className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:opacity-95">Donate Now</button>
-            )}
-            {!isFulfilled && (
-              <Link href={`/user/donor/wishlist/${idKey}/edit`} className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-800 hover:bg-slate-50">Edit</Link>
-            )}
-            {!isFulfilled && (
-              <button
-                onClick={() => setConfirmCancelOpen(true)}
-                className="inline-flex items-center rounded-lg border border-rose-200 px-3 py-1 text-sm font-medium text-rose-600 hover:bg-rose-50"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
+          {showActions && (
+            <div className="mt-4 flex items-center gap-3 justify-end">
+              {!isFulfilled && (
+                <button onClick={() => setConfirmDonateOpen(true)} className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1 text-sm font-semibold text-white hover:opacity-95">Donate Now</button>
+              )}
+              {!isFulfilled && (
+                <Link href={`/user/donor/wishlist/${idKey}/edit`} className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-800 hover:bg-slate-50">Edit</Link>
+              )}
+              {!isFulfilled && (
+                <button
+                  onClick={() => setConfirmCancelOpen(true)}
+                  className="inline-flex items-center rounded-lg border border-rose-200 px-3 py-1 text-sm font-medium text-rose-600 hover:bg-rose-50"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </Card>
 
