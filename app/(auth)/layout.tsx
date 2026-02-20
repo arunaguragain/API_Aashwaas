@@ -124,15 +124,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           <div className="flex-1"></div>
           <div className="flex items-center justify-between text-sm text-black/60">
             <span>© 2025 आश्वास</span>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-black transition-colors">Privacy</a>
-              <a href="#" className="hover:text-black transition-colors">Terms</a>
-            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 h-full overflow-y-auto">
+      <div className={`flex-1 h-full ${isLogin ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
         <div className="min-h-full flex flex-col">
           <div className="p-4 lg:p-5 relative z-50">
             <button

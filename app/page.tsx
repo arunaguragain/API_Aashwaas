@@ -14,8 +14,9 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
             <Link href="#how-it-works" className="hover:text-gray-900">How It Works</Link>
             <Link href="#what-you-can-donate" className="hover:text-gray-900">Categories</Link>
-            <Link href="/donor_register" aria-label="Admin portal" className="ml-2 inline-flex items-center gap-2 text-sm text-purple-600 group transition px-2 py-1 hover:bg-purple-50">
-              <span className="hidden sm:inline text-current transition-colors duration-200">Sign up</span>
+            <Link href="/admin_login" aria-label="Admin portal" className="ml-2 inline-flex items-center gap-2 text-sm text-purple-600 group transition px-2 py-1 hover:bg-purple-50">
+              <ShieldCheck className="w-4 h-4 text-purple-600" />
+              <span className="hidden sm:inline text-current transition-colors duration-200">Admin Portal</span>
             </Link>
           </nav>
         </div>
@@ -247,11 +248,11 @@ export default function Home() {
           <p className="mt-3 max-w-2xl mx-auto text-gray-600">Join thousands of donors, volunteers, and organizations creating positive change</p>
 
             <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/donor_login" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow"> 
+            <Link href="/donor_register" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow"> 
               Start Donating
             </Link>
 
-            <Link href="/volunteer_login" className="inline-flex items-center gap-3 bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-full hover:bg-blue-50"> 
+            <Link href="/volunteer_register" className="inline-flex items-center gap-3 bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-full hover:bg-blue-50"> 
               Join as Volunteer
             </Link>
           </div>

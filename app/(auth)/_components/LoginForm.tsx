@@ -177,7 +177,7 @@ export default function LoginForm({
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-semibold text-gray-900 mb-1">Secure Access</p>
-                    <p className="text-xs text-gray-600 leading-relaxed">This portal is protected and monitored. Unauthorized access attempts will be logged.</p>
+                    <p className="text-xs text-gray-600 leading-relaxed">This portal is protected and monitored.</p>
                   </div>
                 </div>
               </div>
