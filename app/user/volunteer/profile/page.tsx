@@ -1,8 +1,12 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ProfileEditSchema, ProfileEditType } from "@/app/(platform)/profile/ProfileEditSchema";
 import axios from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 import { fetchVolunteerTasks } from "@/lib/actions/volunteer/task-actions";
 
 
@@ -12,10 +16,62 @@ export default function VolunteerProfile() {
 	const [user, setUser] = React.useState<any>(null);
 	const [loading, setLoading] = React.useState(true);
 	const [error, setError] = React.useState("");
-	const [editData, setEditData] = React.useState<any>(null);
-	const [editLoading, setEditLoading] = React.useState(false);
-	const [editError, setEditError] = React.useState("");
-	const [editing, setEditing] = React.useState(false);
+	const [editOpen, setEditOpen] = useState(false);
+	const [editData, setEditData] = useState<{ name: string; email: string; phone: string; image?: File | null }>({ name: "", email: "", phone: "", image: null });
+	const [editing, setEditing] = useState(false);
+	const [editLoading, setEditLoading] = useState(false);
+	const [editError, setEditError] = useState("");
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm<ProfileEditType>({
+		resolver: zodResolver(ProfileEditSchema),
+		defaultValues: { name: user?.name || "", email: user?.email || "", phone: user?.phone || user?.phoneNumber || "" },
+	});
+    const toastCtx = (() => {
+        try { return useToast(); } catch (e) { return null; }
+    })();
+    const pushToast = toastCtx ? toastCtx.pushToast : undefined;
+	const onEdit = (data: ProfileEditType) => {
+		// keep for compatibility but prefer onFormSubmit
+		setEditOpen(false);
+		reset(data);
+	};
+
+	const onFormSubmit = async (data: ProfileEditType) => {
+		setEditLoading(true);
+		setEditError("");
+		try {
+			const formData = new FormData();
+			formData.append("name", data.name);
+			formData.append("email", data.email);
+			formData.append("phoneNumber", data.phone);
+			if (editData?.image) formData.append("image", editData.image);
+			const userId = user && (user._id || user.id);
+			if (!userId) {
+				setEditError("User ID not found. Cannot update profile.");
+				setEditLoading(false);
+				return;
+			}
+			const res = await import("@/lib/actions/auth-actions").then(m => m.handleUpdateProfile(userId, formData));
+			if (res && res.success && (res.data?._id || res.data?.id)) {
+				const updatedUser = { ...res.data, role: user.role } as any;
+				setUser(updatedUser);
+				try { auth.setUser && auth.setUser(updatedUser); } catch (e) {}
+				reset({ name: updatedUser.name || "", email: updatedUser.email || "", phone: updatedUser.phone || updatedUser.phoneNumber || "" });
+				setEditOpen(false);
+				if (pushToast) pushToast({ title: 'Profile updated', tone: 'success' });
+			} else {
+				setEditError(res.message || "Failed to update profile");
+				if (pushToast) pushToast({ title: 'Unable to update profile', description: res.message, tone: 'error' });
+			}
+		} catch (err: any) {
+			setEditError(err?.response?.data?.message || err?.message || "Failed to update profile");
+		}
+		setEditLoading(false);
+	};
 
 	useEffect(() => {
 		let mounted = true;
@@ -84,13 +140,8 @@ export default function VolunteerProfile() {
 	}, [user?._id, user?.id]);
 
 	const handleEditProfile = () => {
-		setEditData({
-			name: user.name || "",
-			email: user.email || "",
-			phone: user.phone || user.phoneNumber || "",
-			image: null,
-		});
-		setEditing(true);
+		reset({ name: user?.name || "", email: user?.email || "", phone: user?.phone || user?.phoneNumber || "" });
+		setEditOpen(true);
 	};
 
 	const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -233,25 +284,33 @@ export default function VolunteerProfile() {
 						<span className="material-icons">Volunteer since </span>
 						<span>{memberSince}</span>
 					</div>
-					{editing ? (
-						<form onSubmit={handleEditSubmit} className="mt-4 flex gap-2">
-							<button
-								type="submit"
-								className="inline-flex items-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
-								disabled={editLoading || !user || !(user._id || user.id)}
-							>
-								{editLoading ? "Saving..." : "Save"}
-							</button>
-							<button
-								type="button"
-								className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
-								onClick={() => setEditing(false)}
-							>
-								Cancel
-							</button>
-							{editError && <div className="text-red-600 ml-2">{editError}</div>}
+					{editOpen && (
+						<form onSubmit={handleSubmit(onFormSubmit)} className="mb-4 p-4 border rounded bg-gray-50">
+							<div>
+								<label>Name</label>
+								<input {...register("name")}
+									className="w-full border rounded px-2 py-1 mt-1" />
+								{errors.name && <div className="text-xs text-rose-600">{errors.name.message}</div>}
+							</div>
+							<div>
+								<label>Email</label>
+								<input {...register("email")}
+									className="w-full border rounded px-2 py-1 mt-1" />
+								{errors.email && <div className="text-xs text-rose-600">{errors.email.message}</div>}
+							</div>
+							<div>
+								<label>Phone</label>
+								<input {...register("phone")}
+									className="w-full border rounded px-2 py-1 mt-1" />
+								{errors.phone && <div className="text-xs text-rose-600">{errors.phone.message}</div>}
+							</div>
+							<div className="flex gap-2 mt-2">
+								<button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+								<button type="button" className="bg-gray-200 px-4 py-2 rounded" onClick={() => setEditOpen(false)}>Cancel</button>
+							</div>
 						</form>
-					) : (
+					)}
+					{!editOpen && (
 						<button
 							className="mt-4 inline-flex items-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
 							onClick={handleEditProfile}

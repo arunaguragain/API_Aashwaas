@@ -1,9 +1,13 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 import { useRouter } from "next/navigation";
 import { handleListDonorDonations } from "@/lib/actions/donor/donation-actions";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ProfileEditSchema, ProfileEditType } from "@/app/(platform)/profile/ProfileEditSchema";
 
 export default function DonorProfile() {
   const auth = useAuth();
@@ -15,6 +19,15 @@ export default function DonorProfile() {
   const [editLoading, setEditLoading] = React.useState(false);
   const [editError, setEditError] = React.useState("");
   const [editing, setEditing] = React.useState(false);
+  const [editOpen, setEditOpen] = React.useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileEditType>({
+    resolver: zodResolver(ProfileEditSchema),
+    defaultValues: { name: user?.name || "", email: user?.email || "", phone: user?.phone || user?.phoneNumber || "" },
+  });
+  const toastCtx = (() => {
+    try { return useToast(); } catch (e) { return null; }
+  })();
+  const pushToast = toastCtx ? toastCtx.pushToast : undefined;
 
   useEffect(() => {
     let mounted = true;
@@ -136,7 +149,8 @@ export default function DonorProfile() {
       phone: user.phone || user.phoneNumber || "",
       image: null,
     });
-    setEditing(true);
+    reset({ name: user.name || "", email: user.email || "", phone: user.phone || user.phoneNumber || "" });
+    setEditOpen(true);
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,16 +162,15 @@ export default function DonorProfile() {
     }
   };
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFormSubmit = async (data: ProfileEditType) => {
     setEditLoading(true);
     setEditError("");
     try {
       const formData = new FormData();
-      formData.append("name", editData.name);
-      formData.append("email", editData.email);
-      formData.append("phoneNumber", editData.phone);
-      if (editData.image) {
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("phoneNumber", data.phone);
+      if (editData?.image) {
         formData.append("image", editData.image);
       }
       const userId = user && (user._id || user.id);
@@ -169,9 +182,13 @@ export default function DonorProfile() {
       const res = await import("@/lib/actions/auth-actions").then(m => m.handleUpdateProfile(userId, formData));
       if (res && res.success && (res.data?._id || res.data?.id)) {
         setUser(res.data);
+        reset({ name: res.data.name || "", email: res.data.email || "", phone: res.data.phone || res.data.phoneNumber || "" });
         setEditing(false);
+        setEditOpen(false);
+        if (pushToast) pushToast({ title: "Profile updated", tone: "success" });
       } else {
         setEditError(res.message || "Failed to update profile");
+        if (pushToast) pushToast({ title: "Unable to update profile", description: res.message, tone: "error" });
       }
     } catch (err: any) {
       setEditError(
@@ -203,64 +220,65 @@ export default function DonorProfile() {
           <div className="bg-white rounded-lg shadow p-6 flex-1 min-w-[320px]">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex flex-col items-center justify-center">
-                {editing ? (
-                  <>
-                    {editData && editData.image ? (
-                      <img
-                        src={URL.createObjectURL(editData.image)}
-                        alt="Profile Preview"
-                        className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+                  {editOpen ? (
+                    <>
+                      {editData && editData.image ? (
+                        <img
+                          src={URL.createObjectURL(editData.image)}
+                          alt="Profile Preview"
+                          className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+                        />
+                      ) : user && user.profilePicture ? (
+                        <img
+                          src={`${(axios.defaults && (axios.defaults).baseURL ? (axios.defaults).baseURL : "http://localhost:5050")}/item_photos/${user.profilePicture}`}
+                          alt="Profile"
+                          className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+                        />
+                      ) : user && user.image ? (
+                        <img
+                          src={user.image}
+                          alt="Profile"
+                          className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-400">No Image</div>
+                      )}
+                      <input
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        onChange={handleEditChange}
+                        className="mt-2 text-xs block"
                       />
-                    ) : user && user.profilePicture ? (
-                      <img
-                        src={`${(axios.defaults && (axios.defaults).baseURL ? (axios.defaults).baseURL : "http://localhost:5050")}/item_photos/${user.profilePicture}`}
-                        alt="Profile"
-                        className="w-20 h-20 object-cover object-center rounded-full aspect-square"
-                      />
-                    ) : user && user.image ? (
-                      <img
-                        src={user.image}
-                        alt="Profile"
-                        className="w-20 h-20 object-cover object-center rounded-full aspect-square"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-400">No Image</div>
-                    )}
-                    <input
-                      type="file"
-                      name="image"
-                      accept="image/*"
-                      onChange={handleEditChange}
-                      className="mt-2 text-xs block"
+                    </>
+                  ) : user.profilePicture ? (
+                    <img
+                      src={`${(axios.defaults && (axios.defaults).baseURL ? (axios.defaults).baseURL : "http://localhost:5050")}/item_photos/${user.profilePicture}`}
+                      alt="Profile"
+                      className="w-20 h-20 object-cover rounded-full"
                     />
-                  </>
-                ) : user.profilePicture ? (
-                  <img
-                    src={`${(axios.defaults && (axios.defaults).baseURL ? (axios.defaults).baseURL : "http://localhost:5050")}/item_photos/${user.profilePicture}`}
-                    alt="Profile"
-                    className="w-20 h-20 object-cover rounded-full"
-                  />
-                ) : user.image ? (
-                  <img
-                    src={user.image}
-                    alt="Profile"
-                    className="w-20 h-20 object-cover rounded-full"
-                  />
-                ) : null}
+                  ) : user.image ? (
+                    <img
+                      src={user.image}
+                      alt="Profile"
+                      className="w-20 h-20 object-cover rounded-full"
+                    />
+                  ) : null}
               </div>
               <div>
-                {editing ? (
-                  <input name="name" value={editData.name} onChange={handleEditChange} className="text-xl font-semibold border rounded px-2 py-1" />
-                ) : (
-                  <div className="text-xl font-semibold">{user.name}</div>
-                )}
+                  {editing ? (
+                    <input {...register("name")} defaultValue={editData?.name} className="text-xl font-semibold border rounded px-2 py-1" />
+                  ) : (
+                    <div className="text-xl font-semibold">{user.name}</div>
+                  )}
                 <div className="text-blue-600 font-medium">Verified Donor</div>
               </div>
             </div>
-            <div className="mb-2 flex items-center gap-2">
+              {/* Edit panel removed from header and will render after details */}
+              <div className="mb-2 flex items-center gap-2">
               <span className="material-icons">email: </span>
               {editing ? (
-                <input name="email" value={editData.email} onChange={handleEditChange} className="border rounded px-2 py-1" />
+                <input {...register("email")} defaultValue={editData?.email} className="border rounded px-2 py-1" />
               ) : (
                 <span>{user.email}</span>
               )}
@@ -268,7 +286,7 @@ export default function DonorProfile() {
             <div className="mb-2 flex items-center gap-2">
               <span className="material-icons">phone: </span>
               {editing ? (
-                <input name="phone" value={editData.phone} onChange={handleEditChange} className="border rounded px-2 py-1" />
+                <input {...register("phone")} defaultValue={editData?.phone} className="border rounded px-2 py-1" />
               ) : (
                 <span>{user.phone || user.phoneNumber}</span>
               )}
@@ -277,8 +295,31 @@ export default function DonorProfile() {
               <span className="material-icons">Donor since </span>
               <span>{memberSince}</span>
             </div>
+            {editOpen && (
+              <form onSubmit={handleSubmit(onFormSubmit)} className="mb-4 p-4 border rounded bg-gray-50">
+                <div>
+                  <label>Name</label>
+                  <input {...register("name")} className="w-full border rounded px-2 py-1 mt-1" />
+                  {errors.name && <div className="text-xs text-rose-600">{errors.name.message}</div>}
+                </div>
+                <div>
+                  <label>Email</label>
+                  <input {...register("email")} className="w-full border rounded px-2 py-1 mt-1" />
+                  {errors.email && <div className="text-xs text-rose-600">{errors.email.message}</div>}
+                </div>
+                <div>
+                  <label>Phone</label>
+                  <input {...register("phone")} className="w-full border rounded px-2 py-1 mt-1" />
+                  {errors.phone && <div className="text-xs text-rose-600">{errors.phone.message}</div>}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+                  <button type="button" className="bg-gray-200 px-4 py-2 rounded" onClick={() => setEditOpen(false)}>Cancel</button>
+                </div>
+              </form>
+            )}
             {editing ? (
-              <form onSubmit={handleEditSubmit} className="mt-4 flex gap-2">
+              <form onSubmit={handleSubmit(onFormSubmit)} className="mt-4 flex gap-2">
                 <button
                   type="submit"
                   className="inline-flex items-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -322,6 +363,8 @@ export default function DonorProfile() {
             <button onClick={() => router.push('/user/donor/ngos')}  className="bg-gray-200 px-4 py-2 rounded">View NGOs</button>
           </div>
         </div>
+        
+
         {/* Impact This Year */}
         <div className="mt-8 bg-green-100 rounded-lg p-6 text-center">
           <div className="font-semibold mb-2">Your Impact this year</div>

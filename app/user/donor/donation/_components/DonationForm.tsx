@@ -7,6 +7,7 @@ import axios from "@/lib/api/axios";
 import { handleCreateDonorDonation, handleGetDonorDonation, handleUpdateDonorDonation } from "@/lib/actions/donor/donation-actions";
 import { DonationModel } from "@/app/(platform)/donations/schemas";
 import { WishlistApi } from "@/lib/api/donor/wishlist";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 type DonationFormProps = {
   donationId?: string | null;
@@ -40,6 +41,10 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const _toastCtx = (() => {
+    try { return useToast(); } catch (e) { return null; }
+  })();
+  const pushToast = _toastCtx ? _toastCtx.pushToast : undefined;
 
   const validate = () => {
     const errors: { [key: string]: string } = {};
@@ -163,11 +168,13 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // reveal validation messages for all required fields when the user attempts to submit
+    setTouched({ itemName: true, quantity: true, pickupLocation: true });
+    // If you add a date picker, also set touched for date field here for consistency
     setLoading(true);
     setError(null);
     setSuccess(false);
     if (Object.keys(validationErrors).length > 0) {
-      setError("Please fix the errors in the form.");
       setLoading(false);
       return;
     }
@@ -191,7 +198,7 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
         res = await handleCreateDonorDonation(formData);
       }
 
-        if (res.success) {
+      if (res.success) {
         setSuccess(true);
         setTouched({});
         setPhotoFile(null);
@@ -203,37 +210,14 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
         else {
           const wishlistId = searchParams?.get?.("wishlistId");
           if (wishlistId) {
-            try {
-              // Ask backend wishlist and update it to reflect this donation.
-              const existing = (await WishlistApi.getById(wishlistId))?.data ?? null;
-              const donatedAmount = Number((form as any).amount ?? (form as any).quantity ?? 0) || 0;
-              const prevRaised = Number(existing?.amountRaised ?? 0);
-              const needed = existing?.amountNeeded == null ? null : Number(existing.amountNeeded);
-              const newRaised = prevRaised + donatedAmount;
-              const newStatus = needed != null && newRaised >= needed ? "fulfilled" : (existing?.status ?? "active");
-              try {
-                // Send both possible field names to be resilient to backend naming
-                await WishlistApi.update(wishlistId, { amountRaised: newRaised, amount: newRaised, status: newStatus });
-              } catch (e) {
-                // If update fails, fallback to a session cache so the list can merge the change on next load
-                try {
-                  const merged = { ...(existing || {}), amountRaised: newRaised, status: newStatus };
-                  const idKey = (existing?.id || existing?._id || wishlistId);
-                  sessionStorage.setItem(`wishlist_update_${idKey}`, JSON.stringify(merged));
-                } catch (se) {
-                  console.error("Failed to persist wishlist update to sessionStorage", se);
-                }
-                console.error("Failed to update wishlist after donation", e);
-              }
-            } catch (e) {
-              // ignore errors fetching wishlist
-            }
             setTimeout(() => router.push("/user/donor/wishlist"), 300);
           } else {
             setTimeout(() => router.push("/user/donor/my-donations"), 700);
           }
         }
+        if (pushToast) pushToast({ title: effectiveId ? "Donation updated" : "Donation added", description: res.message || undefined, tone: "success" });
       } else {
+        if (pushToast) pushToast({ title: "Failed to save donation", description: res.message || undefined, tone: "error" });
         // helpful message when backend doesn't support donor update
         if ((res as any).status === 404 || /not ?found/i.test(res.message || "")) {
           setError("Update endpoint not available on the server (404). Editing donations is not supported — delete and re-create or contact the backend.");
@@ -242,7 +226,9 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
         }
       }
     } catch (err: any) {
-      setError(err.message || (effectiveId ? "Failed to update donation" : "Failed to add donation"));
+      const msg = err?.message || (effectiveId ? "Failed to update donation" : "Failed to add donation");
+      setError(msg);
+      if (pushToast) pushToast({ title: "Failed to save donation", description: msg, tone: "error" });
     } finally {
       setLoading(false);
     }
@@ -433,7 +419,7 @@ export default function DonationForm({ donationId, onSuccess }: DonationFormProp
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            disabled={loading || loadingDonation || Object.keys(validationErrors).length > 0}
+            disabled={loading || loadingDonation}
             className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-70"
           >
             {loading ? (effectiveId ? "Saving..." : "Adding...") : (effectiveId ? "Save changes" : "Add Donation")}

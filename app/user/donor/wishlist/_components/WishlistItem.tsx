@@ -22,11 +22,7 @@ export default function WishlistItem({ item, onRemoved, showActions = true }: { 
   const [localItem, setLocalItem] = useState<any>(item);
   useEffect(() => setLocalItem(item), [item]);
 
-  // parse numeric amounts only when present
-  const amountNeeded = localItem.amountNeeded == null ? null : Number(localItem.amountNeeded);
-  const amountRaised = localItem.amountRaised == null ? null : Number(localItem.amountRaised || 0);
-  const remaining = typeof amountNeeded === "number" && amountNeeded > 0 ? Math.max(amountNeeded - (amountRaised ?? 0), 0) : null;
-  const isFulfilled = (localItem.status || "").toString().toLowerCase() === "fulfilled" || (remaining !== null && remaining <= 0);
+  const isFulfilled = (localItem.status || "").toString().toLowerCase() === "fulfilled";
 
   const [confirmDonateOpen, setConfirmDonateOpen] = useState(false);
   const [donateLoading, setDonateLoading] = useState(false);
@@ -38,10 +34,9 @@ export default function WishlistItem({ item, onRemoved, showActions = true }: { 
   const handleConfirmDonate = async () => {
     setDonateLoading(true);
     try {
-      // simple behaviour: mark fulfilled immediately (send both amount fields if available)
-      const newRaised = amountNeeded != null ? amountNeeded : (amountRaised ?? 0);
-      await WishlistApi.update(idKey, { amountRaised: newRaised, amount: newRaised, status: "fulfilled" });
-      setLocalItem((prev: any) => ({ ...prev, amountRaised: newRaised, status: "fulfilled" }));
+      // mark fulfilled immediately
+      await WishlistApi.update(idKey, { status: "fulfilled" });
+      setLocalItem((prev: any) => ({ ...prev, status: "fulfilled" }));
       if (pushToast) pushToast({ title: "Wishlist updated", description: "Marked as fulfilled.", tone: "success" });
     } catch (e) {
       // fallback: optimistic local update and session cache
@@ -86,13 +81,7 @@ export default function WishlistItem({ item, onRemoved, showActions = true }: { 
               <h3 className="text-base font-semibold text-gray-900">{localItem.title}</h3>
               {localItem.notes && <p className="text-sm text-gray-600 mt-1">{localItem.notes}</p>}
 
-              {amountNeeded !== null && (
-                <div className="mt-3 flex items-center gap-3 text-sm text-gray-700">
-                  <div>Needed: <span className="font-semibold">{amountNeeded}</span></div>
-                  <div>Raised: <span className="font-semibold">{amountRaised ?? 0}</span></div>
-                  <div>Remaining: <span className="font-semibold">{remaining ?? 0}</span></div>
-                </div>
-              )}
+
             </div>
 
             <div className="flex flex-col items-end">

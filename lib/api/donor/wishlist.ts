@@ -9,8 +9,6 @@ const normalize = (raw: any) => ({
   notes: raw?.notes ?? "",
   donorId: raw?.donorId ?? raw?.donor ?? null,
   status: raw?.status ?? "active",
-  amountNeeded: raw?.amountNeeded ?? raw?.amount ?? null,
-  amountRaised: raw?.amountRaised ?? raw?.amountRaised ?? 0,
   imageUrl: raw?.imageUrl ?? raw?.image ?? raw?.photo ?? null,
   createdAt: raw?.createdAt,
   updatedAt: raw?.updatedAt,

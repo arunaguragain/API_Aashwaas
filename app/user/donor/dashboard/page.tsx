@@ -4,6 +4,7 @@ import { TrendingUp, Award, Package } from "lucide-react";
 import Card from "@/app/(platform)/_components/Card";
 import Badge from "@/app/(platform)/_components/Badge";
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useAuth } from "@/context/AuthContext";
 import ReviewItem from "../reviews/_components/ReviewItem";
 import { handleListReviews } from "@/lib/actions/donor/review-actions";
 import { handleMyWishlists } from "@/lib/actions/donor/wishlist-actions";
@@ -29,6 +30,7 @@ type Donation = {
 };
 
 const DonorDashboardPage = () => {
+  const auth = useAuth();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,14 +44,25 @@ const DonorDashboardPage = () => {
   useEffect(() => {
     async function fetchDonations() {
       setLoading(true);
-      const res = await handleListDonorDonations();
+      const donorId = auth.user?._id || auth.user?.id;
+      const res = await handleListDonorDonations(donorId ? { donorId } : undefined);
       if (res.success) {
-        setDonations(
-          (res.data ?? []).map((d: any) => ({
-            ...d,
-            quantity: typeof d.quantity === "string" ? Number(d.quantity) : d.quantity,
-          }))
-        );
+        const items = (res.data ?? []).map((d: any) => ({
+          ...d,
+          quantity: typeof d.quantity === "string" ? Number(d.quantity) : d.quantity,
+        }));
+        // Ensure we only show donations belonging to the current donor 
+        const currentDonorId = donorId;
+        const filtered = currentDonorId
+          ? items.filter((it: any) => {
+              const cand = it.donorId ?? it.donor ?? it.donor_id ?? it.user;
+              if (!cand) return false;
+              if (typeof cand === "string") return String(cand) === String(currentDonorId);
+              if (typeof cand === "object") return String(cand._id ?? cand.id ?? cand.toString()) === String(currentDonorId);
+              return false;
+            })
+          : items;
+        setDonations(filtered);
         setError("");
       } else {
         setError(res.message || "Failed to load donations");
@@ -81,7 +94,7 @@ const DonorDashboardPage = () => {
         setWishlistsLoading(false);
       }
       fetchWishlists();
-  }, []);
+  }, [auth.user]);
 
   // Calculate stats
   const totalDonations = donations.length;

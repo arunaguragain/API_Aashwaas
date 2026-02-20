@@ -1,6 +1,16 @@
 "use client";
 
 import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const ReviewSchema = z.object({
+  rating: z.number().int().min(1, "Rating must be between 1 and 5").max(5, "Rating must be between 1 and 5"),
+  comment: z.string().max(1000, "Comment must be 1000 characters or fewer").optional(),
+});
+
+type FormData = z.infer<typeof ReviewSchema>;
 
 type Props = {
   initial?: { rating?: number; comment?: string };
@@ -11,36 +21,42 @@ type Props = {
 };
 
 const ReviewForm: React.FC<Props> = ({ initial, onCancel, onSubmit, submitting, submitLabel = "Save" }) => {
-  const [rating, setRating] = React.useState<number>(initial?.rating ?? 5);
-  const [comment, setComment] = React.useState<string>(initial?.comment ?? "");
-  const [error, setError] = React.useState<string | null>(null);
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(ReviewSchema),
+    defaultValues: { rating: initial?.rating ?? 5, comment: initial?.comment ?? "" }
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!rating || rating < 1 || rating > 5) return setError("Rating must be between 1 and 5");
-    setError(null);
-    await onSubmit({ rating, comment });
-  };
+  const currentRating = watch("rating");
+
+  React.useEffect(() => {
+    // ensure fields are registered and initial values applied
+    register("rating");
+    register("comment");
+    if (initial) {
+      if (initial.rating !== undefined) setValue("rating", initial.rating as number);
+      if (initial.comment !== undefined) setValue("comment", initial.comment as string);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial]);
 
   const [hover, setHover] = React.useState<number | null>(null);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit((data) => onSubmit(data))} className="space-y-3">
       <div className="flex items-center gap-3">
         <label className="text-sm font-medium w-20">Rating</label>
         <div role="radiogroup" aria-label="Rating" className="inline-flex items-center gap-1">
           {[1, 2, 3, 4, 5].map((v) => {
-            const filled = (hover ?? rating) >= v;
+            const filled = (hover ?? (currentRating ?? 0)) >= v;
             return (
               <button
                 key={v}
                 type="button"
-                aria-checked={rating === v}
-                role="radio"
-                onClick={() => setRating(v)}
+                onClick={() => setValue("rating", v)}
                 onKeyDown={(e) => {
-                  if (e.key === "ArrowLeft" || e.key === "ArrowDown") setRating((r) => Math.max(1, (r ?? 1) - 1));
-                  if (e.key === "ArrowRight" || e.key === "ArrowUp") setRating((r) => Math.min(5, (r ?? 1) + 1));
+                  const cur = Number(currentRating ?? 1);
+                  if (e.key === "ArrowLeft" || e.key === "ArrowDown") setValue("rating", Math.max(1, cur - 1));
+                  if (e.key === "ArrowRight" || e.key === "ArrowUp") setValue("rating", Math.min(5, cur + 1));
                 }}
                 onMouseEnter={() => setHover(v)}
                 onMouseLeave={() => setHover(null)}
@@ -57,12 +73,12 @@ const ReviewForm: React.FC<Props> = ({ initial, onCancel, onSubmit, submitting, 
       <div>
         <label className="text-sm font-medium">Comment</label>
         <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          {...register("comment")}
           rows={3}
           className="mt-2 w-full rounded-md border px-3 py-2 text-sm"
           placeholder="Optional - share your experience"
         />
+        {errors.comment && <div className="mt-1 text-xs text-rose-600">{errors.comment.message}</div>}
       </div>
 
       <div className="flex items-center gap-2">
@@ -76,7 +92,7 @@ const ReviewForm: React.FC<Props> = ({ initial, onCancel, onSubmit, submitting, 
         )}
       </div>
 
-      {error && <div className="text-rose-600 text-sm">{error}</div>}
+      {errors.rating && <div className="text-rose-600 text-sm">{errors.rating.message}</div>}
     </form>
   );
 };

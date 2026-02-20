@@ -79,6 +79,9 @@ export default function LoginForm({
         redirectPath = "/admin/dashboard";
       }
       
+      // prefetch the destination so dashboard/home loads faster after login
+      await router.prefetch(redirectPath);
+
       startTransition(() => {
         router.push(redirectPath);
       });

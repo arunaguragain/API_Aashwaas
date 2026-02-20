@@ -36,7 +36,18 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
 
   const pushToast = useCallback((toast: Omit<Toast, "id">) => {
     const id = `toast-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    const next = { ...toast, id };
+    const desc = (toast as any).description;
+    let safeDesc: string | undefined = undefined;
+    if (desc !== undefined && desc !== null) {
+      safeDesc = typeof desc === "string" ? desc : (() => {
+        try {
+          return JSON.stringify(desc);
+        } catch (e) {
+          try { return String(desc); } catch { return undefined; }
+        }
+      })();
+    }
+    const next = { ...toast, id, description: safeDesc };
     setToasts((prev) => [next, ...prev]);
     window.setTimeout(() => {
       setToasts((prev) => prev.filter((item) => item.id !== id));
@@ -52,7 +63,7 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`glass-panel rounded-2xl border px-4 py-3 shadow-lg fade-in ${toneStyles[toast.tone]}`}
+            className={`rounded-2xl border px-4 py-3 shadow-lg fade-in ${toneStyles[toast.tone]}`}
             role="status"
             aria-live="polite"
           >
