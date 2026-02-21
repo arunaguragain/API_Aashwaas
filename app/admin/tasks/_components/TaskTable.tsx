@@ -40,14 +40,13 @@ export default function TaskTable({ tasks: initialTasks }: TaskTableProps) {
       setTasks((prev) => prev.filter((task) => (task.id || task._id) !== id));
       if (donationId) {
         try {
-          await AdminDonationsApi.update(donationId, { status: 'approved', assignment: null, ngoId: null });
+          await AdminDonationsApi.update(donationId, { status: 'approved', ngoId: undefined });
           pushToast({ title: 'Related donation reset', description: 'Donation status set to approved', tone: 'success' });
         } catch (err: any) {
           pushToast({ title: 'Failed to update donation', description: err?.message || '', tone: 'error' });
         }
       }
     } catch (err) {
-      // Optionally show error toast
     }
     setDeletingId(null);
     setPendingDeleteId(null);

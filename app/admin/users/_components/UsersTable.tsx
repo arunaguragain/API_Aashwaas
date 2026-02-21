@@ -22,7 +22,7 @@ export default function UsersTable({ initialUsers }: { initialUsers: User[] }) {
   const [items, setItems] = useState<User[]>(initialUsers || []);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(7);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState("");

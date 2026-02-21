@@ -33,7 +33,7 @@ export default function AdminTasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(7);
 
   useEffect(() => {
     async function fetchData() {
@@ -57,9 +57,9 @@ export default function AdminTasksPage() {
                 donorContact = "-";
               }
             }
-            // Prefer donation.itemName or donation.title as fallback for title
+            // Prefer donation.itemName as fallback for title
             if (!title) {
-              title = donation?.itemName || donation?.title || '';
+              title = donation?.itemName || '';
             }
           } catch (err) {}
           if (task.volunteerId) {

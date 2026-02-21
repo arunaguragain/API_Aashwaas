@@ -5,10 +5,11 @@ import { revalidatePath } from 'next/cache';
 
 export const handleGetUsers = async () => {
     try {
-        const response = await getUsers();
+        // request many users from the API so UI receives full list (use large limit as fallback)
+        const response = await getUsers({ limit: 1000 });
         return {
             success: true,
-            data: response.data || response
+            data: response ?? []
         }
     } catch (error: Error | any) {
         return { success: false, message: error.message || 'Failed to fetch users' }
