@@ -141,6 +141,12 @@ export default function VolunteerProfile() {
 
 	const handleEditProfile = () => {
 		reset({ name: user?.name || "", email: user?.email || "", phone: user?.phone || user?.phoneNumber || "" });
+		setEditData({
+			name: user?.name || "",
+			email: user?.email || "",
+			phone: user?.phone || user?.phoneNumber || "",
+			image: null,
+		});
 		setEditOpen(true);
 	};
 
@@ -210,35 +216,38 @@ export default function VolunteerProfile() {
 				<div className="bg-white rounded-lg shadow p-6 flex-1 min-w-[320px]">
 					<div className="flex items-center gap-4 mb-4">
 						<div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex flex-col items-center justify-center">
-							{editing ? (
+							{editOpen ? (
 								<>
-									{editData && editData.image ? (
-										<img
-											src={URL.createObjectURL(editData.image)}
-											alt="Profile Preview"
-											className="w-20 h-20 object-cover object-center rounded-full aspect-square"
-										/>
-									) : user && user.profilePicture ? (
-										<img
-											src={`${(axios.defaults && (axios.defaults).baseURL ? (axios.defaults).baseURL : "http://localhost:5050")}/item_photos/${user.profilePicture}`}
-											alt="Profile"
-											className="w-20 h-20 object-cover object-center rounded-full aspect-square"
-										/>
-									) : user && user.image ? (
-										<img
-											src={user.image}
-											alt="Profile"
-											className="w-20 h-20 object-cover object-center rounded-full aspect-square"
-										/>
-									) : (
-										<div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-400">No Image</div>
-									)}
+									<label htmlFor="volunteer-profile-image" className="cursor-pointer block">
+										{editData && editData.image ? (
+											<img
+												src={URL.createObjectURL(editData.image)}
+												alt="Profile Preview"
+												className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+											/>
+										) : user && user.profilePicture ? (
+											<img
+												src={`${(axios.defaults && (axios.defaults).baseURL ? (axios.defaults).baseURL : "http://localhost:5050")}/item_photos/${user.profilePicture}`}
+												alt="Profile"
+												className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+											/>
+										) : user && user.image ? (
+											<img
+												src={user.image}
+												alt="Profile"
+												className="w-20 h-20 object-cover object-center rounded-full aspect-square"
+											/>
+										) : (
+											<div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-400">No Image</div>
+										)}
+									</label>
 									<input
+										id="volunteer-profile-image"
 										type="file"
 										name="image"
 										accept="image/*"
 										onChange={handleEditChange}
-										className="mt-2 text-xs block"
+										className="hidden"
 									/>
 								</>
 							) : user.profilePicture ? (
