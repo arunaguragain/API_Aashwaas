@@ -79,7 +79,7 @@ export default function AdminDashboard() {
             name: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : `Day ${i + 1}`,
             Donations: Number(d.quantity) || 1,
           })),
-          recent: donationsArray.slice(0, 9).map((d: any) => ({
+          recent: donationsArray.slice(0, 6).map((d: any) => ({
             name: (function () {
               try {
                 const donor = d.donorName ?? d.donorId ?? d.donor;
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
             })(),
             time: d.createdAt ? new Date(d.createdAt).toLocaleString() : "Just now",
             email: undefined,
-            category: d.ngoName || d.title || d.itemName || "General",
+            category: d.category || d.ngoName || d.title || d.itemName || "General",
             amount: Number(d.quantity) || 0,
             address: d.pickupLocation || d.city || "-",
           })),
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
     if (!rawDonations || rawDonations.length === 0) return [];
     return rawDonations.filter((d: any) => {
       const regionMatches = selectedRegion ? (d.city || d.region || 'Unknown') === selectedRegion : true;
-      const category = d.ngoName || d.title || d.itemName || 'Other';
+      const category = d.category || d.ngoName || d.title || d.itemName || 'Other';
       const categoryMatches = selectedCategory ? category === selectedCategory : true;
       return regionMatches && categoryMatches;
     });
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
   const topItems = useMemo(() => {
     const map: Record<string, number> = {};
     (filteredDonations || []).forEach((d: any) => {
-      const key = d.itemName || d.title || d.ngoName || 'Other';
+      const key = d.category || d.itemName || d.title || d.ngoName || 'Other';
       map[key] = (map[key] || 0) + (Number(d.quantity) || 0);
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value }));
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   const categoryData = useMemo(() => {
     const map: Record<string, number> = {};
     (filteredDonations || []).forEach((d: any) => {
-      const key = d.ngoName || d.title || d.itemName || 'General';
+      const key = d.category || d.ngoName || d.title || d.itemName || 'General';
       map[key] = (map[key] || 0) + (Number(d.quantity) || 0);
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, value]) => ({ name, value }));
@@ -187,7 +187,7 @@ export default function AdminDashboard() {
   const [activeSlice, setActiveSlice] = useState<number | null>(null);
 
   return (
-    <div className="w-full min-h-screen px-0 py-0">
+    <div className="w-full px-0 py-0">
       <h1 className="text-2xl font-semibold text-zinc-900">Dashboard</h1>
       <p className="mt-0 text-zinc-500">Welcome! Here's a quick overview of your system.</p>
       {apiError ? (
@@ -227,7 +227,7 @@ export default function AdminDashboard() {
           <p className="mt-0.5 text-sm text-zinc-500">active volunteers</p>
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-3 lg:grid-cols-3" style={{ gridAutoRows: '1fr' }}>
+      <div className="mt-6 grid grid-cols-1 gap-3 lg:grid-cols-3">
         <div className="rounded-lg border bg-white p-3 shadow-sm h-full lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-zinc-900 mb-2">Donations Overview</h2>
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
               </select>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={340}>
             <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorDonations" x1="0" y1="0" x2="0" y2="1">
@@ -274,49 +274,51 @@ export default function AdminDashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-lg border bg-white p-3 shadow-sm h-full">
+        <div className="rounded-lg border bg-white p-4 shadow-sm min-h-[420px] flex flex-col justify-center">
           <h3 className="text-lg font-semibold text-zinc-900 mb-2">Donation Breakdown</h3>
-          <div className="flex flex-col items-start gap-4">
+          <div className="flex flex-col items-center gap-6 w-full">
             <div className="w-full flex justify-center">
-              <ResponsiveContainer width={260} height={240}>
-                <PieChart>
-                  <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="45%"
-                    outerRadius={96} innerRadius={44} paddingAngle={6}
-                    onClick={(entry) => {
-                      try {
-                        const name = (entry && (entry as any).name) || null;
-                        if (name) setSelectedCategory(name);
-                      } catch (e) {}
-                    }}
-                    onMouseEnter={(_data, index) => setActiveSlice(index)}
-                    onMouseLeave={() => setActiveSlice(null)}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={PIE_COLORS[index % PIE_COLORS.length]}
-                        stroke={(selectedCategory === entry.name) || activeSlice === index ? '#0f172a' : undefined}
-                        strokeWidth={(selectedCategory === entry.name) || activeSlice === index ? 2 : 0}
-                        style={{ transition: 'stroke-width 150ms' }}
-                      />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="w-full max-w-[360px]">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="45%"
+                      outerRadius={92} innerRadius={44} paddingAngle={6}
+                      onClick={(entry) => {
+                        try {
+                          const name = (entry && (entry as any).name) || null;
+                          if (name) setSelectedCategory(name);
+                        } catch (e) {}
+                      }}
+                      onMouseEnter={(_data, index) => setActiveSlice(index)}
+                      onMouseLeave={() => setActiveSlice(null)}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={PIE_COLORS[index % PIE_COLORS.length]}
+                          stroke={(selectedCategory === entry.name) || activeSlice === index ? '#0f172a' : undefined}
+                          strokeWidth={(selectedCategory === entry.name) || activeSlice === index ? 2 : 0}
+                          style={{ transition: 'stroke-width 150ms' }}
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div className="w-full flex justify-center mt-2">
-              <div className="flex gap-6 flex-wrap justify-center">
+            <div className="w-full flex justify-center mt-0">
+              <div className="w-full max-w-[480px] grid grid-cols-2 sm:grid-cols-3 gap-3 justify-items-center">
                 {pieData.slice(0, 6).map((c, i) => (
-                  <div key={i} className="flex items-center gap-3">
+                  <div key={i} className="flex items-center gap-2">
                     <span style={{ width: 14, height: 14, background: PIE_COLORS[i % PIE_COLORS.length], display: 'inline-block', borderRadius: 4 }} />
-                    <span className="text-sm text-zinc-700 truncate max-w-[160px]">{c.name}</span>
+                    <span className="text-sm text-zinc-700 text-center break-words max-w-[160px]">{c.name}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="w-full mt-4">
+            <div className="w-full mt-4 text-center">
               <p className="text-sm text-zinc-700">
                 <strong className="text-zinc-900">Top:</strong> {topCategory ? `${topCategory.name} — ${topCategory.value} items` : '—'}
                 <span className="mx-2">•</span>
@@ -326,7 +328,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-white p-3 shadow-sm h-full lg:col-span-2">
+        <div className="rounded-lg border bg-white p-3 shadow-sm lg:col-span-2 max-h-[300px] overflow-auto">
           <h2 className="text-lg font-semibold text-zinc-900 mb-2">Recent Donations</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -354,35 +356,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-white p-3 shadow-sm h-full">
-          <h3 className="text-lg font-semibold text-zinc-900 mb-2">Top Donation Regions</h3>
-          <div className="space-y-3">
-            <div>
-              <h4 className="text-sm text-zinc-600 mb-2">Top Regions</h4>
-              <div className="mb-2">
-                {(topRegions && topRegions.length ? topRegions : (stats.regions || [])).map((r, idx) => (
-                  <div key={idx} className="mb-2">
-                    <div className="flex justify-between text-sm text-zinc-600 mb-1">
-                      <span className="text-sm">{r.name}</span>
-                      <span className="text-sm">{r.value}</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-zinc-100 overflow-hidden">
-                      <div style={{ width: `${Math.min(100, (r.value || 0))}%` }} className={`h-2 rounded-full ${idx % 2 === 0 ? 'bg-blue-500' : 'bg-sky-400'}`}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
+        <div className="rounded-lg border bg-white p-3 shadow-sm max-h-[300px] overflow-auto">
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2">Top Donation Items</h3>
+          <div className="space-y-0">
             <div>
               <h4 className="text-sm text-zinc-600 mb-2">Top Items (bar)</h4>
-              <ResponsiveContainer width="100%" height={140}>
-                <BarChart data={topItems} layout="vertical" margin={{ left: 0, right: 8 }}>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={topItems} layout="vertical" margin={{ left: -8, right: 8 }}>
                   <XAxis type="number" hide />
                   <YAxis
                     type="category"
                     dataKey="name"
-                    width={140}
+                    width={100}
                     tick={{ fontSize: 12 }}
                     tickFormatter={(t: string) => (t && t.length > 26 ? t.slice(0, 24) + '...' : t)}
                   />

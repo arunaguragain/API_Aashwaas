@@ -25,3 +25,5 @@ export async function cancelVolunteerTask(taskId: string): Promise<any> {
 }
 
 
+export type { TaskStatus };
+

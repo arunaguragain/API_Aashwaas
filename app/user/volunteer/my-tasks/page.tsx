@@ -78,7 +78,9 @@ export default function MyTasksPage() {
     try {
       await acceptVolunteerTask(taskId);
       await loadTasks();
+      pushToast({ title: "Task accepted", tone: "success" });
     } catch (e) {
+      pushToast({ title: "Failed to accept task", description: (e as any)?.message || "An error occurred.", tone: "error" });
     }
     setActionLoading(null);
   };
@@ -94,7 +96,7 @@ export default function MyTasksPage() {
       if (donationId) {
         try {
           await DonationsApi.update(donationId, { status: 'approved', ngoId: undefined });
-          pushToast({ title: "Task rejected", description: "Related donation reset to approved", tone: "success" });
+          pushToast({ title: "Task rejected", tone: "success" });
         } catch (err: any) {
           // If public update is not allowed, still consider task rejected but inform user
           pushToast({ title: "Task rejected", description: "Could not update donation status (permission issue)", tone: "error" });
@@ -118,7 +120,9 @@ export default function MyTasksPage() {
     try {
       await completeVolunteerTask(taskId);
       await loadTasks();
+      pushToast({ title: "Task completed", description: "Thank you for completing the task.", tone: "success" });
     } catch (e) {
+      pushToast({ title: "Failed to complete task", description: (e as any)?.message || "An error occurred.", tone: "error" });
     }
     setActionLoading(null);
   };
