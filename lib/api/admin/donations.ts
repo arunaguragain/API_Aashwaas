@@ -38,12 +38,16 @@ export const AdminDonationsApi = {
 
   async assign(id: string, volunteerId: string, ngoId?: string): Promise<{ data: DonationModel; source: "api" | "mock" }> {
     try {
-      // Send volunteerId, ngoId, and required title as required by backend DTO
-      const payload: any = { donationId: id, volunteerId, title: "Assigned Task" };
+      // Use the donation's itemName as the task title when assigning
+      const refreshed = await axios.get(API.ADMIN.DONATION.GET_ONE(id));
+      const donation = (refreshed.data as { data?: DonationModel }).data ?? refreshed.data;
+      const titleFromDonation = donation?.itemName || donation?.title || "Assigned Task";
+      // Send volunteerId, ngoId, and title as required by backend DTO
+      const payload: any = { donationId: id, volunteerId, title: titleFromDonation };
       if (ngoId) payload.ngoId = ngoId;
       await axios.post(API.ADMIN.DONATION.ASSIGN(id), payload);
-      const refreshed = await axios.get(API.ADMIN.DONATION.GET_ONE(id));
-      const data = (refreshed.data as { data?: DonationModel }).data ?? refreshed.data;
+      const refreshed2 = await axios.get(API.ADMIN.DONATION.GET_ONE(id));
+      const data = (refreshed2.data as { data?: DonationModel }).data ?? refreshed2.data;
       return { data, source: "api" };
     } catch (error: any) {
       throw new Error(error?.response?.data?.message || error.message || "Assign request failed");
