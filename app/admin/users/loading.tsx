@@ -1,7 +1,5 @@
+import Skeleton from "@/app/(platform)/_components/Skeleton";
+
 export default function Loading() {
-    return (
-        <div>
-            Loading...
-        </div>
-    );
+  return <Skeleton className="h-24" />;
 }
