@@ -29,10 +29,11 @@ describe('ProfilePage', () => {
     expect(screen.getByText(/Impact Points/)).toBeInTheDocument();
   });
 
-  test('calls onEditProfile when Edit Profile clicked', async () => {
+  test('opens edit form when Edit Profile clicked', async () => {
     render(<ProfilePage {...baseProps} />);
     await userEvent.click(screen.getByRole('button', { name: /Edit Profile/i }));
-    expect(baseProps.onEditProfile).toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: /Save/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
   });
 
   test('shows quick actions when callbacks provided and triggers them', async () => {
