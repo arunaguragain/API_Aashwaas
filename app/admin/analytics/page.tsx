@@ -38,7 +38,7 @@ const AdminAnalyticsPage = () => {
     async function fetchData() {
       setLoading(true);
       try {
-        const [donRes, ngoRes, userRes, taskRes] = await Promise.all([
+        const [donRes, ngoRes, userResRaw, taskRes] = await Promise.all([
           AdminDonationsApi.list(),
           AdminNGOsApi.adminList(),
           getUsers(),
@@ -46,6 +46,8 @@ const AdminAnalyticsPage = () => {
         ]);
         const donations = donRes.data || [];
         const ngos = ngoRes.data || [];
+        // Explicitly type userResRaw as any to avoid 'never' type error
+        const userRes: any = userResRaw;
         const users = Array.isArray(userRes) ? userRes : userRes?.data ?? [];
         const tasks = taskRes.data || [];
 

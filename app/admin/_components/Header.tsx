@@ -102,17 +102,6 @@ export default function AdminHeader() {
 						<span className="text-center">Add NGO</span>
 					</Link>
 
-					<div className="relative">
-						<button
-							type="button"
-							className="relative rounded-full border border-gray-200 bg-white p-2 text-gray-600 hover:bg-gray-50"
-							aria-label="Notifications"
-						>
-							<Bell className="h-4 w-4" />
-						</button>
-						<span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
-					</div>
-
 				</div>
 			</div>
 		</header>
