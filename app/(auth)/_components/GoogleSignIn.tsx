@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 
 interface Props {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -129,21 +130,21 @@ export default function GoogleSignIn({ userType }: Props) {
         // Always render Google's popup button (avoids FedCM/prompt flow which may be disabled)
         try {
           const renderWhenReady = (attempts = 0) => {
-            const container = document.getElementById("googleBtn");
-            if (container) {
-              try {
-                // @ts-ignore
-                googleObj.accounts.id.renderButton(container, { theme: "outline", size: "large" });
-                setGsiStatus("button-rendered");
-                return;
-              } catch (e) {
-                // If renderButton fails, try again after a delay
-                setTimeout(() => renderWhenReady(attempts + 1), 200);
-                return;
+              const container = document.getElementById("googleBtnHidden");
+              if (container) {
+                try {
+                  // @ts-ignore
+                  googleObj.accounts.id.renderButton(container, { theme: "outline", size: "large" });
+                  setGsiStatus("button-rendered");
+                  return;
+                } catch (e) {
+                  // If renderButton fails, try again after a delay
+                  setTimeout(() => renderWhenReady(attempts + 1), 200);
+                  return;
+                }
               }
-            }
-            setGsiStatus("no-container");
-          };
+              setGsiStatus("no-container");
+            };
           renderWhenReady(0);
         } catch (e) {
           console.error("GSI render error", e);
@@ -159,19 +160,47 @@ export default function GoogleSignIn({ userType }: Props) {
   }, [router]);
 
   const handleClick = () => {
-    // The visible Google button rendered by `renderButton` handles clicks.
-    // If it's not present, inform the user.
-    const btn = document.getElementById("googleBtn")?.querySelector("button, div[role=button]");
+    const btn = document.getElementById("googleBtnHidden")?.querySelector("button, div[role=button]");
     if (!btn) {
-      alert("Google sign-in not ready. Please try again.");
+      toast("Google sign-in not ready. Please try again.");
     }
   };
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-center">
-        <div id="googleBtn" className="inline-flex items-center justify-center bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm" />
+      <div className="mt-4">
+        <button
+          type="button"
+          onClick={() => {
+            const hidden = document.getElementById("googleBtnHidden");
+            const inner = hidden?.querySelector("button, div[role=button]") as HTMLElement | null;
+            if (inner) {
+              try { inner.click(); } catch (e) { inner.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); }
+            } else {
+              try { toast("Google sign-in not ready. Please try again."); } catch(e){}
+            }
+          }}
+          className="w-full h-10 rounded-xl flex items-center justify-center bg-white border border-gray-200 shadow-lg overflow-hidden"
+        >
+          <span className="flex items-center gap-2">
+            <span className="w-6 h-6 flex items-center justify-center">
+              <img src="/images/search.png" alt="Google" width={20} height={20} style={{ display: 'block' }} />
+            </span>
+            <span className="text-sm text-gray-800">Sign in with Google</span>
+          </span>
+        </button>
+
+        <div
+          id="googleBtnHidden"
+          style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", overflow: "hidden" }}
+          aria-hidden="true"
+        />
       </div>
+
+      <style jsx>{`
+        /* Keep the hidden container visually off-screen but present in DOM so its internal control can be clicked */
+        #googleBtnHidden { overflow: hidden; }
+      `}</style>
     </div>
   );
 }

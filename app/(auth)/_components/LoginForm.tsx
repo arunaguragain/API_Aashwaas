@@ -183,8 +183,14 @@ export default function LoginForm({
               </div>
             )}
 
-            
-
+            {userType === "Donor" && "volunteer" && (
+              <div className="flex items-center gap-3 my-4">
+              <span className="h-px bg-gray-500 flex-1"></span>
+              <span className="text-sm text-gray-500">Or continue with</span>
+              <span className="h-px bg-gray-500 flex-1"></span>
+            </div>
+            )}
+         
             {showGoogleSignIn && <GoogleSignIn userType={userType} />}
 
             {registerLink && (
