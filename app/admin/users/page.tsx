@@ -1,4 +1,3 @@
-// "use client"
 import Link from "next/link";
 import { handleGetUsers } from "@/lib/actions/admin/user-action";
 import UsersTable from "./_components/UsersTable";

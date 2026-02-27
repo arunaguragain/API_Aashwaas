@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginSchema, LoginData } from "../schema";
 import { Shield, Heart, Users, Eye, EyeOff } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
+import GoogleSignIn from "./GoogleSignIn";
 import { handleLogin } from "@/lib/actions/auth-actions";
 
 interface LoginFormProps {
@@ -185,14 +185,7 @@ export default function LoginForm({
 
             
 
-            {showGoogleSignIn && (
-              <button
-              type="button"
-              className="w-full h-10 rounded-xl border border-gray-800 flex items-center justify-center gap-3 text-xs bg-black/10 hover:shadow-sm transition">
-             <FcGoogle className="w-5 h-5" />
-              <span className="font-medium text-gray-700">Continue with Google</span>
-            </button>
-            )}
+            {showGoogleSignIn && <GoogleSignIn userType={userType} />}
 
             {registerLink && (
               <div className="mt-6 text-center">

@@ -4,8 +4,8 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Lock, Mail, Users, Eye, EyeOff } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
+import { Users, Eye, EyeOff } from "lucide-react";
+import GoogleSignIn from "./GoogleSignIn";
 import { registerSchema, RegisterData } from "../schema";
 import { handleRegister } from "@/lib/actions/auth-actions";
 
@@ -136,12 +136,7 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
               <span className="h-px bg-gray-500 flex-1"></span>
             </div>
 
-            <button
-              type="button"
-              className="w-full h-10 rounded-xl border border-gray-800 flex items-center justify-center gap-3 text-xs bg-black/10 hover:shadow-sm transition">
-             <FcGoogle className="w-5 h-5" />
-              <span className="font-medium text-gray-700">Sign up with Google</span>
-            </button>
+            <GoogleSignIn userType={userType} />
 
             {loginLink && (
               <div className="mt-4 text-center text-sm text-gray-600">Already have an account? <a href={loginLink} className="text-blue-600 font-medium">Login</a></div>

@@ -3,6 +3,8 @@ import { LoginData, RegisterData } from "@/app/(auth)/schema";
 import { register, login, whoAmI, updateProfile } from "@/lib/api/auth";
 import { clearAuthCookies, setAuthToken, setUserData } from "@/lib/cookie";
 import { revalidatePath } from "next/cache";
+import axios from "@/lib/api/axios";
+import { API } from "@/lib/api/endpoints";
 
 export const handleRegister = async (data: RegisterData) => {
     try {
@@ -50,6 +52,21 @@ export const handleLogout = async () => {
         return { success: true };
     } catch (error: Error | any) {
         return { success: false, message: error.message || "Logout failed" };
+    }
+}
+
+export const handleGoogleSignIn = async (idToken: string) => {
+    try {
+        const response = await axios.post(API.AUTH.GOOGLE, { idToken });
+        const data = response.data;
+        if (data.success) {
+            await setAuthToken(data.token);
+            await setUserData(data.data);
+            return { success: true, data: data.data };
+        }
+        return { success: false, message: data.message || 'Google sign-in failed' };
+    } catch (error: Error | any) {
+        return { success: false, message: error?.message || 'Google sign-in failed' };
     }
 }
 

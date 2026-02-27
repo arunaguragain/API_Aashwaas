@@ -7,6 +7,7 @@ export const API = {
         UPDATEPROFILE: "/api/auth/update-profile",
         FORGOT_PASSWORD: "/api/auth/request-password-reset",
         RESET_PASSWORD: (token: string) => `/api/auth/reset-password/${token}`,
+        GOOGLE: "/api/auth/google",
     },
     NGO: {
         LIST: "/api/ngos",
