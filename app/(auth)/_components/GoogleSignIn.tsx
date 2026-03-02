@@ -4,14 +4,27 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 interface Props {
   userType: "Admin" | "Donor" | "Volunteer";
+  autoLogin?: boolean;
 }
 
-export default function GoogleSignIn({ userType }: Props) {
+export default function GoogleSignIn({ userType, autoLogin = true }: Props) {
   const router = useRouter();
   const { setIsAuthenticated, setUser } = useAuth();
+  let pushToast: (t: any) => void | null = () => {};
+  try {
+    // @ts-ignore
+    const toastCtx = useToast();
+    pushToast = toastCtx.pushToast;
+  } catch (e) {
+    // fallback: use react-toastify if available
+    pushToast = (t: any) => {
+      try { toast(t.title || t.description || ''); } catch (e) {}
+    };
+  }
   const [gsiStatus, setGsiStatus] = React.useState<string>("loading");
 
   useEffect(() => {
@@ -40,22 +53,61 @@ export default function GoogleSignIn({ userType }: Props) {
           client_id: clientId,
           callback: (response: any) => {
             if (!response?.credential) return;
-            // POST to relative path so Next dev server rewrite/proxy handles it (avoids CORS)
             (async () => {
               try {
+                const payloadBody: Record<string, any> = { idToken: response.credential };
+                if (!autoLogin) payloadBody.action = 'register';
                 const r = await fetch(`/api/auth/google`, {
                   method: "POST",
                   credentials: "include",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ idToken: response.credential }),
+                  body: JSON.stringify(payloadBody),
                 });
                 try {                 
                   const headers: Record<string,string> = {};
                   r.headers.forEach((v,k) => { headers[k]=v });
                 } catch(e) {
                 }
-                const data = await r.json().catch((e)=>{ console.error('invalid json body', e); return null});
+                let data: any = null;
+                const contentType = r.headers.get("content-type") || "";
+                if (!r.ok) {
+                  try {
+                    if (contentType.includes("application/json")) {
+                      const errJson = await r.json();
+                      try { pushToast({ title: errJson?.message || 'Request failed', description: undefined, tone: 'error' }); } catch(_) {}
+                    } else {
+                      const txt = await r.text().catch(() => null);
+                      try { pushToast({ title: txt || 'Request failed', tone: 'error' }); } catch(_) {}
+                    }
+                  } catch (e) {
+                    try { pushToast({ title: 'Request failed', tone: 'error' }); } catch(_) {}
+                  }
+                  return;
+                }
+
+                try {
+                  if (contentType.includes("application/json")) {
+                    data = await r.json();
+                  } else {
+                    const txt = await r.text().catch(() => null);
+                    // Non-JSON successful response: show it and stop
+                    try { pushToast({ title: txt || 'Unexpected server response', tone: 'error' }); } catch(_) {}
+                    return;
+                  }
+                } catch(e) {
+                  console.error('invalid json body', e);
+                  try { pushToast({ title: 'Invalid server response', tone: 'error' }); } catch(_) {}
+                  return;
+                }
+
                 if (data?.success) {
+                  if (!autoLogin) {
+                    try { pushToast({ title: data.message || 'Account created', description: 'Please login.', tone: 'success' }); } catch (e) {}
+                    const loginPath = userType === 'Donor' ? '/donor_login' : userType === 'Volunteer' ? '/volunteer_login' : '/admin_login';
+                    try { (router.push as any)(loginPath); } catch (e) { try { window.location.href = loginPath; } catch (_) {} }
+                    return;
+                  }
+
                   if (data.token) {
                     try { localStorage.setItem("auth_token", data.token); } catch(e){}
                   }
@@ -63,8 +115,6 @@ export default function GoogleSignIn({ userType }: Props) {
                     try { localStorage.setItem("user_data", JSON.stringify(data.data)); } catch(e){}
                     setUser && setUser(data.data);
                   }
-                  // Also set cookies so code that reads `document.cookie` or server-side
-                  // cookie APIs see the auth immediately. Keep SameSite=Lax for dev.
                   try {
                     if (typeof document !== 'undefined' && data.token) {
                       const maxAge = 60 * 60 * 24 * 30; // 30 days
@@ -117,11 +167,11 @@ export default function GoogleSignIn({ userType }: Props) {
                     } catch (_) {}
                   }
                 } else {
-                  alert(data?.message || "Google sign-in failed");
+                  try { pushToast({ title: data?.message || 'Google sign-in failed', tone: 'error' }); } catch (e) { }
                 }
               } catch (err) {
                 console.error("Google sign-in request failed", err);
-                alert("Google sign-in failed");
+                try { pushToast({ title: 'Google sign-in failed', tone: 'error' }); } catch (e) {}
               }
             })();
           },
@@ -162,7 +212,7 @@ export default function GoogleSignIn({ userType }: Props) {
   const handleClick = () => {
     const btn = document.getElementById("googleBtnHidden")?.querySelector("button, div[role=button]");
     if (!btn) {
-      toast("Google sign-in not ready. Please try again.");
+      pushToast({ title: "Google sign-in not ready", description: "Please try again.", tone: "info" });
     }
   };
 
@@ -177,7 +227,7 @@ export default function GoogleSignIn({ userType }: Props) {
             if (inner) {
               try { inner.click(); } catch (e) { inner.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); }
             } else {
-              try { toast("Google sign-in not ready. Please try again."); } catch(e){}
+              try { pushToast({ title: 'Google sign-in not ready', description: 'Please try again.', tone: 'info' }); } catch(e){}
             }
           }}
           className="w-full h-10 rounded-xl flex items-center justify-center bg-white border border-gray-200 shadow-lg overflow-hidden"

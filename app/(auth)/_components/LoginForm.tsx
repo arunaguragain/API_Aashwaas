@@ -9,6 +9,7 @@ import { loginSchema, LoginData } from "../schema";
 import { Shield, Heart, Users, Eye, EyeOff } from "lucide-react";
 import GoogleSignIn from "./GoogleSignIn";
 import { handleLogin } from "@/lib/actions/auth-actions";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 interface LoginFormProps {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -29,6 +30,13 @@ export default function LoginForm({
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+  let pushToast: any = () => {};
+  try {
+    const t = useToast();
+    pushToast = t.pushToast;
+  } catch (e) {
+    pushToast = (t: any) => console.log('toast', t);
+  }
 
   const {
     register,
@@ -63,8 +71,10 @@ export default function LoginForm({
     try {
       const res = await handleLogin(data);
       if (!res.success) {
+        try { useToast({ title: res.message || 'Login failed', tone: 'error' }); } catch(e) {}
         throw new Error(res.message || "Login failed");
       }
+      try { pushToast({ title: res.message || 'Login successful', tone: 'success' }); } catch(e) {}
       if (onSubmit) onSubmit(data);
       
       // Determine redirect path based on user role
@@ -87,6 +97,7 @@ export default function LoginForm({
       });
     } catch (err: any) {
       setError(err?.message || "Login failed");
+      try { pushToast({ title: err?.message || 'Login failed', tone: 'error' }); } catch(e) {}
     }
   };
 

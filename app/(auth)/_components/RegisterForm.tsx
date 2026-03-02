@@ -8,6 +8,7 @@ import { Users, Eye, EyeOff } from "lucide-react";
 import GoogleSignIn from "./GoogleSignIn";
 import { registerSchema, RegisterData } from "../schema";
 import { handleRegister } from "@/lib/actions/auth-actions";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 
 interface Props {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -17,6 +18,13 @@ interface Props {
 
 export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
   const router = useRouter();
+  let pushToast: any = () => {};
+  try {
+    const t = useToast();
+    pushToast = t.pushToast;
+  } catch (e) {
+    pushToast = (t: any) => console.log('toast', t);
+  }
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -51,8 +59,11 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
         userType === "Volunteer" ? { ...data, role: "volunteer" } : data
       );
       if (!res.success) {
+        // show error toast and set error message
+        try { pushToast({ title: res.message || 'Registration failed', tone: 'error' }); } catch(e) {}
         throw new Error(res.message || "Registration failed");
       }
+      try { pushToast({ title: res.message || 'Registration successful', tone: 'success' }); } catch(e) {}
       startTransition(() => {
         if (loginLink) {
           router.push(loginLink);
@@ -66,6 +77,7 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
       });
     } catch (err: any) {
       setErrorMessage(err?.message || "Registration failed");
+      try { pushToast({ title: err?.message || 'Registration failed', tone: 'error' }); } catch(e) {}
     }
   };
 
@@ -136,7 +148,7 @@ export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
               <span className="h-px bg-gray-500 flex-1"></span>
             </div>
 
-            <GoogleSignIn userType={userType} />
+            <GoogleSignIn userType={userType} autoLogin={false} />
 
             {loginLink && (
               <div className="mt-4 text-center text-sm text-gray-600">Already have an account? <a href={loginLink} className="text-blue-600 font-medium">Login</a></div>
