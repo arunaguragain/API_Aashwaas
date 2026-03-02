@@ -10,6 +10,14 @@ jest.mock('@/lib/actions/auth-actions', () => ({
   handleRegister: jest.fn(async () => ({ success: true }))
 }));
 
+// mock GoogleSignIn 
+jest.mock('@/app/(auth)/_components/GoogleSignIn', () => {
+  const React = require('react');
+  return function MockGoogleSignIn() {
+    return React.createElement('div', { 'data-testid': 'mock-google-signin' }, null);
+  };
+});
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';

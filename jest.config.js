@@ -8,7 +8,7 @@ module.exports = {
     '^public/(.*)$': '<rootDir>/public/$1',
     '^context/(.*)$': '<rootDir>/context/$1',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/__tests__/playwright/'],
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': [
       'ts-jest',
