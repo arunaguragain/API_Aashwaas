@@ -102,8 +102,6 @@ export default function AdminDonationDetailPage() {
     try {
       await AdminDonationsApi.approve(id);
       pushToast({ title: 'Donation approved', description: '', tone: 'success' });
-      // thank-you email side-effect
-      pushToast({ title: 'Thank-you note has been sent to donor', tone: 'info' });
       load();
     } catch (e: any) {
       pushToast({ title: 'Unable to approve', description: e?.message || '', tone: 'error' });
