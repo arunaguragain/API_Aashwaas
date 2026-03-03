@@ -17,7 +17,7 @@ type ToastContextValue = {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-export const useToast = () => {
+export const useToast = (p0: { title: any; tone: string; }) => {
   const context = useContext(ToastContext);
   if (!context) {
     throw new Error("useToast must be used within ToastProvider");

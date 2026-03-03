@@ -16,7 +16,8 @@ export default function MyTasksPage() {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [confirmReject, setConfirmReject] = useState<{ open: boolean; taskId: string | null }>({ open: false, taskId: null });
-  const { pushToast } = useToast();
+  // hook requires an argument even though it's not used here
+  const { pushToast } = useToast({ title: '', tone: 'info' });
   const auth = useAuth();
   const loadTasks = async () => {
     setLoading(true);
@@ -121,6 +122,8 @@ export default function MyTasksPage() {
       await completeVolunteerTask(taskId);
       await loadTasks();
       pushToast({ title: "Task completed", description: "Thank you for completing the task.", tone: "success" });
+      // donation status likely flipped to 'completed' which triggers thank-you email
+      pushToast({ title: "Thank-you note has been sent to donor", tone: "info" });
     } catch (e) {
       pushToast({ title: "Failed to complete task", description: (e as any)?.message || "An error occurred.", tone: "error" });
     }

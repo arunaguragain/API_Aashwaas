@@ -18,17 +18,17 @@ interface Props {
 
 export default function RegisterForm({ userType, onSubmit, loginLink }: Props) {
   const router = useRouter();
-  let pushToast: any = () => {};
-  try {
-    const t = useToast();
-    pushToast = t.pushToast;
-  } catch (e) {
-    pushToast = (t: any) => console.log('toast', t);
-  }
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [pending, startTransition] = useTransition();
+
+  let pushToast = (notification: any) => {};
+  try {
+    pushToast = useToast;
+  } catch (e) {
+    pushToast = (notification: any) => console.log('toast', notification);
+  }
 
   const {
     register,

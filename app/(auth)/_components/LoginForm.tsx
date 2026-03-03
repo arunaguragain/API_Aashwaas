@@ -32,8 +32,7 @@ export default function LoginForm({
   const [pending, startTransition] = useTransition();
   let pushToast: any = () => {};
   try {
-    const t = useToast();
-    pushToast = t.pushToast;
+    pushToast = useToast;
   } catch (e) {
     pushToast = (t: any) => console.log('toast', t);
   }
@@ -202,7 +201,7 @@ export default function LoginForm({
             </div>
             )}
          
-            {showGoogleSignIn && <GoogleSignIn userType={userType} />}
+            {showGoogleSignIn && <GoogleSignIn userType={userType} autoLogin={true} />}
 
             {registerLink && (
               <div className="mt-6 text-center">

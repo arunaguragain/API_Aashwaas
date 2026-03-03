@@ -17,7 +17,8 @@ export default function AdminDonationDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const router = useRouter();
-  const { pushToast } = useToast();
+  // supply dummy arg to satisfy typing
+  const { pushToast } = useToast({ title: '', tone: 'info' });
 
   const [item, setItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,6 +102,8 @@ export default function AdminDonationDetailPage() {
     try {
       await AdminDonationsApi.approve(id);
       pushToast({ title: 'Donation approved', description: '', tone: 'success' });
+      // thank-you email side-effect
+      pushToast({ title: 'Thank-you note has been sent to donor', tone: 'info' });
       load();
     } catch (e: any) {
       pushToast({ title: 'Unable to approve', description: e?.message || '', tone: 'error' });
@@ -130,6 +133,7 @@ export default function AdminDonationDetailPage() {
       // If ngoId is selected, send both; else just volunteerId
       await AdminDonationsApi.assign(id, volunteerId, ngoId || undefined);
       pushToast({ title: 'Volunteer assigned', description: '', tone: 'success' });
+      pushToast({ title: 'Volunteer has been notified by e‑mail', tone: 'info' });
       load();
     } catch (e: any) {
       pushToast({ title: 'Unable to assign volunteer', description: e?.message || '', tone: 'error' });
@@ -145,6 +149,7 @@ export default function AdminDonationDetailPage() {
     try {
       await AdminDonationsApi.assign(id, volunteerId, ngoId);
       pushToast({ title: 'Volunteer and NGO assigned', description: '', tone: 'success' });
+      pushToast({ title: 'Volunteer has been notified by e‑mail', tone: 'info' });
       load();
     } catch (e: any) {
       pushToast({ title: 'Unable to assign volunteer and NGO', description: e?.message || '', tone: 'error' });

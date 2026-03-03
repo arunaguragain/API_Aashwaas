@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useToast } from "@/app/(platform)/_components/ToastProvider";
+import { API } from "@/lib/api/endpoints";
 
 interface Props {
   userType: "Admin" | "Donor" | "Volunteer";
@@ -15,6 +16,25 @@ export default function GoogleSignIn({ userType, autoLogin = true }: Props) {
   const router = useRouter();
   const { setIsAuthenticated, setUser } = useAuth();
   let pushToast: (t: any) => void | null = () => {};
+
+  // utility to decode a base64url JWT payload
+  function parseJwt(token: string): Record<string, any> {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return {};
+    }
+  }
   try {
     // @ts-ignore
     const toastCtx = useToast();
@@ -55,8 +75,44 @@ export default function GoogleSignIn({ userType, autoLogin = true }: Props) {
             if (!response?.credential) return;
             (async () => {
               try {
-                const payloadBody: Record<string, any> = { idToken: response.credential };
-                if (!autoLogin) payloadBody.action = 'register';
+                // for login flow, make a quick email-existence check before the
+                // primary request.  this prevents account creation when the server
+                // wrongly upserts on login.
+                if (autoLogin) {
+                  const payload = parseJwt(response.credential);
+                  const email = payload.email;
+                  if (email) {
+                    try {
+                      const existsResp = await fetch(
+                        `${API.AUTH.EXISTS}?email=${encodeURIComponent(email)}`
+                      );
+                      if (existsResp.ok) {
+                        const { exists } = await existsResp.json();
+                        if (!exists) {
+                          try {
+                            pushToast({
+                              title: 'No account found – please register first',
+                              tone: 'error',
+                            });
+                          } catch (_) {}
+                          return; // abort early
+                        }
+                      }
+                      // if response not ok, ignore and continue; backend may not support endpoint
+                    } catch (e) {
+                      console.error('email check failed', e);
+                      // log error but don't block login – backend fix required
+                    }
+                  }
+                }
+
+                // always send an explicit action so the server can differentiate
+              // between login (existing account only) and register (create new user).
+              const payloadBody: Record<string, any> = {
+                idToken: response.credential,
+                action: autoLogin ? 'login' : 'register',
+              };
+
                 const r = await fetch(`/api/auth/google`, {
                   method: "POST",
                   credentials: "include",
@@ -101,6 +157,19 @@ export default function GoogleSignIn({ userType, autoLogin = true }: Props) {
                 }
 
                 if (data?.success) {
+                  // if we're on the login page and the server responded with a freshly
+                  // created user (this is the bug the user reported), treat that as a
+                  // failure rather than silently logging them in.  the backend should
+                  // reject, but some instances still return success+token.
+                  const newUserIndicator =
+                    data.newUser || data.created || data.isNew ||
+                    (typeof data.message === 'string' && /register|created|new user/i.test(data.message));
+
+                  if (autoLogin && newUserIndicator) {
+                    try { pushToast({ title: 'No account found – please register first', tone: 'error' }); } catch (e) {}
+                    return; // don't treat as a successful login
+                  }
+
                   if (!autoLogin) {
                     try { pushToast({ title: data.message || 'Account created', description: 'Please login.', tone: 'success' }); } catch (e) {}
                     const loginPath = userType === 'Donor' ? '/donor_login' : userType === 'Volunteer' ? '/volunteer_login' : '/admin_login';

@@ -31,7 +31,8 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
   const [perPage, setPerPage] = useState(7);
   const [page, setPage] = useState(1);
   const [filterHost, setFilterHost] = useState<HTMLElement | null>(null);
-  const { pushToast } = useToast();
+  // the hook signature currently requires a dummy object even though it is unused
+  const { pushToast } = useToast({ title: '', tone: 'info' });
 
   // Fetch donor names if only donorId is present and donorName is missing
   useEffect(() => {
@@ -115,6 +116,8 @@ export default function DonationsTable({ initialDonations, loading = false, onDe
     try {
       await AdminDonationsApi.assign(id, volunteerId);
       pushToast({ title: 'Volunteer assigned', description: '', tone: 'success' });
+      // notify user that email will be sent to volunteer
+      pushToast({ title: 'Volunteer has been notified by e‑mail', tone: 'info' });
       onRefresh && onRefresh();
     } catch (e: any) {
       pushToast({ title: 'Unable to assign volunteer', description: e?.message || '', tone: 'error' });

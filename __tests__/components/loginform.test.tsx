@@ -10,6 +10,16 @@ jest.mock('@/lib/actions/auth-actions', () => ({
   handleLogin: jest.fn(async () => ({ success: true, data: { role: 'volunteer' } }))
 }));
 
+// mock GoogleSignIn so we can inspect props without spreading unknown attributes
+let lastGoogleProps: any = null;
+jest.mock('@/app/(auth)/_components/GoogleSignIn', () => {
+  const React = require('react');
+  return function MockGoogleSignIn(props: any) {
+    lastGoogleProps = props;
+    return React.createElement('div', { 'data-testid': 'mock-google-signin' });
+  };
+});
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
@@ -19,6 +29,7 @@ import { handleLogin } from '@/lib/actions/auth-actions';
 describe('LoginForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    lastGoogleProps = null;
   });
 
   test('successful login navigates based on role (volunteer)', async () => {
@@ -52,5 +63,16 @@ describe('LoginForm', () => {
     await userEvent.click(submit);
 
     await waitFor(() => expect(handleLogin).not.toHaveBeenCalled());
+  });
+
+  test('GoogleSignIn is rendered with autoLogin prop', () => {
+    // enable the google signin button via prop
+    render(<LoginForm userType="Volunteer" showGoogleSignIn />);
+    const google = screen.getByTestId('mock-google-signin');
+    expect(google).toBeInTheDocument();
+    // verify props received by the mocked component
+    expect(lastGoogleProps).toBeTruthy();
+    expect(lastGoogleProps.autoLogin).toBe(true);
+    expect(lastGoogleProps.userType).toBe('Volunteer');
   });
 });

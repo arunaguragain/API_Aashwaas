@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { fetchAdminTaskById, updateAdminTask, updateAdminTaskStatus } from "@/lib/actions/admin/task-actions";
+import { useToast } from "@/app/(platform)/_components/ToastProvider";
 import type { TaskStatus } from "@/lib/api/admin/tasks";
 
 export default function EditTaskPage() {
@@ -15,6 +16,8 @@ export default function EditTaskPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<TaskStatus | "">("");
+  // supply dummy placeholder (not actually used)
+  const { pushToast } = useToast({ title: '', tone: 'info' });
 
   useEffect(() => {
     async function fetchDetails() {
@@ -138,8 +141,13 @@ export default function EditTaskPage() {
       if (typeof task.pickupLocation === "string" && task.pickupLocation) payload.location = task.pickupLocation;
       try {
         await updateAdminTask(id, payload);
+        pushToast({ title: 'Task saved', tone: 'success' });
+        if (payload.volunteerId || payload.assignedTo) {
+          pushToast({ title: 'Volunteer has been notified by e‑mail', tone: 'info' });
+        }
         router.push(`/admin/tasks`);
       } catch (err: any) {
+        pushToast({ title: 'Unable to save task', description: err?.message || '', tone: 'error' });
       }
     } catch (err: any) {
     } finally {

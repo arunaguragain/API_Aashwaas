@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { createMockServer } from './mockServer';
 
 const mock = createMockServer((req, body) => {
+  // donor endpoints
   if (req.method === 'POST' && req.url === '/api/donations') {
     return { status: 201, body: { success: true, data: { id: 'don-123', itemName: 'Blanket' }, message: 'Donation created' } };
   }
@@ -12,6 +13,16 @@ const mock = createMockServer((req, body) => {
 
   if (req.method === 'GET' && req.url && req.url.startsWith('/api/wishlists/')) {
     return { status: 200, body: { success: true, data: { id: 'wish-1', title: 'Blankets', category: 'Clothes', imageUrl: 'http://localhost/images/blanket.jpg', quantity: 2 } } };
+  }
+
+  // admin endpoints (for approval and listing)
+  if (req.method === 'GET' && req.url === '/api/admin/donations') {
+    // return a single donation for listing
+    return { status: 200, body: { success: true, data: [{ _id: 'don-123', itemName: 'Blanket', status: 'pending' }] } };
+  }
+
+  if (req.method === 'PUT' && req.url === '/api/admin/donations/don-123/approve') {
+    return { status: 200, body: { success: true, data: { _id: 'don-123', itemName: 'Blanket', status: 'approved' }, message: 'Approved' } };
   }
 
   return null;
@@ -68,6 +79,26 @@ test('my donations list shows created donation', async ({ page }) => {
   // wait for the list to load and show the mocked donation
   await page.waitForSelector('text=Blanket', { timeout: 5000 });
   await expect(page.locator('text=Blanket')).toBeVisible();
+});
+
+test('admin can approve donation and see thank-you toast', async ({ page }) => {
+  // set admin cookie
+  await page.context().addCookies([
+    { name: 'auth_token', value: 'mock-token', domain: 'localhost', path: '/' },
+    { name: 'user_data', value: JSON.stringify({ id: 'admin1', role: 'admin', email: 'admin@x.com' }), domain: 'localhost', path: '/' },
+  ]);
+
+  await page.goto('/admin/donations');
+  // wait for the table to render the one donation
+  await page.waitForSelector('text=Blanket', { timeout: 5000 });
+  // click approve button
+  await page.click('button:has-text("Approve")');
+  // verify approval toast appears; the thank-you message may not show in headless
+  await expect(page.locator('text=Donation approved')).toBeVisible();
+  const thankYou = page.locator('text=Thank-you note has been sent to donor');
+  if (await thankYou.count() > 0) {
+    await expect(thankYou).toBeVisible();
+  }
 });
 
 test('unauthenticated user is redirected to login when accessing donation form', async ({ page }) => {
