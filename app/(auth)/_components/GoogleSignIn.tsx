@@ -91,7 +91,7 @@ export default function GoogleSignIn({ userType, autoLogin = true }: Props) {
                         if (!exists) {
                           try {
                             pushToast({
-                              title: 'No account found – please register first',
+                              title: 'No account found - please register first',
                               tone: 'error',
                             });
                           } catch (_) {}
@@ -166,12 +166,13 @@ export default function GoogleSignIn({ userType, autoLogin = true }: Props) {
                     (typeof data.message === 'string' && /register|created|new user/i.test(data.message));
 
                   if (autoLogin && newUserIndicator) {
-                    try { pushToast({ title: 'No account found – please register first', tone: 'error' }); } catch (e) {}
+                    try { pushToast({ title: 'No account found - please register first', tone: 'error' }); } catch (e) {}
                     return; // don't treat as a successful login
                   }
 
                   if (!autoLogin) {
-                    try { pushToast({ title: data.message || 'Account created', description: 'Please login.', tone: 'success' }); } catch (e) {}
+                    // when creating a new account we don't want confusing server messages
+                    try { pushToast({ title: 'Account created', description: 'Please login.', tone: 'success' }); } catch (e) {}
                     const loginPath = userType === 'Donor' ? '/donor_login' : userType === 'Volunteer' ? '/volunteer_login' : '/admin_login';
                     try { (router.push as any)(loginPath); } catch (e) { try { window.location.href = loginPath; } catch (_) {} }
                     return;
